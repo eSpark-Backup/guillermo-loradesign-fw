@@ -6,3 +6,5 @@ The project comprises of three different boards working together to form a netwo
 1. TX Board
 2. Relay Board
 3. Base Station
+
+The complete requirements and proposed Roadmap are outlined at [this link](https://github.com/eSpark-Consultants/guillermo-loradesign-fw/tree/main/docs/Client-Files/Project-Requirements)
