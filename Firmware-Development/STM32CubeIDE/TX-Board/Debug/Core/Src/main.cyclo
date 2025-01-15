@@ -7,10 +7,10 @@ D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Lib
 ../Core/Src/main.cpp:41:16:int _write(int, char*, int)	2
 ../Core/Src/main.cpp:48:6:)	2
 ../Core/Src/main.cpp:75:6:void displayInfo()	4
-../Core/Src/main.cpp:128:5:int main()	9
-../Core/Src/main.cpp:218:6:void SystemClock_Config()	3
-../Core/Src/main.cpp:261:13:void MX_USART1_UART_Init()	5
-../Core/Src/main.cpp:309:13:void MX_GPIO_Init()	1
-../Core/Src/main.cpp:354:6:void Error_Handler()	1
-../Core/Src/main.cpp:363:1:void __static_initialization_and_destruction_0(int, int)	3
-../Core/Src/main.cpp:363:1:cpp)	1
+../Core/Src/main.cpp:128:5:int main()	6
+../Core/Src/main.cpp:210:6:void SystemClock_Config()	3
+../Core/Src/main.cpp:253:13:void MX_USART1_UART_Init()	5
+../Core/Src/main.cpp:301:13:void MX_GPIO_Init()	1
+../Core/Src/main.cpp:346:6:void Error_Handler()	1
+../Core/Src/main.cpp:355:1:void __static_initialization_and_destruction_0(int, int)	3
+../Core/Src/main.cpp:355:1:cpp)	1

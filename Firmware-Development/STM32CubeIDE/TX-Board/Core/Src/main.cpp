@@ -166,31 +166,23 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-#define GNSS_BUFFER_SIZE 8  // Define a suitable buffer size
 
-  uint8_t buffer[GNSS_BUFFER_SIZE];  // Buffer to store GNSS data
   uint32_t lastGnssDisplay = 0;
   while (1)
   {
-	  if (HAL_UART_Receive(&huart1, buffer, GNSS_BUFFER_SIZE, HAL_MAX_DELAY) == HAL_OK)
+	  uint8_t data;  // Buffer to store GNSS data
+	  if (HAL_UART_Receive(&huart1, &data, 1, 10) == HAL_OK)
 	  {
-		  // Process each byte in the buffer
-		  for (uint16_t i = 0; i < GNSS_BUFFER_SIZE; i++)
+		  gps.encode(data);
+	  }
+	  else
+	  {
+		  if ((HAL_GetTick() - lastGnssDisplay) > 500)
 		  {
-			  if (gps.encode(buffer[i]))
-			  {
-				  // Display new data every 500ms
-				  if ((HAL_GetTick() - lastGnssDisplay) > 500)
-				  {
-					  lastGnssDisplay = HAL_GetTick();
-					  displayInfo();
-					  if (HAL_UART_Init(&huart1) != HAL_OK)
-						{
-						  Error_Handler();
-						}
-				  }
-			  }
+		  	 lastGnssDisplay = HAL_GetTick();
+		  	 displayInfo();
 		  }
+
 	  }
 
 	  // Check for GNSS module connectivity
