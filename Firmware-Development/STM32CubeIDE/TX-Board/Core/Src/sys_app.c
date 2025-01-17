@@ -22,14 +22,12 @@
 #include <stdio.h>
 #include "platform.h"
 #include "sys_app.h"
-#include "adc_if.h"
 #include "stm32_seq.h"
 #include "stm32_systime.h"
 #include "stm32_lpm.h"
 #include "timer_if.h"
 #include "utilities_def.h"
 #include "sys_debug.h"
-#include "sys_sensors.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -47,11 +45,6 @@
 
 /* Private define ------------------------------------------------------------*/
 #define MAX_TS_SIZE (int) 16
-
-/**
-  * Defines the maximum battery level
-  */
-#define LORAWAN_MAX_BAT   254
 
 /* USER CODE BEGIN PD */
 
@@ -106,17 +99,8 @@ void SystemApp_Init(void)
   UTIL_ADV_TRACE_Init();
   UTIL_ADV_TRACE_RegisterTimeStampFunction(TimestampNow);
 
-  /* #warning "should be removed when proper obl is done" */
-  __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPTVERR);
-
   /*Set verbose LEVEL*/
   UTIL_ADV_TRACE_SetVerboseLevel(VERBOSE_LEVEL);
-
-  /*Initialize the temperature and Battery measurement services */
-  SYS_InitMeasurement();
-
-  /*Initialize the Sensors */
-  EnvSensors_Init();
 
   /*Init low power manager*/
   UTIL_LPM_Init();
@@ -147,109 +131,6 @@ void UTIL_SEQ_Idle(void)
   /* USER CODE BEGIN UTIL_SEQ_Idle_2 */
 
   /* USER CODE END UTIL_SEQ_Idle_2 */
-}
-
-uint8_t GetBatteryLevel(void)
-{
-  uint8_t batteryLevel = 0;
-  uint16_t batteryLevelmV;
-
-  /* USER CODE BEGIN GetBatteryLevel_0 */
-
-  /* USER CODE END GetBatteryLevel_0 */
-
-  batteryLevelmV = (uint16_t) SYS_GetBatteryLevel();
-
-  /* Convert battery level from mV to linear scale: 1 (very low) to 254 (fully charged) */
-  if (batteryLevelmV > VDD_BAT)
-  {
-    batteryLevel = LORAWAN_MAX_BAT;
-  }
-  else if (batteryLevelmV < VDD_MIN)
-  {
-    batteryLevel = 0;
-  }
-  else
-  {
-    batteryLevel = (((uint32_t)(batteryLevelmV - VDD_MIN) * LORAWAN_MAX_BAT) / (VDD_BAT - VDD_MIN));
-  }
-
-  /* USER CODE BEGIN GetBatteryLevel_2 */
-
-  /* USER CODE END GetBatteryLevel_2 */
-
-  return batteryLevel;  /* 1 (very low) to 254 (fully charged) */
-}
-
-int16_t GetTemperatureLevel(void)
-{
-  int16_t temperatureLevel = 0;
-
-  sensor_t sensor_data;
-
-  EnvSensors_Read(&sensor_data);
-  temperatureLevel = (int16_t)(sensor_data.temperature);
-  /* USER CODE BEGIN GetTemperatureLevel */
-
-  /* USER CODE END GetTemperatureLevel */
-  return temperatureLevel;
-}
-
-void GetUniqueId(uint8_t *id)
-{
-  /* USER CODE BEGIN GetUniqueId_1 */
-
-  /* USER CODE END GetUniqueId_1 */
-  uint32_t val = 0;
-  val = LL_FLASH_GetUDN();
-  if (val == 0xFFFFFFFF)  /* Normally this should not happen */
-  {
-    uint32_t ID_1_3_val = HAL_GetUIDw0() + HAL_GetUIDw2();
-    uint32_t ID_2_val = HAL_GetUIDw1();
-
-    id[7] = (ID_1_3_val) >> 24;
-    id[6] = (ID_1_3_val) >> 16;
-    id[5] = (ID_1_3_val) >> 8;
-    id[4] = (ID_1_3_val);
-    id[3] = (ID_2_val) >> 24;
-    id[2] = (ID_2_val) >> 16;
-    id[1] = (ID_2_val) >> 8;
-    id[0] = (ID_2_val);
-  }
-  else  /* Typical use case */
-  {
-    id[7] = val & 0xFF;
-    id[6] = (val >> 8) & 0xFF;
-    id[5] = (val >> 16) & 0xFF;
-    id[4] = (val >> 24) & 0xFF;
-    val = LL_FLASH_GetDeviceID();
-    id[3] = val & 0xFF;
-    val = LL_FLASH_GetSTCompanyID();
-    id[2] = val & 0xFF;
-    id[1] = (val >> 8) & 0xFF;
-    id[0] = (val >> 16) & 0xFF;
-  }
-
-  /* USER CODE BEGIN GetUniqueId_2 */
-
-  /* USER CODE END GetUniqueId_2 */
-}
-
-void GetDevAddr(uint32_t *devAddr)
-{
-  /* USER CODE BEGIN GetDevAddr_1 */
-
-  /* USER CODE END GetDevAddr_1 */
-
-  *devAddr = LL_FLASH_GetUDN();
-  if (*devAddr == 0xFFFFFFFF)
-  {
-    *devAddr = ((HAL_GetUIDw0()) ^ (HAL_GetUIDw1()) ^ (HAL_GetUIDw2()));
-  }
-
-  /* USER CODE BEGIN GetDevAddr_2 */
-
-  /* USER CODE END GetDevAddr_2 */
 }
 
 /* USER CODE BEGIN EF */

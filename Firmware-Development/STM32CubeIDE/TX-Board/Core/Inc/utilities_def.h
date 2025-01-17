@@ -75,10 +75,7 @@ typedef enum
   */
 typedef enum
 {
-  CFG_SEQ_Task_LmHandlerProcess,
-  CFG_SEQ_Task_LoRaSendOnTxTimerOrButtonEvent,
-  CFG_SEQ_Task_LoRaStoreContextEvent,
-  CFG_SEQ_Task_LoRaStopJoinEvent,
+  CFG_SEQ_Task_SubGHz_Phy_App_Process,
   /* USER CODE BEGIN CFG_SEQ_Task_Id_t */
 
   /* USER CODE END CFG_SEQ_Task_Id_t */

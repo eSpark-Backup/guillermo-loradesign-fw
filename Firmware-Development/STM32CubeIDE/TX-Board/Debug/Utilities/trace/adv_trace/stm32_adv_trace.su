@@ -3,7 +3,7 @@
 ../Utilities/trace/adv_trace/stm32_adv_trace.c:187:9:UTIL_ADV_TRACE_IsBufferEmpty	4	static
 ../Utilities/trace/adv_trace/stm32_adv_trace.c:195:25:UTIL_ADV_TRACE_StartRxProcess	16	static
 ../Utilities/trace/adv_trace/stm32_adv_trace.c:202:25:UTIL_ADV_TRACE_COND_FSend	60	static
-../Utilities/trace/adv_trace/stm32_adv_trace.c:295:25:UTIL_ADV_TRACE_FSend	528	static
+../Utilities/trace/adv_trace/stm32_adv_trace.c:295:25:UTIL_ADV_TRACE_FSend	272	static
 ../Utilities/trace/adv_trace/stm32_adv_trace.c:308:25:UTIL_ADV_TRACE_COND_ZCSend_Allocation	56	static
 ../Utilities/trace/adv_trace/stm32_adv_trace.c:356:25:UTIL_ADV_TRACE_COND_ZCSend_Finalize	8	static
 ../Utilities/trace/adv_trace/stm32_adv_trace.c:362:25:UTIL_ADV_TRACE_ZCSend_Allocation	32	static

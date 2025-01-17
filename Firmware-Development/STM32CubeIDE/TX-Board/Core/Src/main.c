@@ -19,8 +19,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "dma.h"
-#include "app_lorawan.h"
 #include "rtc.h"
+#include "app_subghz_phy.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -28,12 +28,24 @@
 /* USER CODE BEGIN Includes */
 #include  <stdio.h>
 #include <stdarg.h>
+#include "subghz.h"
 //#include "TinyGPS++.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+#define RADIO_MODE_STANDBY_RC        0x02
+#define RADIO_MODE_TX                0x06
+#define RADIO_COMMAND_TX_DONE        0x06
 
+#define RADIO_MODE_BITFIELD          0x70
+#define RADIO_STATUS_BITFIELD        0x0E
+
+uint8_t RadioCmd[3] = {0x00, 0x00, 0x00};
+uint8_t RadioResult = 0x00;
+uint8_t RadioParam  = 0x00;
+uint8_t RadioMode   = 0x00;
+uint8_t RadioStatus = 0x00;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -154,19 +166,13 @@ int main(void)
   MX_GPIO_Init();
 //  MX_DMA_Init();
   MX_USART1_UART_Init();
-  MX_LoRaWAN_Init();
 //  MX_RTC_Init();
+  MX_SubGHz_Phy_Init();
   /* USER CODE BEGIN 2 */
+//  MX_SUBGHZ_Init();
   HAL_GPIO_WritePin(GNSS_RESET_GPIO_Port, GNSS_RESET_Pin, GPIO_PIN_RESET);
   HAL_Delay(400);
   HAL_GPIO_WritePin(GNSS_RESET_GPIO_Port, GNSS_RESET_Pin, GPIO_PIN_SET);
-//  HAL_Delay(1000);
-//  while(1)
-//  {
-//	  itm_printf("No GPS detected: che");
-//
-//	  HAL_Delay(1000);
-//  }
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -202,7 +208,7 @@ int main(void)
 //	  HAL_GPIO_TogglePin(GPIOA, LED1_Pin|LED2_Pin);
 //	  HAL_Delay(100);
     /* USER CODE END WHILE */
-    MX_LoRaWAN_Process();
+    MX_SubGHz_Phy_Process();
 
     /* USER CODE BEGIN 3 */
   }

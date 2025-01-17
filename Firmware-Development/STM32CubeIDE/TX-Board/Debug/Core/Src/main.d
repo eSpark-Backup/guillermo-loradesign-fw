@@ -39,8 +39,9 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_uart.h \
  ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_uart_ex.h \
  ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_system.h \
- ../Core/Inc/dma.h ../Core/Inc/main.h ../LoRaWAN/App/app_lorawan.h \
- ../Core/Inc/rtc.h ../Core/Inc/usart.h ../Core/Inc/gpio.h
+ ../Core/Inc/dma.h ../Core/Inc/main.h ../Core/Inc/rtc.h \
+ ../SubGHz_Phy/App/app_subghz_phy.h ../Core/Inc/usart.h \
+ ../Core/Inc/gpio.h ../Core/Inc/subghz.h
 ../Core/Inc/main.h:
 ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal.h:
 ../Core/Inc/stm32wlxx_hal_conf.h:
@@ -84,7 +85,8 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_system.h:
 ../Core/Inc/dma.h:
 ../Core/Inc/main.h:
-../LoRaWAN/App/app_lorawan.h:
 ../Core/Inc/rtc.h:
+../SubGHz_Phy/App/app_subghz_phy.h:
 ../Core/Inc/usart.h:
 ../Core/Inc/gpio.h:
+../Core/Inc/subghz.h:

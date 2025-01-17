@@ -45,12 +45,11 @@ Core/Src/sys_app.o: ../Core/Src/sys_app.c ../Core/Inc/platform.h \
  ../Utilities/trace/adv_trace/stm32_adv_trace.h \
  ../Core/Inc/utilities_conf.h ../Drivers/CMSIS/Include/cmsis_compiler.h \
  ../Utilities/misc/stm32_mem.h ../Utilities/misc/stm32_tiny_vsnprintf.h \
- ../Core/Inc/utilities_def.h ../Core/Inc/adc_if.h ../Core/Inc/adc.h \
- ../Core/Inc/platform.h ../Utilities/sequencer/stm32_seq.h \
+ ../Core/Inc/utilities_def.h ../Utilities/sequencer/stm32_seq.h \
  ../Utilities/misc/stm32_systime.h ../Utilities/lpm/tiny_lpm/stm32_lpm.h \
  ../Core/Inc/timer_if.h ../Utilities/timer/stm32_timer.h \
  ../Core/Inc/utilities_def.h ../Core/Inc/sys_debug.h \
- ../Core/Inc/sys_sensors.h
+ ../Core/Inc/platform.h
 ../Core/Inc/platform.h:
 ../Drivers/CMSIS/Device/ST/STM32WLxx/Include/stm32wlxx.h:
 ../Drivers/CMSIS/Device/ST/STM32WLxx/Include/stm32wle5xx.h:
@@ -102,9 +101,6 @@ Core/Src/sys_app.o: ../Core/Src/sys_app.c ../Core/Inc/platform.h \
 ../Utilities/misc/stm32_mem.h:
 ../Utilities/misc/stm32_tiny_vsnprintf.h:
 ../Core/Inc/utilities_def.h:
-../Core/Inc/adc_if.h:
-../Core/Inc/adc.h:
-../Core/Inc/platform.h:
 ../Utilities/sequencer/stm32_seq.h:
 ../Utilities/misc/stm32_systime.h:
 ../Utilities/lpm/tiny_lpm/stm32_lpm.h:
@@ -112,4 +108,4 @@ Core/Src/sys_app.o: ../Core/Src/sys_app.c ../Core/Inc/platform.h \
 ../Utilities/timer/stm32_timer.h:
 ../Core/Inc/utilities_def.h:
 ../Core/Inc/sys_debug.h:
-../Core/Inc/sys_sensors.h:
+../Core/Inc/platform.h:

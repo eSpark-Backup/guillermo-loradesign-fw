@@ -1,6 +1,6 @@
 Middlewares/Third_Party/SubGHz_Phy/stm32_radio_driver/radio_fw.o: \
  ../Middlewares/Third_Party/SubGHz_Phy/stm32_radio_driver/radio_fw.c \
- ../LoRaWAN/Target/timer.h ../Utilities/timer/stm32_timer.h \
+ ../SubGHz_Phy/Target/timer.h ../Utilities/timer/stm32_timer.h \
  ../Drivers/CMSIS/Include/cmsis_compiler.h \
  ../Drivers/CMSIS/Include/cmsis_gcc.h ../Core/Inc/utilities_conf.h \
  ../Utilities/misc/stm32_mem.h ../Utilities/misc/stm32_tiny_vsnprintf.h \
@@ -8,7 +8,7 @@ Middlewares/Third_Party/SubGHz_Phy/stm32_radio_driver/radio_fw.o: \
  ../Middlewares/Third_Party/SubGHz_Phy/stm32_radio_driver/radio_fw.h \
  ../Middlewares/Third_Party/SubGHz_Phy/radio_def.h \
  ../Middlewares/Third_Party/SubGHz_Phy/radio_ex.h \
- ../LoRaWAN/Target/radio_conf.h ../Core/Inc/platform.h \
+ ../SubGHz_Phy/Target/radio_conf.h ../Core/Inc/platform.h \
  ../Drivers/CMSIS/Device/ST/STM32WLxx/Include/stm32wlxx.h \
  ../Drivers/CMSIS/Device/ST/STM32WLxx/Include/stm32wle5xx.h \
  ../Drivers/CMSIS/Include/core_cm4.h \
@@ -50,13 +50,13 @@ Middlewares/Third_Party/SubGHz_Phy/stm32_radio_driver/radio_fw.o: \
  ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_system.h \
  ../Core/Inc/main.h \
  ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_gpio.h \
- ../Core/Inc/subghz.h ../LoRaWAN/Target/mw_log_conf.h \
+ ../Core/Inc/subghz.h ../SubGHz_Phy/Target/mw_log_conf.h \
  ../Utilities/trace/adv_trace/stm32_adv_trace.h \
- ../LoRaWAN/Target/radio_board_if.h ../Core/Inc/utilities_def.h \
+ ../SubGHz_Phy/Target/radio_board_if.h ../Core/Inc/utilities_def.h \
  ../Core/Inc/sys_debug.h ../Core/Inc/sys_conf.h ../Core/Inc/platform.h \
  ../Middlewares/Third_Party/SubGHz_Phy/stm32_radio_driver/radio_driver.h \
- ../LoRaWAN/Target/mw_log_conf.h
-../LoRaWAN/Target/timer.h:
+ ../SubGHz_Phy/Target/mw_log_conf.h
+../SubGHz_Phy/Target/timer.h:
 ../Utilities/timer/stm32_timer.h:
 ../Drivers/CMSIS/Include/cmsis_compiler.h:
 ../Drivers/CMSIS/Include/cmsis_gcc.h:
@@ -67,7 +67,7 @@ Middlewares/Third_Party/SubGHz_Phy/stm32_radio_driver/radio_fw.o: \
 ../Middlewares/Third_Party/SubGHz_Phy/stm32_radio_driver/radio_fw.h:
 ../Middlewares/Third_Party/SubGHz_Phy/radio_def.h:
 ../Middlewares/Third_Party/SubGHz_Phy/radio_ex.h:
-../LoRaWAN/Target/radio_conf.h:
+../SubGHz_Phy/Target/radio_conf.h:
 ../Core/Inc/platform.h:
 ../Drivers/CMSIS/Device/ST/STM32WLxx/Include/stm32wlxx.h:
 ../Drivers/CMSIS/Device/ST/STM32WLxx/Include/stm32wle5xx.h:
@@ -111,12 +111,12 @@ Middlewares/Third_Party/SubGHz_Phy/stm32_radio_driver/radio_fw.o: \
 ../Core/Inc/main.h:
 ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_gpio.h:
 ../Core/Inc/subghz.h:
-../LoRaWAN/Target/mw_log_conf.h:
+../SubGHz_Phy/Target/mw_log_conf.h:
 ../Utilities/trace/adv_trace/stm32_adv_trace.h:
-../LoRaWAN/Target/radio_board_if.h:
+../SubGHz_Phy/Target/radio_board_if.h:
 ../Core/Inc/utilities_def.h:
 ../Core/Inc/sys_debug.h:
 ../Core/Inc/sys_conf.h:
 ../Core/Inc/platform.h:
 ../Middlewares/Third_Party/SubGHz_Phy/stm32_radio_driver/radio_driver.h:
-../LoRaWAN/Target/mw_log_conf.h:
+../SubGHz_Phy/Target/mw_log_conf.h:

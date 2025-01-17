@@ -28,30 +28,6 @@ C_SRCS += \
 ../Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart_ex.c \
 ../Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_ll_adc.c 
 
-OBJS += \
-./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal.o \
-./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_adc.o \
-./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_adc_ex.o \
-./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_cortex.o \
-./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_dma.o \
-./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_dma_ex.o \
-./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_exti.o \
-./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_flash.o \
-./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_flash_ex.o \
-./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_gpio.o \
-./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_pwr.o \
-./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_pwr_ex.o \
-./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_rcc.o \
-./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_rcc_ex.o \
-./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_rtc.o \
-./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_rtc_ex.o \
-./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_subghz.o \
-./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_tim.o \
-./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_tim_ex.o \
-./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart.o \
-./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart_ex.o \
-./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_ll_adc.o 
-
 C_DEPS += \
 ./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal.d \
 ./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_adc.d \
@@ -76,10 +52,34 @@ C_DEPS += \
 ./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart_ex.d \
 ./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_ll_adc.d 
 
+OBJS += \
+./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal.o \
+./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_adc.o \
+./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_adc_ex.o \
+./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_cortex.o \
+./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_dma.o \
+./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_dma_ex.o \
+./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_exti.o \
+./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_flash.o \
+./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_flash_ex.o \
+./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_gpio.o \
+./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_pwr.o \
+./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_pwr_ex.o \
+./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_rcc.o \
+./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_rcc_ex.o \
+./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_rtc.o \
+./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_rtc_ex.o \
+./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_subghz.o \
+./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_tim.o \
+./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_tim_ex.o \
+./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart.o \
+./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart_ex.o \
+./Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_ll_adc.o 
+
 
 # Each subdirectory must supply rules for building sources it contributes
 Drivers/STM32WLxx_HAL_Driver/Src/%.o Drivers/STM32WLxx_HAL_Driver/Src/%.su Drivers/STM32WLxx_HAL_Driver/Src/%.cyclo: ../Drivers/STM32WLxx_HAL_Driver/Src/%.c Drivers/STM32WLxx_HAL_Driver/Src/subdir.mk
-	arm-none-eabi-gcc "$<" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DCORE_CM4 -DUSE_HAL_DRIVER -DSTM32WLE5xx -c -I../Core/Inc -I../Drivers/STM32WLxx_HAL_Driver/Inc -I../Drivers/STM32WLxx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32WLxx/Include -I../Drivers/CMSIS/Include -I../LoRaWAN/App -I../LoRaWAN/Target -I../Utilities/trace/adv_trace -I../Utilities/misc -I../Utilities/sequencer -I../Utilities/timer -I../Utilities/lpm/tiny_lpm -I../Middlewares/Third_Party/LoRaWAN/LmHandler/Packages -I../Middlewares/Third_Party/LoRaWAN/Crypto -I../Middlewares/Third_Party/LoRaWAN/Mac/Region -I../Middlewares/Third_Party/LoRaWAN/Mac -I../Middlewares/Third_Party/LoRaWAN/LmHandler -I../Middlewares/Third_Party/LoRaWAN/Utilities -I../Middlewares/Third_Party/SubGHz_Phy -I../Middlewares/Third_Party/SubGHz_Phy/stm32_radio_driver -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" --specs=nano.specs -mfloat-abi=soft -mthumb -o "$@"
+	arm-none-eabi-gcc "$<" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DCORE_CM4 -DUSE_HAL_DRIVER -DSTM32WLE5xx -c -I../Core/Inc -I../Drivers/STM32WLxx_HAL_Driver/Inc -I../Drivers/STM32WLxx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32WLxx/Include -I../Drivers/CMSIS/Include -I../SubGHz_Phy/App -I../SubGHz_Phy/Target -I../Utilities/trace/adv_trace -I../Utilities/misc -I../Utilities/sequencer -I../Utilities/timer -I../Utilities/lpm/tiny_lpm -I../Middlewares/Third_Party/SubGHz_Phy -I../Middlewares/Third_Party/SubGHz_Phy/stm32_radio_driver -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" --specs=nano.specs -mfloat-abi=soft -mthumb -o "$@"
 
 clean: clean-Drivers-2f-STM32WLxx_HAL_Driver-2f-Src
 
