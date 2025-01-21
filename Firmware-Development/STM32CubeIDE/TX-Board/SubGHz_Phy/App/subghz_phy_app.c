@@ -463,7 +463,7 @@ static void Per_Process(void)
   }
   else
   {
-    HAL_GPIO_WritePin(LED3_GPIO_Port, LED3_Pin, GPIO_PIN_SET); /* LED_RED */
+    HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET); /* LED_RED */
   }
 
   if (RadioRxTimeout_flag == 1)
@@ -500,7 +500,7 @@ static void Per_Process(void)
 #endif /* APP_LONG_PACKET */
   HAL_Delay(10);
   HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET); /* LED_GREEN */
-  HAL_GPIO_WritePin(LED3_GPIO_Port, LED3_Pin, GPIO_PIN_RESET); /* LED_RED */
+  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET); /* LED_RED */
 #elif (TEST_MODE == RADIO_TX)
   HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET); /* LED_BLUE */
   if (RadioTxDone_flag == 1)
@@ -542,28 +542,30 @@ static void Per_Process(void)
 
 static int32_t tx_payload_generator(void)
 {
-  if (TxPayloadMode == 1)
-  {
-    uint16_t prbs9_val = PRBS9_INIT;
-    for (int32_t i = 0; i < payloadLen; i++)
-    {
-      data_buffer[i] = 0;
-    }
-    for (int32_t i = 0; i < payloadLen * 8; i++)
-    {
-      /*fill buffer with prbs9 sequence*/
-      int32_t newbit = (((prbs9_val >> 8) ^ (prbs9_val >> 4)) & 1);
-      prbs9_val = ((prbs9_val << 1) | newbit) & 0x01ff;
-      data_buffer[i / 8] |= ((prbs9_val & 0x1) << (i % 8));
-    }
-  }
-  else
-  {
-    for (int32_t i = 0; i < payloadLen; i++)
-    {
-      data_buffer[i] = i;
-    }
-  }
+//  if (TxPayloadMode == 1)
+//  {
+//    uint16_t prbs9_val = PRBS9_INIT;
+//    for (int32_t i = 0; i < payloadLen; i++)
+//    {
+//      data_buffer[i] = 0;
+//    }
+//    for (int32_t i = 0; i < payloadLen * 8; i++)
+//    {
+//      /*fill buffer with prbs9 sequence*/
+//      int32_t newbit = (((prbs9_val >> 8) ^ (prbs9_val >> 4)) & 1);
+//      prbs9_val = ((prbs9_val << 1) | newbit) & 0x01ff;
+//      data_buffer[i / 8] |= ((prbs9_val & 0x1) << (i % 8));
+//    }
+//  }
+//  else
+//  {
+//    for (int32_t i = 0; i < payloadLen; i++)
+//    {
+//      data_buffer[i] = i;
+//    }
+//  }
+	static char str[] = "Hello World Test Firmware";
+	memcpy(data_buffer, str, strlen(str));
   return 0;
 }
 #endif /* TEST_MODE */

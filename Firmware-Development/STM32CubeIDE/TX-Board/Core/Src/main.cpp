@@ -29,7 +29,7 @@
 #include  <stdio.h>
 #include <stdarg.h>
 #include "subghz.h"
-//#include "TinyGPS++.h"
+#include "TinyGPS++.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -80,7 +80,7 @@ void itm_printf(const char* format, ...) {
 
 /* USER CODE BEGIN PV */
 unsigned long lastGnssDisplay = 0;
-//TinyGPSPlus gps;
+TinyGPSPlus gps;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -88,45 +88,45 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 void displayInfo()
 {
-//    printf("Location: ");
-//    if (gps.location.isValid())
-//    {
-//        printf("%.6f,%.6f", gps.location.lat(), gps.location.lng());
-//    }
-//    else
-//    {
-//        printf("INVALID");
-//    }
-//
-//    printf("  Date/Time: ");
-//    if (gps.date.isValid())
-//    {
-//        uint8_t month, day;
-//        uint16_t year;
-//        month = gps.date.month();
-//        day = gps.date.day();
-//        year = gps.date.year();
-//        year = gps.date.year();
-//        printf("%02d/%02d/%04d ", gps.date.month(), gps.date.day(), gps.date.year());
-//
-//    }
-//    else
-//    {
-//        printf("INVALID ");
-//    }
-//
-//    if (gps.time.isValid())
-//    {
-//        printf("%02d:%02d:%02d.%02d\r\n",
-//               gps.time.hour(),
-//               gps.time.minute(),
-//               gps.time.second(),
-//               gps.time.centisecond());
-//    }
-//    else
-//    {
-//        printf("INVALID\r\n");
-//    }
+    printf("Location: ");
+    if (gps.location.isValid())
+    {
+        printf("%.6f,%.6f", gps.location.lat(), gps.location.lng());
+    }
+    else
+    {
+        printf("INVALID");
+    }
+
+    printf("  Date/Time: ");
+    if (gps.date.isValid())
+    {
+        uint8_t month, day;
+        uint16_t year;
+        month = gps.date.month();
+        day = gps.date.day();
+        year = gps.date.year();
+        year = gps.date.year();
+        printf("%02d/%02d/%04d ", gps.date.month(), gps.date.day(), gps.date.year());
+
+    }
+    else
+    {
+        printf("INVALID ");
+    }
+
+    if (gps.time.isValid())
+    {
+        printf("%02d:%02d:%02d.%02d\r\n",
+               gps.time.hour(),
+               gps.time.minute(),
+               gps.time.second(),
+               gps.time.centisecond());
+    }
+    else
+    {
+        printf("INVALID\r\n");
+    }
 }
 /* USER CODE END PFP */
 
@@ -169,7 +169,6 @@ int main(void)
 //  MX_RTC_Init();
   MX_SubGHz_Phy_Init();
   /* USER CODE BEGIN 2 */
-//  MX_SUBGHZ_Init();
   HAL_GPIO_WritePin(GNSS_RESET_GPIO_Port, GNSS_RESET_Pin, GPIO_PIN_RESET);
   HAL_Delay(400);
   HAL_GPIO_WritePin(GNSS_RESET_GPIO_Port, GNSS_RESET_Pin, GPIO_PIN_SET);
@@ -205,7 +204,6 @@ int main(void)
 //			  HAL_Delay(10); // Stay here if no GPS is detected
 //		  }
 //	  }
-//	  HAL_GPIO_TogglePin(GPIOA, LED1_Pin|LED2_Pin);
 //	  HAL_Delay(100);
     /* USER CODE END WHILE */
     MX_SubGHz_Phy_Process();
@@ -248,7 +246,7 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_SYSCLK|RCC_CLOCKTYPE_PCLK1
                               |RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_MSI;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV6;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.AHBCLK3Divider = RCC_SYSCLK_DIV1;
