@@ -347,6 +347,60 @@ void SubghzApp_Init(void)
 }
 
 /* USER CODE BEGIN EF */
+/**
+  * @brief Switches the radio to TX (transmit) mode.
+  * @param[in] payload Pointer to the payload data to transmit.
+  * @param[in] size Size of the payload in bytes.
+  */
+void SwitchToTxMode(uint8_t *payload, uint16_t size)
+{
+    APP_LOG(TS_OFF, VLEVEL_M, "Switching to TX Mode\r\n");
+
+    // Configure radio for TX
+    Radio.SetTxConfig(MODEM_LORA,  // Modem type: LORA or FSK
+                      TX_OUTPUT_POWER,  // Output power
+                      0,  // Frequency deviation (FSK only)
+                      LORA_BANDWIDTH,  // Bandwidth
+                      LORA_SPREADING_FACTOR,  // Spreading factor
+                      LORA_CODINGRATE,  // Coding rate
+                      LORA_PREAMBLE_LENGTH,  // Preamble length
+                      LORA_FIX_LENGTH_PAYLOAD_ON,  // Fixed payload length
+                      true,  // CRC enabled
+                      0,  // Frequency hopping
+                      0,  // Hop period
+                      LORA_IQ_INVERSION_ON,  // IQ inversion
+                      TX_TIMEOUT_VALUE);  // Timeout value
+
+    // Start transmitting payload
+    Radio.Send(payload, size);
+}
+
+/**
+  * @brief Switches the radio to RX (receive) mode.
+  */
+void SwitchToRxMode(void)
+{
+    APP_LOG(TS_OFF, VLEVEL_M, "Switching to RX Mode\r\n");
+
+    // Configure radio for RX
+    Radio.SetRxConfig(MODEM_LORA,  // Modem type: LORA or FSK
+                      LORA_BANDWIDTH,  // Bandwidth
+                      LORA_SPREADING_FACTOR,  // Spreading factor
+                      LORA_CODINGRATE,  // Coding rate
+                      0,  // AFC bandwidth (FSK only)
+                      LORA_PREAMBLE_LENGTH,  // Preamble length
+                      LORA_SYMBOL_TIMEOUT,  // Symbol timeout
+                      LORA_FIX_LENGTH_PAYLOAD_ON,  // Fixed payload length
+                      0,  // CRC enabled
+                      true,  // RX continuous mode
+                      0,  // Frequency hopping
+                      0,  // Hop period
+                      LORA_IQ_INVERSION_ON,  // IQ inversion
+                      true);  // RX continuous mode
+
+    // Start receiving
+    Radio.Rx(RX_TIMEOUT_VALUE);
+}
 
 /* USER CODE END EF */
 

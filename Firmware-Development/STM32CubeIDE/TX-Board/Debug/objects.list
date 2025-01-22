@@ -1,3 +1,5 @@
+"./Application/app.o"
+"./Components/GPS/gps.o"
 "./Core/Src/adc.o"
 "./Core/Src/dma.o"
 "./Core/Src/gpio.o"

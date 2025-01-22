@@ -29,23 +29,12 @@
 #include  <stdio.h>
 #include <stdarg.h>
 #include "subghz.h"
-#include "TinyGPS++.h"
+#include "app.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-#define RADIO_MODE_STANDBY_RC        0x02
-#define RADIO_MODE_TX                0x06
-#define RADIO_COMMAND_TX_DONE        0x06
 
-#define RADIO_MODE_BITFIELD          0x70
-#define RADIO_STATUS_BITFIELD        0x0E
-
-uint8_t RadioCmd[3] = {0x00, 0x00, 0x00};
-uint8_t RadioResult = 0x00;
-uint8_t RadioParam  = 0x00;
-uint8_t RadioMode   = 0x00;
-uint8_t RadioStatus = 0x00;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -55,13 +44,23 @@ uint8_t RadioStatus = 0x00;
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-int _write(int file, char *ptr, int len) {
-    for (int i = 0; i < len; i++) {
-        ITM_SendChar(ptr[i]);
-    }
-    return len;
-}
 
+/* USER CODE END PM */
+
+/* Private variables ---------------------------------------------------------*/
+
+/* USER CODE BEGIN PV */
+App app;
+/* USER CODE END PV */
+
+/* Private function prototypes -----------------------------------------------*/
+void SystemClock_Config(void);
+/* USER CODE BEGIN PFP */
+
+/* USER CODE END PFP */
+
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
 void itm_printf(const char* format, ...) {
     char buffer[256]; // Temporary buffer for formatted string
     va_list args;
@@ -73,66 +72,6 @@ void itm_printf(const char* format, ...) {
         ITM_SendChar((uint8_t)buffer[i]);
     }
 }
-#define printf itm_printf
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
-
-/* USER CODE BEGIN PV */
-unsigned long lastGnssDisplay = 0;
-TinyGPSPlus gps;
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
-void SystemClock_Config(void);
-/* USER CODE BEGIN PFP */
-void displayInfo()
-{
-    printf("Location: ");
-    if (gps.location.isValid())
-    {
-        printf("%.6f,%.6f", gps.location.lat(), gps.location.lng());
-    }
-    else
-    {
-        printf("INVALID");
-    }
-
-    printf("  Date/Time: ");
-    if (gps.date.isValid())
-    {
-        uint8_t month, day;
-        uint16_t year;
-        month = gps.date.month();
-        day = gps.date.day();
-        year = gps.date.year();
-        year = gps.date.year();
-        printf("%02d/%02d/%04d ", gps.date.month(), gps.date.day(), gps.date.year());
-
-    }
-    else
-    {
-        printf("INVALID ");
-    }
-
-    if (gps.time.isValid())
-    {
-        printf("%02d:%02d:%02d.%02d\r\n",
-               gps.time.hour(),
-               gps.time.minute(),
-               gps.time.second(),
-               gps.time.centisecond());
-    }
-    else
-    {
-        printf("INVALID\r\n");
-    }
-}
-/* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
 /* USER CODE END 0 */
 
 /**
@@ -169,42 +108,14 @@ int main(void)
 //  MX_RTC_Init();
   MX_SubGHz_Phy_Init();
   /* USER CODE BEGIN 2 */
-  HAL_GPIO_WritePin(GNSS_RESET_GPIO_Port, GNSS_RESET_Pin, GPIO_PIN_RESET);
-  HAL_Delay(400);
-  HAL_GPIO_WritePin(GNSS_RESET_GPIO_Port, GNSS_RESET_Pin, GPIO_PIN_SET);
+  app.setup();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-
-  uint32_t lastGnssDisplay = 0;
   while (1)
   {
-//	  uint8_t data;  // Buffer to store GNSS data
-//	  if (HAL_UART_Receive(&huart1, &data, 1, 10) == HAL_OK)
-//	  {
-//		  gps.encode(data);
-//	  }
-//	  else
-//	  {
-//		  if ((HAL_GetTick() - lastGnssDisplay) > 500)
-//		  {
-//		  	 lastGnssDisplay = HAL_GetTick();
-//		  	 displayInfo();
-//		  }
-//
-//	  }
-//
-//	  // Check for GNSS module connectivity
-//	  if (HAL_GetTick() > 5000 && gps.charsProcessed() < 10)
-//	  {
-//		  printf("No GPS detected: check wiring.\r\n");
-//		  while (1)
-//		  {
-//			  HAL_Delay(10); // Stay here if no GPS is detected
-//		  }
-//	  }
-//	  HAL_Delay(100);
+	app.loop();
     /* USER CODE END WHILE */
     MX_SubGHz_Phy_Process();
 
@@ -224,14 +135,14 @@ void SystemClock_Config(void)
 
   /** Configure the main internal regulator output voltage
   */
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE2);
 
   /** Initializes the CPU, AHB and APB buses clocks
   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_MSI;
   RCC_OscInitStruct.MSIState = RCC_MSI_ON;
   RCC_OscInitStruct.MSICalibrationValue = RCC_MSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_11;
+  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_6;
   RCC_OscInitStruct.LSIDiv = RCC_LSI_DIV1;
   RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
@@ -246,12 +157,12 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_SYSCLK|RCC_CLOCKTYPE_PCLK1
                               |RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_MSI;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV6;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.AHBCLK3Divider = RCC_SYSCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
   {
     Error_Handler();
   }
@@ -288,7 +199,7 @@ void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+     ex: LOG_D("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */

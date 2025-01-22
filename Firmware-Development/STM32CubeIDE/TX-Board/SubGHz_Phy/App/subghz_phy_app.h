@@ -28,7 +28,7 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdint.h>
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -41,7 +41,7 @@ extern "C" {
 #define USE_MODEM_LORA  1
 #define USE_MODEM_FSK   0
 
-#define RF_FREQUENCY                                869100000 /* Hz */
+#define RF_FREQUENCY                                868000000 /* Hz */
 
 #ifndef TX_OUTPUT_POWER   /* please, to change this value, redefine it in USER CODE SECTION */
 #define TX_OUTPUT_POWER                             14        /* dBm */
@@ -91,7 +91,8 @@ extern "C" {
 void SubghzApp_Init(void);
 
 /* USER CODE BEGIN EFP */
-
+void SwitchToTxMode(uint8_t *payload, uint16_t size);
+void SwitchToRxMode(void);
 /* USER CODE END EFP */
 
 #ifdef __cplusplus

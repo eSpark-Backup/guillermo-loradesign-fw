@@ -1,0 +1,2 @@
+../Application/app.cpp:9:6:void App::setup()	16	static
+../Application/app.cpp:14:6:void App::loop()	16	static
