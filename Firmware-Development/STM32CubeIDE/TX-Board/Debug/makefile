@@ -96,7 +96,7 @@ main-build: TX-Board.elf secondary-outputs
 
 # Tool invocations
 TX-Board.elf TX-Board.map: $(OBJS) $(USER_OBJS) D:\GitHub\guillermo-loradesign-fw\Firmware-Development\STM32CubeIDE\TX-Board\STM32WLE5CBUX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-g++ -o "TX-Board.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\GitHub\guillermo-loradesign-fw\Firmware-Development\STM32CubeIDE\TX-Board\STM32WLE5CBUX_FLASH.ld" -Wl,-Map="TX-Board.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+	arm-none-eabi-g++ -o "TX-Board.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\GitHub\guillermo-loradesign-fw\Firmware-Development\STM32CubeIDE\TX-Board\STM32WLE5CBUX_FLASH.ld" -Wl,-Map="TX-Board.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -u _printf_float -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

@@ -44,6 +44,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define MAX_APP_BUFFER_SIZE 64
 /* Configurations */
 /*Timeout*/
 #define RX_TIMEOUT_VALUE              5000
@@ -101,7 +102,7 @@ static __IO uint32_t RadioError_flag = 0;
 static __IO int16_t last_rx_rssi = 0;
 static __IO int8_t last_rx_cfo = 0;
 
-uint8_t data_buffer[MAX_APP_BUFFER_SIZE] UTIL_MEM_ALIGN(4);
+static uint8_t data_buffer[MAX_APP_BUFFER_SIZE] UTIL_MEM_ALIGN(4);
 uint16_t data_offset = 0;
 
 __IO uint16_t payloadLen = PAYLOAD_LEN;
@@ -503,6 +504,7 @@ static void Per_Process(void)
     APP_TPRINTF("OnRxDone\r\n");
     APP_TPRINTF("RssiValue=%d dBm, cfo=%d kHz\r\n", rssi, cfo);
     APP_TPRINTF("payloadLen=%d bytes\r\n", payloadLen);
+    dataReceived(data_buffer, payloadLen);
 #if 0
     /* warning, delay between 2 consecutive Tx may be increased to allow DMA to empty printf queue*/
     APP_PPRINTF("data=0x \n\r");
@@ -550,7 +552,7 @@ static void Per_Process(void)
   PER = (100 * (count_RxKo)) / (count_RxKo + count_RxOk);
   APP_TPRINTF("Rx %d>>> PER= %d %%\r\n", packetCnt, PER);
 #if (APP_LONG_PACKET==0)
-//  Radio.Rx(RX_TIMEOUT_VALUE);
+  Radio.Rx(RX_TIMEOUT_VALUE);
 #else
   (void) Radio.ReceiveLongPacket(0, RX_TIMEOUT_VALUE, RxLongPacketChunk);
 #endif /* APP_LONG_PACKET */
@@ -562,7 +564,6 @@ static void Per_Process(void)
   if (RadioTxDone_flag == 1)
   {
     APP_TPRINTF("OnTxDone\r\n");
-    loraReceiveDone();
   }
 
   if (RadioTxTimeout_flag == 1)

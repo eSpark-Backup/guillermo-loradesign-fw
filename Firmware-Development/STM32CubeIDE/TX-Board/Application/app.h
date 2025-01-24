@@ -1,6 +1,8 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
+#define BOARD_ID 1234
+
 class App
 {
 public:

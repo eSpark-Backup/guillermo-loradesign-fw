@@ -77,9 +77,7 @@ extern "C" {
 
 /* External variables --------------------------------------------------------*/
 /* USER CODE BEGIN EV */
-#define MAX_APP_BUFFER_SIZE 64
-extern uint8_t data_buffer[MAX_APP_BUFFER_SIZE];
-extern __IO uint16_t payloadLen;
+
 /* USER CODE END EV */
 
 /* Exported macros -----------------------------------------------------------*/

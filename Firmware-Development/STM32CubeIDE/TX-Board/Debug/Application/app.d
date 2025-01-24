@@ -49,7 +49,11 @@ Application/app.o: ../Application/app.cpp ../Application/app.h \
  ../Middlewares/Third_Party/SubGHz_Phy/radio.h \
  ../Middlewares/Third_Party/SubGHz_Phy/radio_def.h \
  ../Middlewares/Third_Party/SubGHz_Phy/radio_ex.h \
- ../Middlewares/Third_Party/SubGHz_Phy/lr_fhss_v1_base_types.h
+ ../Middlewares/Third_Party/SubGHz_Phy/lr_fhss_v1_base_types.h \
+ ../SubGHz_Phy/Target/timer.h ../Utilities/timer/stm32_timer.h \
+ ../Drivers/CMSIS/Include/cmsis_compiler.h ../Core/Inc/utilities_conf.h \
+ ../Utilities/misc/stm32_mem.h ../Utilities/misc/stm32_tiny_vsnprintf.h \
+ ../Core/Inc/utilities_def.h
 ../Application/app.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal.h:
@@ -106,3 +110,10 @@ D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Lib
 ../Middlewares/Third_Party/SubGHz_Phy/radio_def.h:
 ../Middlewares/Third_Party/SubGHz_Phy/radio_ex.h:
 ../Middlewares/Third_Party/SubGHz_Phy/lr_fhss_v1_base_types.h:
+../SubGHz_Phy/Target/timer.h:
+../Utilities/timer/stm32_timer.h:
+../Drivers/CMSIS/Include/cmsis_compiler.h:
+../Core/Inc/utilities_conf.h:
+../Utilities/misc/stm32_mem.h:
+../Utilities/misc/stm32_tiny_vsnprintf.h:
+../Core/Inc/utilities_def.h:
