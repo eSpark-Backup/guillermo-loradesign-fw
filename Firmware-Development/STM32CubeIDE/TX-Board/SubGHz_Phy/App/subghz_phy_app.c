@@ -46,7 +46,7 @@
 /* USER CODE BEGIN PD */
 /* Configurations */
 /*Timeout*/
-#define RX_TIMEOUT_VALUE              2000
+#define RX_TIMEOUT_VALUE              5000
 #define TX_TIMEOUT_VALUE              3000
 /* Definitions */
 #define RX_CONTINUOUS_ON              1
@@ -57,13 +57,12 @@
 /* Test Configurations */
 /*if TEST_MODE is RADIO_TX, board will send packet indefinitely*/
 /*if TEST_MODE is RADIO_RX, board will receive packet indefinitely*/
-#define TEST_MODE                     RADIO_TX
+#define TEST_MODE                     RADIO_RX
 
 #if (( USE_MODEM_LORA == 1 ) && ( USE_MODEM_FSK == 0 ))
 /* 0: Tx Long packet shall be disable when USE_MODEM_LORA*/
 #define APP_LONG_PACKET              0
-/* Application buffer 255 max when USE_MODEM_LORA */
-#define MAX_APP_BUFFER_SIZE              255
+
 #elif (( USE_MODEM_LORA == 0 ) && ( USE_MODEM_FSK == 1 ))
 /* 0: Tx Long packet disable*/
 /* 1: Tx Long packet enable(payload can be greater than 255bytes. Available on stm32wl revision Y)*/
@@ -105,7 +104,7 @@ static __IO int8_t last_rx_cfo = 0;
 uint8_t data_buffer[MAX_APP_BUFFER_SIZE] UTIL_MEM_ALIGN(4);
 uint16_t data_offset = 0;
 
-static __IO uint16_t payloadLen = PAYLOAD_LEN;
+__IO uint16_t payloadLen = PAYLOAD_LEN;
 #if (TEST_MODE == RADIO_TX)
 static uint16_t payloadLenMax = MAX_APP_BUFFER_SIZE;
 #endif /* TEST_MODE == RADIO_TX */
@@ -343,6 +342,8 @@ void SubghzApp_Init(void)
 
   /*register task to to be run in while(1) after Radio IT*/
   UTIL_SEQ_RegTask((1 << CFG_SEQ_Task_SubGHz_Phy_App_Process), UTIL_SEQ_RFU, Per_Process);
+  void receiveTimeout(void);
+  UTIL_SEQ_RegTask((1 << CFG_SEQ_Task_SubGHz_Phy_App_RX_Timeout), UTIL_SEQ_RFU, receiveTimeout);
   /* USER CODE END SubghzApp_Init_2 */
 }
 
@@ -449,6 +450,7 @@ static void OnRxTimeout(void)
   RadioRxTimeout_flag = 1;
   /* Run Per process in background*/
   UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_SubGHz_Phy_App_Process), CFG_SEQ_Prio_0);
+  UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_SubGHz_Phy_App_RX_Timeout), CFG_SEQ_Prio_1);
   /* USER CODE END OnRxTimeout */
 }
 
@@ -548,7 +550,7 @@ static void Per_Process(void)
   PER = (100 * (count_RxKo)) / (count_RxKo + count_RxOk);
   APP_TPRINTF("Rx %d>>> PER= %d %%\r\n", packetCnt, PER);
 #if (APP_LONG_PACKET==0)
-  Radio.Rx(RX_TIMEOUT_VALUE);
+//  Radio.Rx(RX_TIMEOUT_VALUE);
 #else
   (void) Radio.ReceiveLongPacket(0, RX_TIMEOUT_VALUE, RxLongPacketChunk);
 #endif /* APP_LONG_PACKET */
@@ -560,6 +562,7 @@ static void Per_Process(void)
   if (RadioTxDone_flag == 1)
   {
     APP_TPRINTF("OnTxDone\r\n");
+    loraReceiveDone();
   }
 
   if (RadioTxTimeout_flag == 1)
@@ -618,7 +621,7 @@ static int32_t tx_payload_generator(void)
 //      data_buffer[i] = i;
 //    }
 //  }
-	static char str[] = "Hello World Test Firmware";
+	static char str[] = "HELLO";
 	memcpy(data_buffer, str, strlen(str));
   return 0;
 }

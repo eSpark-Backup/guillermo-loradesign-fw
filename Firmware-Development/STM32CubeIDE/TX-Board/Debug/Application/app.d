@@ -41,7 +41,15 @@ Application/app.o: ../Application/app.cpp ../Application/app.h \
  ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_system.h \
  ../Core/Inc/usart.h ../Core/Inc/main.h \
  D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Components/GPS/gps.h \
- ../SubGHz_Phy/App/subghz_phy_app.h
+ D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Libraries/TinyGPSPlus/TinyGPS++.h \
+ ../Core/Inc/rtc.h ../SubGHz_Phy/App/subghz_phy_app.h \
+ ../Core/Inc/platform.h \
+ ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_gpio.h \
+ ../Core/Inc/stm32_lpm_if.h ../Utilities/lpm/tiny_lpm/stm32_lpm.h \
+ ../Middlewares/Third_Party/SubGHz_Phy/radio.h \
+ ../Middlewares/Third_Party/SubGHz_Phy/radio_def.h \
+ ../Middlewares/Third_Party/SubGHz_Phy/radio_ex.h \
+ ../Middlewares/Third_Party/SubGHz_Phy/lr_fhss_v1_base_types.h
 ../Application/app.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal.h:
@@ -87,4 +95,14 @@ Application/app.o: ../Application/app.cpp ../Application/app.h \
 ../Core/Inc/usart.h:
 ../Core/Inc/main.h:
 D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Components/GPS/gps.h:
+D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Libraries/TinyGPSPlus/TinyGPS++.h:
+../Core/Inc/rtc.h:
 ../SubGHz_Phy/App/subghz_phy_app.h:
+../Core/Inc/platform.h:
+../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_gpio.h:
+../Core/Inc/stm32_lpm_if.h:
+../Utilities/lpm/tiny_lpm/stm32_lpm.h:
+../Middlewares/Third_Party/SubGHz_Phy/radio.h:
+../Middlewares/Third_Party/SubGHz_Phy/radio_def.h:
+../Middlewares/Third_Party/SubGHz_Phy/radio_ex.h:
+../Middlewares/Third_Party/SubGHz_Phy/lr_fhss_v1_base_types.h:

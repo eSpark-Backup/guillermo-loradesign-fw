@@ -29,6 +29,7 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdint.h>
+#include "platform.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -76,7 +77,9 @@ extern "C" {
 
 /* External variables --------------------------------------------------------*/
 /* USER CODE BEGIN EV */
-
+#define MAX_APP_BUFFER_SIZE 64
+extern uint8_t data_buffer[MAX_APP_BUFFER_SIZE];
+extern __IO uint16_t payloadLen;
 /* USER CODE END EV */
 
 /* Exported macros -----------------------------------------------------------*/

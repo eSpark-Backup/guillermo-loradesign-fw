@@ -245,10 +245,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     HAL_UART_Receive_IT(huart, &charRx, 1);
   }
   /* USER CODE BEGIN HAL_UART_RxCpltCallback_2 */
-  if (huart->Instance == USART1)
-  {
-    GPSInterruptHandler(huart);
-  }
+
   /* USER CODE END HAL_UART_RxCpltCallback_2 */
 }
 

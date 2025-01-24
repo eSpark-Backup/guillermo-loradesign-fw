@@ -1,14 +1,12 @@
 #include "gps.h"
-#include "usart.h"
-#include "TinyGPS++.h"
 
-static TinyGPSPlus gps;
-uint8_t temp;
+TinyGPSPlus GPS::gps;
+uint8_t GPS::data;
 
-extern "C" void GPSInterruptHandler(UART_HandleTypeDef *huart)
+void GPS::processData(UART_HandleTypeDef *huart)
 {
-	gps.encode(temp);
-	HAL_UART_Receive_IT(&huart1, &temp, 1);
+	gps.encode(data);
+	HAL_UART_Receive_IT(&huart1, &data, 1);
 }
 
 void GPS::setup(void)
@@ -16,7 +14,8 @@ void GPS::setup(void)
 	HAL_GPIO_WritePin(GNSS_RESET_GPIO_Port, GNSS_RESET_Pin, GPIO_PIN_RESET);
 	HAL_Delay(400);
 	HAL_GPIO_WritePin(GNSS_RESET_GPIO_Port, GNSS_RESET_Pin, GPIO_PIN_SET);
-	HAL_UART_Receive_IT(&huart1, &temp, 1);
+	HAL_UART_RegisterCallback(&huart1, HAL_UART_RX_COMPLETE_CB_ID, GPS::processData);
+	HAL_UART_Receive_IT(&huart1, &data, 1);
 }
 
 void GPS::displayInfo(void)
@@ -71,12 +70,12 @@ void GPS::loop(void)
 	 displayInfo();
 	}
 
-	if (HAL_GetTick() > 5000 && gps.charsProcessed() < 10)
-	{
-	  LOG_D("No GPS detected: check wiring.\r\n");
-	  while (1)
-	  {
-		  HAL_Delay(10);
-	  }
-	}
+//	if (HAL_GetTick() > 5000 && gps.charsProcessed() < 10)
+//	{
+//	  LOG_D("No GPS detected: check wiring.\r\n");
+//	  while (1)
+//	  {
+//		  HAL_Delay(10);
+//	  }
+//	}
 }

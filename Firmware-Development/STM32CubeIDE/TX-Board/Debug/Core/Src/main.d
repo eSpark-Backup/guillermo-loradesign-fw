@@ -42,7 +42,8 @@ Core/Src/main.o: ../Core/Src/main.cpp ../Core/Inc/main.h \
  ../Core/Inc/dma.h ../Core/Inc/main.h ../Core/Inc/rtc.h \
  ../SubGHz_Phy/App/app_subghz_phy.h ../Core/Inc/usart.h \
  ../Core/Inc/gpio.h ../Core/Inc/subghz.h \
- D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Application/app.h
+ D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Application/app.h \
+ ../Core/Inc/stm32_lpm_if.h ../Utilities/lpm/tiny_lpm/stm32_lpm.h
 ../Core/Inc/main.h:
 ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal.h:
 ../Core/Inc/stm32wlxx_hal_conf.h:
@@ -92,3 +93,5 @@ Core/Src/main.o: ../Core/Src/main.cpp ../Core/Inc/main.h \
 ../Core/Inc/gpio.h:
 ../Core/Inc/subghz.h:
 D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Application/app.h:
+../Core/Inc/stm32_lpm_if.h:
+../Utilities/lpm/tiny_lpm/stm32_lpm.h:

@@ -30,6 +30,7 @@
 #include <stdarg.h>
 #include "subghz.h"
 #include "app.h"
+#include "stm32_lpm_if.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -103,6 +104,12 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+//  for(uint32_t x =0; x < 1000000; x++);
+//  HAL_GPIO_WritePin(GNSS_RESET_GPIO_Port, GNSS_RESET_Pin, GPIO_PIN_RESET);
+//  	HAL_GPIO_WritePin(GNSS_PWR_GPIO_Port, GNSS_PWR_Pin, GPIO_PIN_RESET);
+//  	HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
+//  	HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
+//  	PWR_EnterStopMode();
 //  MX_DMA_Init();
   MX_USART1_UART_Init();
 //  MX_RTC_Init();

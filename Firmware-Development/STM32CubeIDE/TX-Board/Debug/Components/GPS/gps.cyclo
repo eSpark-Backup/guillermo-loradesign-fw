@@ -1,10 +1,9 @@
 D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Libraries/TinyGPSPlus/TinyGPS++.h:70:9:bool TinyGPSLocation::isValid() const	1
 D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Libraries/TinyGPSPlus/TinyGPS++.h:94:9:bool TinyGPSDate::isValid() const	1
 D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Libraries/TinyGPSPlus/TinyGPS++.h:118:9:bool TinyGPSTime::isValid() const	1
-D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Libraries/TinyGPSPlus/TinyGPS++.h:257:12:uint32_t TinyGPSPlus::charsProcessed() const	1
-../Components/GPS/gps.cpp:8:17:void GPSInterruptHandler(UART_HandleTypeDef*)	1
-../Components/GPS/gps.cpp:14:6:void GPS::setup()	1
-../Components/GPS/gps.cpp:22:6:void GPS::displayInfo()	4
-../Components/GPS/gps.cpp:65:6:void GPS::loop()	5
-../Components/GPS/gps.cpp:82:1:void __static_initialization_and_destruction_0(int, int)	3
-../Components/GPS/gps.cpp:82:1:cpp)	1
+../Components/GPS/gps.cpp:6:6:static void GPS::processData(UART_HandleTypeDef*)	1
+../Components/GPS/gps.cpp:12:6:void GPS::setup()	1
+../Components/GPS/gps.cpp:21:6:void GPS::displayInfo()	4
+../Components/GPS/gps.cpp:64:6:void GPS::loop()	2
+../Components/GPS/gps.cpp:81:1:void __static_initialization_and_destruction_0(int, int)	3
+../Components/GPS/gps.cpp:81:1:cpp)	1
