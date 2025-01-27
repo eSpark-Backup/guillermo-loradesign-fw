@@ -552,7 +552,7 @@ static void Per_Process(void)
   PER = (100 * (count_RxKo)) / (count_RxKo + count_RxOk);
   APP_TPRINTF("Rx %d>>> PER= %d %%\r\n", packetCnt, PER);
 #if (APP_LONG_PACKET==0)
-  Radio.Rx(RX_TIMEOUT_VALUE);
+//  Radio.Rx(RX_TIMEOUT_VALUE);
 #else
   (void) Radio.ReceiveLongPacket(0, RX_TIMEOUT_VALUE, RxLongPacketChunk);
 #endif /* APP_LONG_PACKET */
