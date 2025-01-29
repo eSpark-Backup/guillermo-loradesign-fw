@@ -36,6 +36,7 @@ void generatePayload(uint8_t* buffer, uint32_t size)
 	char* payload = (char*) buffer;
 
 	int len = 0;
+	len = snprintf(payload, size, "%s", MY_IDENTIFIER);
 #if CUSTOM_BOARD_ID
 	len += snprintf(payload, size, "ID: %08X, ", BOARD_ID);
 #else
