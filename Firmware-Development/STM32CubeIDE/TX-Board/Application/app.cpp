@@ -141,6 +141,8 @@ void App::loop(void)
 			shutoffCount++;
 			generatePayload(data, sizeof(data));
 			SwitchToTxMode(data, sizeof(data));
+			while(!isTXDone());
+			MX_SubGHz_Phy_Process();
 			SwitchToRxMode();
 		}
 		break;

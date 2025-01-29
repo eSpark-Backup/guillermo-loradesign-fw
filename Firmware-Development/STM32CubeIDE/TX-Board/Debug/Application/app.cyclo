@@ -4,4 +4,4 @@
 ../Application/app.cpp:80:17:void receiveTimeout()	2
 ../Application/app.cpp:95:17:void dataReceived(char*, uint32_t)	4
 ../Application/app.cpp:115:6:void App::setup()	1
-../Application/app.cpp:123:6:void App::loop()	6
+../Application/app.cpp:123:6:void App::loop()	7
