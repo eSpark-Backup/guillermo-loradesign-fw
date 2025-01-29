@@ -1,7 +1,0 @@
-../Application/app.cpp:27:6:void generatePayload(uint8_t*, uint32_t)	1
-../Application/app.cpp:47:6:void UpTimerEventCallback(void*)	1
-../Application/app.cpp:53:6:void sleep(uint32_t)	1
-../Application/app.cpp:74:17:void receiveTimeout()	2
-../Application/app.cpp:89:17:void dataReceived(char*, uint32_t)	4
-../Application/app.cpp:116:6:void App::setup()	1
-../Application/app.cpp:124:6:void App::loop()	4

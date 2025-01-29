@@ -1,9 +1,0 @@
-../SubGHz_Phy/App/subghz_phy_app.c:194:6:SubghzApp_Init	1
-../SubGHz_Phy/App/subghz_phy_app.c:357:6:SwitchToTxMode	1
-../SubGHz_Phy/App/subghz_phy_app.c:383:6:SwitchToRxMode	1
-../SubGHz_Phy/App/subghz_phy_app.c:410:13:OnTxDone	1
-../SubGHz_Phy/App/subghz_phy_app.c:418:13:OnRxDone	1
-../SubGHz_Phy/App/subghz_phy_app.c:439:13:OnTxTimeout	1
-../SubGHz_Phy/App/subghz_phy_app.c:448:13:OnRxTimeout	1
-../SubGHz_Phy/App/subghz_phy_app.c:458:13:OnRxError	1
-../SubGHz_Phy/App/subghz_phy_app.c:494:13:Per_Process	7
