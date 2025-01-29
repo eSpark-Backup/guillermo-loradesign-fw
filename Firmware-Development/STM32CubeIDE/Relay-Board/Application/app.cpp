@@ -19,17 +19,17 @@
 
 #define RELAYBOARD MCU_1
 
+BoardState state = BOOTUP_STATE;
 uint8_t HelloCommand[] = MY_IDENTIFIER"HELLO";
-uint8_t data[64];
 TimerEvent_t WaitTimer;
-bool dur_flag = 0;
+
+uint8_t data[64];
 
 void DurationElapsedCallback( void *context )
 {
     // This callback is executed when the RTC wakeup timer expires
     LOG_D("Woke up from STOP mode via RTC Wakeup Timer\r\n");
-    dur_flag = 1;
-
+    state = SEQUENCE_END_STATE;
 }
 
 void processData(UART_HandleTypeDef *huart)
@@ -59,6 +59,8 @@ extern "C" void RX_Done_Process(char* buffer, uint32_t size)
 	uint8_t identifier_length = strlen(TX_BOARD_IDENTIFIER);
 	if (strncmp(buffer, TX_BOARD_IDENTIFIER, identifier_length) == 0)
 	{
+		CommPacket packet;
+		memcpy(&packet, buffer+ identifier_length, sizeof(packet));
 		HAL_UART_Transmit(&huart1, (uint8_t*)MY_IDENTIFIER, strlen(MY_IDENTIFIER), 1000);
 		HAL_UART_Transmit(&huart1, (uint8_t*)(buffer + identifier_length), size, 1000);
 	}
@@ -90,12 +92,17 @@ void App::setup(void)
 
 void App::loop(void)
 {
-	if(dur_flag)
+	switch(state)
 	{
+	case SEQUENCE_END_STATE:
 		SwitchToTxMode(HelloCommand, sizeof(HelloCommand));
 		while(!isTXDone());
 		MX_SubGHz_Phy_Process();
 		SwitchToRxMode();
-		dur_flag =0;
+		state = BOOTUP_STATE;
+		break;
+
+	default:
+		break;
 	}
 }
