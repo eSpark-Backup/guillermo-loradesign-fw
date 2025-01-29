@@ -45,7 +45,8 @@ Application/app.o: ../Application/app.cpp ../Application/app.h \
  ../Core/Inc/rtc.h ../SubGHz_Phy/App/subghz_phy_app.h \
  ../Core/Inc/platform.h \
  ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_gpio.h \
- ../Core/Inc/stm32_lpm_if.h ../Utilities/lpm/tiny_lpm/stm32_lpm.h \
+ ../SubGHz_Phy/App/app_subghz_phy.h ../Core/Inc/stm32_lpm_if.h \
+ ../Utilities/lpm/tiny_lpm/stm32_lpm.h \
  ../Middlewares/Third_Party/SubGHz_Phy/radio.h \
  ../Middlewares/Third_Party/SubGHz_Phy/radio_def.h \
  ../Middlewares/Third_Party/SubGHz_Phy/radio_ex.h \
@@ -104,6 +105,7 @@ D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/Relay-Board/
 ../SubGHz_Phy/App/subghz_phy_app.h:
 ../Core/Inc/platform.h:
 ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_gpio.h:
+../SubGHz_Phy/App/app_subghz_phy.h:
 ../Core/Inc/stm32_lpm_if.h:
 ../Utilities/lpm/tiny_lpm/stm32_lpm.h:
 ../Middlewares/Third_Party/SubGHz_Phy/radio.h:

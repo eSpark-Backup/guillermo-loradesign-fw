@@ -8,3 +8,4 @@
 ../SubGHz_Phy/App/subghz_phy_app.c:445:13:OnRxError	1
 ../SubGHz_Phy/App/subghz_phy_app.c:481:13:Per_Process	12
 ../SubGHz_Phy/App/subghz_phy_app.c:590:16:tx_payload_generator	1
+../SubGHz_Phy/App/subghz_phy_app.c:597:10:isTXDone	1

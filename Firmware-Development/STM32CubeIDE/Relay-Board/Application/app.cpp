@@ -4,6 +4,7 @@
 #include "gps.h"
 #include "rtc.h"
 #include "subghz_phy_app.h"
+#include "app_subghz_phy.h"
 #include <string.h>
 #include "stm32_lpm_if.h"
 #include "radio.h"
@@ -21,13 +22,14 @@
 uint8_t HelloCommand[] = MY_IDENTIFIER"HELLO";
 uint8_t data[64];
 TimerEvent_t WaitTimer;
+bool dur_flag = 0;
 
 void DurationElapsedCallback( void *context )
 {
     // This callback is executed when the RTC wakeup timer expires
     LOG_D("Woke up from STOP mode via RTC Wakeup Timer\r\n");
-	SwitchToTxMode(HelloCommand, sizeof(HelloCommand));
-	SwitchToRxMode();
+    dur_flag = 1;
+
 }
 
 void processData(UART_HandleTypeDef *huart)
@@ -77,6 +79,8 @@ void App::setup(void)
 	TimerInit( &WaitTimer, DurationElapsedCallback );
 	TimerStop( &WaitTimer );
 	Radio.Send(HelloCommand, sizeof(HelloCommand));
+	while(!isTXDone());
+	MX_SubGHz_Phy_Process();
 	SwitchToRxMode();
 #elif (RELAYBOARD == MCU_2)
 	HAL_UART_RegisterCallback(&huart1, HAL_UART_RX_COMPLETE_CB_ID, processData);
@@ -86,5 +90,12 @@ void App::setup(void)
 
 void App::loop(void)
 {
-
+	if(dur_flag)
+	{
+		SwitchToTxMode(HelloCommand, sizeof(HelloCommand));
+		while(!isTXDone());
+		MX_SubGHz_Phy_Process();
+		SwitchToRxMode();
+		dur_flag =0;
+	}
 }

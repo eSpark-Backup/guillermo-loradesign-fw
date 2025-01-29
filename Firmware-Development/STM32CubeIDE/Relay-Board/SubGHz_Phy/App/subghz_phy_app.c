@@ -593,4 +593,9 @@ static int32_t tx_payload_generator(void)
 	memcpy(data_buffer, str, strlen(str));
 	return 0;
 }
+
+uint32_t isTXDone(void)
+{
+	return RadioTxDone_flag;
+}
 /* USER CODE END PrFD */

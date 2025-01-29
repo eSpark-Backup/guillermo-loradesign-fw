@@ -105,6 +105,7 @@ void SubghzApp_Init(void);
 /* USER CODE BEGIN EFP */
 void SwitchToTxMode(uint8_t *payload, uint16_t size);
 void SwitchToRxMode(void);
+uint32_t isTXDone(void);
 /* USER CODE END EFP */
 
 #ifdef __cplusplus
