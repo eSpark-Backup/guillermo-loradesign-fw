@@ -4,16 +4,23 @@
 #include "gps.h"
 #include "rtc.h"
 #include "subghz_phy_app.h"
+#include "app_subghz_phy.h"
 #include <string.h>
 #include "stm32_lpm_if.h"
 #include "radio.h"
 #include "timer.h"
 #include <cstdio>
 
+#define MY_IDENTIFIER "TX:"
+#define RELAY_BOARD_IDENTIFIER "RELAY:"
+#define HELLO_MESSAGE "HELLO"
+#define PING_MESSAGE RELAY_BOARD_IDENTIFIER HELLO_MESSAGE
+
 enum BoardState
 {
 	BOOTUP_STATE,
-	SHUTOFF_STATE
+	SHUTOFF_STATE,
+	TRANSMIT_STATE
 };
 
 BoardState state = BOOTUP_STATE;
@@ -27,7 +34,6 @@ uint32_t shutOffStartTime = 0;
 void generatePayload(uint8_t* buffer, uint32_t size)
 {
 	char* payload = (char*) buffer;
-
 
 	int len = 0;
 #if CUSTOM_BOARD_ID
@@ -96,19 +102,12 @@ extern "C" void dataReceived(char* buffer, uint32_t size)
 		state = BOOTUP_STATE;
 		sleep(DAY_TIMEOUT);
 	}
-	else if(strcmp(buffer, "HELLO") == 0)
+	else if(strcmp(buffer, PING_MESSAGE) == 0)
 	{
 		if (state != SHUTOFF_STATE)
 		{
-			LOG_D("Entering shutoff state\r\n");
-			shutOffStartTime = HAL_GetTick();
-			shutoffCount = 0;
-			state = SHUTOFF_STATE;
-			memset(buffer, 0, size);
-			uint8_t data[64];
-			generatePayload(data, sizeof(data));
-			SwitchToTxMode(data, sizeof(data));
-			SwitchToRxMode();
+			state = TRANSMIT_STATE;
+			LOG_D("Entering transmit state\r\n");
 		}
 	}
 }
@@ -144,6 +143,21 @@ void App::loop(void)
 			SwitchToTxMode(data, sizeof(data));
 			SwitchToRxMode();
 		}
+		break;
+
+	case TRANSMIT_STATE:
+	{
+		LOG_D("Entering shutoff state\r\n");
+		shutOffStartTime = HAL_GetTick();
+		shutoffCount = 0;
+		uint8_t data[64];
+		generatePayload(data, sizeof(data));
+		SwitchToTxMode(data, sizeof(data));
+		while(!isTXDone());
+		MX_SubGHz_Phy_Process();
+		SwitchToRxMode();
+		state = SHUTOFF_STATE;
+	}
 		break;
 
 	default:

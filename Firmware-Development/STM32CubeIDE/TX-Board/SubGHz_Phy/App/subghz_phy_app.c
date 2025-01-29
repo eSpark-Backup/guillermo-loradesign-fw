@@ -34,7 +34,7 @@
 
 /* External variables ---------------------------------------------------------*/
 /* USER CODE BEGIN EV */
-
+uint8_t current_mode = TEST_MODE;
 /* USER CODE END EV */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,18 +47,8 @@
 #define MAX_APP_BUFFER_SIZE 64
 /* Configurations */
 /*Timeout*/
-#define RX_TIMEOUT_VALUE              5000
+#define RX_TIMEOUT_VALUE              8000
 #define TX_TIMEOUT_VALUE              3000
-/* Definitions */
-#define RX_CONTINUOUS_ON              1
-#define RADIO_TX                      0 /* do not change*/
-#define RADIO_RX                      1 /* do not change*/
-#define PRBS9_INIT                    ( ( uint16_t) 2 )
-
-/* Test Configurations */
-/*if TEST_MODE is RADIO_TX, board will send packet indefinitely*/
-/*if TEST_MODE is RADIO_RX, board will receive packet indefinitely*/
-#define TEST_MODE                     RADIO_RX
 
 #if (( USE_MODEM_LORA == 1 ) && ( USE_MODEM_FSK == 0 ))
 /* 0: Tx Long packet shall be disable when USE_MODEM_LORA*/
@@ -179,14 +169,12 @@ void TxLongPacketGetNextChunk(uint8_t **buffer, uint8_t buffer_size);
 void RxLongPacketChunk(uint8_t *buffer, uint8_t chunk_size);
 #endif /* APP_LONG_PACKET != 0 */
 
-#if (TEST_MODE == RADIO_TX)
 /**
   * @brief Generates a PRBS9 sequence
   * @retval 0
   */
 static int32_t tx_payload_generator(void);
 
-#endif /* TEST_MODE == RADIO_TX */
 
 /* USER CODE END PFP */
 
@@ -245,101 +233,101 @@ void SubghzApp_Init(void)
   Radio.SetChannel(RF_FREQUENCY);
 
   data_offset = 0;
-#if (TEST_MODE == RADIO_RX)
-#if (( USE_MODEM_LORA == 1 ) && ( USE_MODEM_FSK == 0 ))
-  APP_TPRINTF("Rx LORA Test\r\n");
-  /* RX Continuous */
-  Radio.SetRxConfig(MODEM_LORA, LORA_BANDWIDTH, LORA_SPREADING_FACTOR,
-                    LORA_CODINGRATE, 0, LORA_PREAMBLE_LENGTH,
-                    LORA_SYMBOL_TIMEOUT, LORA_FIX_LENGTH_PAYLOAD_ON,
-                    0, true, 0, 0, LORA_IQ_INVERSION_ON, true);
+  if (current_mode == RADIO_RX)
+	{
+		#if (( USE_MODEM_LORA == 1 ) && ( USE_MODEM_FSK == 0 ))
+		  APP_TPRINTF("Rx LORA Test\r\n");
+		  /* RX Continuous */
+		  Radio.SetRxConfig(MODEM_LORA, LORA_BANDWIDTH, LORA_SPREADING_FACTOR,
+							LORA_CODINGRATE, 0, LORA_PREAMBLE_LENGTH,
+							LORA_SYMBOL_TIMEOUT, LORA_FIX_LENGTH_PAYLOAD_ON,
+							0, true, 0, 0, LORA_IQ_INVERSION_ON, true);
 
-  Radio.SetMaxPayloadLength(MODEM_LORA, MAX_APP_BUFFER_SIZE);
-#elif (( USE_MODEM_LORA == 0 ) && ( USE_MODEM_FSK == 1 ))
-  APP_TPRINTF("Rx FSK Test\r\n");
-  /* RX Continuous */
-  RxConfig.fsk.ModulationShaping = RADIO_FSK_MOD_SHAPING_G_BT_05;
-  RxConfig.fsk.Bandwidth = FSK_BANDWIDTH;
-  RxConfig.fsk.BitRate = FSK_DATARATE; /*BitRate*/
-  RxConfig.fsk.PreambleLen = 4; /*in Byte*/
-  RxConfig.fsk.SyncWordLength = sizeof(syncword); /*in Byte*/
-  RxConfig.fsk.PreambleMinDetect = RADIO_FSK_PREAMBLE_DETECTOR_08_BITS;
-  RxConfig.fsk.SyncWord = syncword; /*SyncWord Buffer*/
-  RxConfig.fsk.whiteSeed = 0x01FF; /*WhiteningSeed*/
-#if (APP_LONG_PACKET==0)
-  RxConfig.fsk.LengthMode  = RADIO_FSK_PACKET_VARIABLE_LENGTH; /* legacy: payload length field is 1 byte long*/
-#else
-  RxConfig.fsk.LengthMode  = RADIO_FSK_PACKET_2BYTES_LENGTH;  /* payload length field is 2 bytes long */
-#endif /* APP_LONG_PACKET */
-  RxConfig.fsk.CrcLength = RADIO_FSK_CRC_2_BYTES_IBM;       /* Size of the CRC block in the GFSK packet*/
-  RxConfig.fsk.CrcPolynomial = 0x8005;
-  RxConfig.fsk.CrcSeed = 0xFFFF;
-  RxConfig.fsk.Whitening = RADIO_FSK_DC_FREEWHITENING;
-  RxConfig.fsk.MaxPayloadLength = MAX_APP_BUFFER_SIZE;
-  RxConfig.fsk.StopTimerOnPreambleDetect = 0;
-  RxConfig.fsk.AddrComp = RADIO_FSK_ADDRESSCOMP_FILT_OFF;
-  if (0UL != Radio.RadioSetRxGenericConfig(GENERIC_FSK, &RxConfig, RX_CONTINUOUS_ON, 0))
+		  Radio.SetMaxPayloadLength(MODEM_LORA, MAX_APP_BUFFER_SIZE);
+		#elif (( USE_MODEM_LORA == 0 ) && ( USE_MODEM_FSK == 1 ))
+		  APP_TPRINTF("Rx FSK Test\r\n");
+		  /* RX Continuous */
+		  RxConfig.fsk.ModulationShaping = RADIO_FSK_MOD_SHAPING_G_BT_05;
+		  RxConfig.fsk.Bandwidth = FSK_BANDWIDTH;
+		  RxConfig.fsk.BitRate = FSK_DATARATE; /*BitRate*/
+		  RxConfig.fsk.PreambleLen = 4; /*in Byte*/
+		  RxConfig.fsk.SyncWordLength = sizeof(syncword); /*in Byte*/
+		  RxConfig.fsk.PreambleMinDetect = RADIO_FSK_PREAMBLE_DETECTOR_08_BITS;
+		  RxConfig.fsk.SyncWord = syncword; /*SyncWord Buffer*/
+		  RxConfig.fsk.whiteSeed = 0x01FF; /*WhiteningSeed*/
+		#if (APP_LONG_PACKET==0)
+		  RxConfig.fsk.LengthMode  = RADIO_FSK_PACKET_VARIABLE_LENGTH; /* legacy: payload length field is 1 byte long*/
+		#else
+		  RxConfig.fsk.LengthMode  = RADIO_FSK_PACKET_2BYTES_LENGTH;  /* payload length field is 2 bytes long */
+		#endif /* APP_LONG_PACKET */
+		  RxConfig.fsk.CrcLength = RADIO_FSK_CRC_2_BYTES_IBM;       /* Size of the CRC block in the GFSK packet*/
+		  RxConfig.fsk.CrcPolynomial = 0x8005;
+		  RxConfig.fsk.CrcSeed = 0xFFFF;
+		  RxConfig.fsk.Whitening = RADIO_FSK_DC_FREEWHITENING;
+		  RxConfig.fsk.MaxPayloadLength = MAX_APP_BUFFER_SIZE;
+		  RxConfig.fsk.StopTimerOnPreambleDetect = 0;
+		  RxConfig.fsk.AddrComp = RADIO_FSK_ADDRESSCOMP_FILT_OFF;
+		  if (0UL != Radio.RadioSetRxGenericConfig(GENERIC_FSK, &RxConfig, RX_CONTINUOUS_ON, 0))
+		  {
+			while (1);
+		  }
+		#else
+		#error "Please define a modem in the compiler subghz_phy_app.h."
+		#endif /* USE_MODEM_LORA | USE_MODEM_FSK */
+
+		#if (APP_LONG_PACKET==0)
+		  Radio.Rx(RX_TIMEOUT_VALUE);
+		#else
+		  (void) Radio.ReceiveLongPacket(0, RX_TIMEOUT_VALUE, RxLongPacketChunk);
+		#endif /* APP_LONG_PACKET */
+	}
+  else if (current_mode == RADIO_TX)
   {
-    while (1);
+	  tx_payload_generator();
+
+	#if (( USE_MODEM_LORA == 1 ) && ( USE_MODEM_FSK == 0 ))
+	  /*lora modulation*/
+	  Radio.SetTxConfig(MODEM_LORA, TX_OUTPUT_POWER, 0, LORA_BANDWIDTH,
+						LORA_SPREADING_FACTOR, LORA_CODINGRATE,
+						LORA_PREAMBLE_LENGTH, LORA_FIX_LENGTH_PAYLOAD_ON,
+						true, 0, 0, LORA_IQ_INVERSION_ON, TX_TIMEOUT_VALUE);
+
+	  Radio.SetMaxPayloadLength(MODEM_LORA, MAX_APP_BUFFER_SIZE);
+	#elif (( USE_MODEM_LORA == 0 ) && ( USE_MODEM_FSK == 1 ))
+	  /*fsk modulation*/
+	  TxConfig.fsk.ModulationShaping = RADIO_FSK_MOD_SHAPING_G_BT_05;
+	  TxConfig.fsk.FrequencyDeviation = FSK_FDEV;
+	  TxConfig.fsk.BitRate = FSK_DATARATE; /*BitRate*/
+	  TxConfig.fsk.PreambleLen = 4;   /*in Byte        */
+	  TxConfig.fsk.SyncWordLength = sizeof(syncword); /*in Byte        */
+	  TxConfig.fsk.SyncWord = syncword; /*SyncWord Buffer*/
+	  TxConfig.fsk.whiteSeed =  0x01FF; /*WhiteningSeed  */
+	#if (APP_LONG_PACKET==0)
+	  TxConfig.fsk.HeaderType  = RADIO_FSK_PACKET_VARIABLE_LENGTH; /*legacy: payload length field is 1 byte long*/
+	#else
+	  TxConfig.fsk.HeaderType  = RADIO_FSK_PACKET_2BYTES_LENGTH;  /* payload length field is 2 bytes long */
+	#endif /* APP_LONG_PACKET */
+	  TxConfig.fsk.CrcLength = RADIO_FSK_CRC_2_BYTES_IBM;       /* Size of the CRC block in the GFSK packet*/
+	  TxConfig.fsk.CrcPolynomial = 0x8005;
+	  TxConfig.fsk.CrcSeed = 0xFFFF;
+	  TxConfig.fsk.Whitening = RADIO_FSK_DC_FREEWHITENING;
+	  if (0UL != Radio.RadioSetTxGenericConfig(GENERIC_FSK, &TxConfig, TX_OUTPUT_POWER, TX_TIMEOUT_VALUE))
+	  {
+		while (1);
+	  }
+	#else
+	#error "Please define a modem in the compiler subghz_phy_app.h."
+	#endif /* USE_MODEM_LORA | USE_MODEM_FSK */
+
+	#if (APP_LONG_PACKET==0)
+	//  Radio.Send(data_buffer, payloadLen);
+	#else
+	  if (0UL != Radio.TransmitLongPacket(payloadLen, TX_TIMEOUT_VALUE, TxLongPacketGetNextChunk))
+	  {
+		while (1);
+	  }
+	#endif /* APP_LONG_PACKET */
   }
-#else
-#error "Please define a modem in the compiler subghz_phy_app.h."
-#endif /* USE_MODEM_LORA | USE_MODEM_FSK */
-
-#if (APP_LONG_PACKET==0)
-  Radio.Rx(RX_TIMEOUT_VALUE);
-#else
-  (void) Radio.ReceiveLongPacket(0, RX_TIMEOUT_VALUE, RxLongPacketChunk);
-#endif /* APP_LONG_PACKET */
-
-#elif (TEST_MODE == RADIO_TX)
-  tx_payload_generator();
-
-#if (( USE_MODEM_LORA == 1 ) && ( USE_MODEM_FSK == 0 ))
-  /*lora modulation*/
-  Radio.SetTxConfig(MODEM_LORA, TX_OUTPUT_POWER, 0, LORA_BANDWIDTH,
-                    LORA_SPREADING_FACTOR, LORA_CODINGRATE,
-                    LORA_PREAMBLE_LENGTH, LORA_FIX_LENGTH_PAYLOAD_ON,
-                    true, 0, 0, LORA_IQ_INVERSION_ON, TX_TIMEOUT_VALUE);
-
-  Radio.SetMaxPayloadLength(MODEM_LORA, MAX_APP_BUFFER_SIZE);
-#elif (( USE_MODEM_LORA == 0 ) && ( USE_MODEM_FSK == 1 ))
-  /*fsk modulation*/
-  TxConfig.fsk.ModulationShaping = RADIO_FSK_MOD_SHAPING_G_BT_05;
-  TxConfig.fsk.FrequencyDeviation = FSK_FDEV;
-  TxConfig.fsk.BitRate = FSK_DATARATE; /*BitRate*/
-  TxConfig.fsk.PreambleLen = 4;   /*in Byte        */
-  TxConfig.fsk.SyncWordLength = sizeof(syncword); /*in Byte        */
-  TxConfig.fsk.SyncWord = syncword; /*SyncWord Buffer*/
-  TxConfig.fsk.whiteSeed =  0x01FF; /*WhiteningSeed  */
-#if (APP_LONG_PACKET==0)
-  TxConfig.fsk.HeaderType  = RADIO_FSK_PACKET_VARIABLE_LENGTH; /*legacy: payload length field is 1 byte long*/
-#else
-  TxConfig.fsk.HeaderType  = RADIO_FSK_PACKET_2BYTES_LENGTH;  /* payload length field is 2 bytes long */
-#endif /* APP_LONG_PACKET */
-  TxConfig.fsk.CrcLength = RADIO_FSK_CRC_2_BYTES_IBM;       /* Size of the CRC block in the GFSK packet*/
-  TxConfig.fsk.CrcPolynomial = 0x8005;
-  TxConfig.fsk.CrcSeed = 0xFFFF;
-  TxConfig.fsk.Whitening = RADIO_FSK_DC_FREEWHITENING;
-  if (0UL != Radio.RadioSetTxGenericConfig(GENERIC_FSK, &TxConfig, TX_OUTPUT_POWER, TX_TIMEOUT_VALUE))
-  {
-    while (1);
-  }
-#else
-#error "Please define a modem in the compiler subghz_phy_app.h."
-#endif /* USE_MODEM_LORA | USE_MODEM_FSK */
-
-#if (APP_LONG_PACKET==0)
-  Radio.Send(data_buffer, payloadLen);
-#else
-  if (0UL != Radio.TransmitLongPacket(payloadLen, TX_TIMEOUT_VALUE, TxLongPacketGetNextChunk))
-  {
-    while (1);
-  }
-#endif /* APP_LONG_PACKET */
-#else
-#error should be either Tx or Rx
-#endif /* TEST_MODE */
 
   /*register task to to be run in while(1) after Radio IT*/
   UTIL_SEQ_RegTask((1 << CFG_SEQ_Task_SubGHz_Phy_App_Process), UTIL_SEQ_RFU, Per_Process);
@@ -356,6 +344,7 @@ void SubghzApp_Init(void)
   */
 void SwitchToTxMode(uint8_t *payload, uint16_t size)
 {
+	current_mode = RADIO_TX;
     APP_LOG(TS_OFF, VLEVEL_M, "Switching to TX Mode\r\n");
 
     // Configure radio for TX
@@ -382,6 +371,7 @@ void SwitchToTxMode(uint8_t *payload, uint16_t size)
   */
 void SwitchToRxMode(void)
 {
+	current_mode = RADIO_RX;
     APP_LOG(TS_OFF, VLEVEL_M, "Switching to RX Mode\r\n");
 
     // Configure radio for RX
@@ -495,136 +485,119 @@ static void Per_Process(void)
 {
   packetCnt++;
   data_offset = 0;
-#if (TEST_MODE == RADIO_RX)
-  if (RadioRxDone_flag == 1)
+  if (current_mode == RADIO_RX)
   {
-    int16_t rssi = last_rx_rssi;
-    int8_t cfo = last_rx_cfo;
-    HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET); /* LED_GREEN */
-    APP_TPRINTF("OnRxDone\r\n");
-    APP_TPRINTF("RssiValue=%d dBm, cfo=%d kHz\r\n", rssi, cfo);
-    APP_TPRINTF("payloadLen=%d bytes\r\n", payloadLen);
-    dataReceived(data_buffer, payloadLen);
-#if 0
-    /* warning, delay between 2 consecutive Tx may be increased to allow DMA to empty printf queue*/
-    APP_PPRINTF("data=0x \n\r");
-    for (int32_t i = 0; i < payloadLen; i++)
-    {
-      APP_PRINTF("%02X ", data_buffer[i]);
-      if ((i % 16) == 15)
-      {
-        APP_PPRINTF("\n\r");
-      }
-    }
-    APP_PPRINTF("\n\r");
-#endif /* 0 */
-  }
-  else
-  {
-    HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET); /* LED_RED */
-  }
+	  if (RadioRxDone_flag == 1)
+	  {
+		int16_t rssi = last_rx_rssi;
+		int8_t cfo = last_rx_cfo;
+		HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET); /* LED_GREEN */
+		APP_TPRINTF("OnRxDone\r\n");
+		APP_TPRINTF("RssiValue=%d dBm, cfo=%d kHz\r\n", rssi, cfo);
+		APP_TPRINTF("payloadLen=%d bytes\r\n", payloadLen);
+		dataReceived(data_buffer, payloadLen);
+	#if 0
+		/* warning, delay between 2 consecutive Tx may be increased to allow DMA to empty printf queue*/
+		APP_PPRINTF("data=0x \n\r");
+		for (int32_t i = 0; i < payloadLen; i++)
+		{
+		  APP_PRINTF("%02X ", data_buffer[i]);
+		  if ((i % 16) == 15)
+		  {
+			APP_PPRINTF("\n\r");
+		  }
+		}
+		APP_PPRINTF("\n\r");
+	#endif /* 0 */
+	  }
+	  else
+	  {
+		HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET); /* LED_RED */
+	  }
 
-  if (RadioRxTimeout_flag == 1)
-  {
-    APP_TPRINTF("OnRxTimeout\r\n");
-  }
+	  if (RadioRxTimeout_flag == 1)
+	  {
+		APP_TPRINTF("OnRxTimeout\r\n");
+	  }
 
-  if (RadioError_flag == 1)
-  {
-    APP_TPRINTF("OnRxError\r\n");
-  }
+	  if (RadioError_flag == 1)
+	  {
+		APP_TPRINTF("OnRxError\r\n");
+	  }
 
-  /*check flag*/
-  if ((RadioRxTimeout_flag == 1) || (RadioError_flag == 1))
-  {
-    count_RxKo++;
-  }
-  if (RadioRxDone_flag == 1)
-  {
-    count_RxOk++;
-  }
-  /* Reset timeout flag */
-  RadioRxDone_flag = 0;
-  RadioRxTimeout_flag = 0;
-  RadioError_flag = 0;
+	  /*check flag*/
+	  if ((RadioRxTimeout_flag == 1) || (RadioError_flag == 1))
+	  {
+		count_RxKo++;
+	  }
+	  if (RadioRxDone_flag == 1)
+	  {
+		count_RxOk++;
+	  }
+	  /* Reset timeout flag */
+	  RadioRxDone_flag = 0;
+	  RadioRxTimeout_flag = 0;
+	  RadioError_flag = 0;
 
-  /* Compute PER */
-  PER = (100 * (count_RxKo)) / (count_RxKo + count_RxOk);
-  APP_TPRINTF("Rx %d>>> PER= %d %%\r\n", packetCnt, PER);
-#if (APP_LONG_PACKET==0)
-//  Radio.Rx(RX_TIMEOUT_VALUE);
-#else
-  (void) Radio.ReceiveLongPacket(0, RX_TIMEOUT_VALUE, RxLongPacketChunk);
-#endif /* APP_LONG_PACKET */
-  HAL_Delay(10);
-  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET); /* LED_GREEN */
-  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET); /* LED_RED */
-#elif (TEST_MODE == RADIO_TX)
-  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET); /* LED_BLUE */
-  if (RadioTxDone_flag == 1)
-  {
-    APP_TPRINTF("OnTxDone\r\n");
+	  /* Compute PER */
+	  PER = (100 * (count_RxKo)) / (count_RxKo + count_RxOk);
+	  APP_TPRINTF("Rx %d>>> PER= %d %%\r\n", packetCnt, PER);
+	#if (APP_LONG_PACKET==0)
+//	  Radio.Rx(RX_TIMEOUT_VALUE);
+	#else
+	  (void) Radio.ReceiveLongPacket(0, RX_TIMEOUT_VALUE, RxLongPacketChunk);
+	#endif /* APP_LONG_PACKET */
+	  HAL_Delay(10);
+	  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET); /* LED_RED */
+	  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET); /* LED_GREEN */
   }
+  else if (current_mode == RADIO_TX)
+  {
+	  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET); /* LED_BLUE */
+	  if (RadioTxDone_flag == 1)
+	  {
+		APP_TPRINTF("OnTxDone\r\n");
+	  }
 
-  if (RadioTxTimeout_flag == 1)
-  {
-    APP_TPRINTF("OnTxTimeout\r\n");
-  }
+	  if (RadioTxTimeout_flag == 1)
+	  {
+		APP_TPRINTF("OnTxTimeout\r\n");
+	  }
 
-  if (RadioError_flag == 1)
-  {
-    APP_TPRINTF("OnRxError\r\n");
-  }
-  /* This delay is only to give enough time to allow DMA to empty printf queue*/
-  HAL_Delay(500);
-  /* Reset TX Done or timeout flags */
-  RadioTxDone_flag = 0;
-  RadioTxTimeout_flag = 0;
-  RadioError_flag = 0;
+	  if (RadioError_flag == 1)
+	  {
+		APP_TPRINTF("OnRxError\r\n");
+	  }
+	  /* This delay is only to give enough time to allow DMA to empty printf queue*/
+	  HAL_Delay(500);
+	  /* Reset TX Done or timeout flags */
+	  RadioTxDone_flag = 0;
+	  RadioTxTimeout_flag = 0;
+	  RadioError_flag = 0;
 
-  tx_payload_generator();
-#if (APP_LONG_PACKET==0)
-  Radio.Send(data_buffer, payloadLen);
-#else
-  if (0UL != Radio.TransmitLongPacket(payloadLen, TX_TIMEOUT_VALUE, TxLongPacketGetNextChunk))
-  {
-    while (1);
-  }
-#endif /* APP_LONG_PACKET */
-  APP_TPRINTF("Tx %d \r\n", packetCnt);
-  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET); /* LED_BLUE */
-#endif /* TEST_MODE */
+	//  tx_payload_generator();
+	#if (APP_LONG_PACKET==0)
+//	  Radio.Send(data_buffer, payloadLen);
+	#else
+	  if (0UL != Radio.TransmitLongPacket(payloadLen, TX_TIMEOUT_VALUE, TxLongPacketGetNextChunk))
+	  {
+		while (1);
+	  }
+	#endif /* APP_LONG_PACKET */
+	  APP_TPRINTF("Tx %d \r\n", packetCnt);
+	  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET); /* LED_BLUE */
+	}
 }
-
-#if (TEST_MODE == RADIO_TX)
 
 static int32_t tx_payload_generator(void)
 {
-//  if (TxPayloadMode == 1)
-//  {
-//    uint16_t prbs9_val = PRBS9_INIT;
-//    for (int32_t i = 0; i < payloadLen; i++)
-//    {
-//      data_buffer[i] = 0;
-//    }
-//    for (int32_t i = 0; i < payloadLen * 8; i++)
-//    {
-//      /*fill buffer with prbs9 sequence*/
-//      int32_t newbit = (((prbs9_val >> 8) ^ (prbs9_val >> 4)) & 1);
-//      prbs9_val = ((prbs9_val << 1) | newbit) & 0x01ff;
-//      data_buffer[i / 8] |= ((prbs9_val & 0x1) << (i % 8));
-//    }
-//  }
-//  else
-//  {
-//    for (int32_t i = 0; i < payloadLen; i++)
-//    {
-//      data_buffer[i] = i;
-//    }
-//  }
 	static char str[] = "HELLO";
 	memcpy(data_buffer, str, strlen(str));
-  return 0;
+	return 0;
 }
-#endif /* TEST_MODE */
+
+uint32_t isTXDone(void)
+{
+	return RadioTxDone_flag;
+}
 /* USER CODE END PrFD */

@@ -73,6 +73,17 @@ extern "C" {
 
 /* USER CODE BEGIN EC */
 
+/* Definitions */
+#define RX_CONTINUOUS_ON              1
+#define RADIO_TX                      0 /* do not change*/
+#define RADIO_RX                      1 /* do not change*/
+#define PRBS9_INIT                    ( ( uint16_t) 2 )
+
+/* Test Configurations */
+/*if TEST_MODE is RADIO_TX, board will send packet indefinitely*/
+/*if TEST_MODE is RADIO_RX, board will receive packet indefinitely*/
+#define TEST_MODE                     RADIO_RX
+
 /* USER CODE END EC */
 
 /* External variables --------------------------------------------------------*/
@@ -94,6 +105,7 @@ void SubghzApp_Init(void);
 /* USER CODE BEGIN EFP */
 void SwitchToTxMode(uint8_t *payload, uint16_t size);
 void SwitchToRxMode(void);
+uint32_t isTXDone(void);
 /* USER CODE END EFP */
 
 #ifdef __cplusplus
