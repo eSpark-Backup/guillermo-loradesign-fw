@@ -11,44 +11,51 @@
 #include "timer.h"
 #include <cstdio>
 
-#define MY_IDENTIFIER "TX:"
-#define RELAY_BOARD_IDENTIFIER "RELAY:"
-#define HELLO_MESSAGE "HELLO"
-#define PING_MESSAGE RELAY_BOARD_IDENTIFIER HELLO_MESSAGE
-
-enum BoardState
-{
-	BOOTUP_STATE,
-	SHUTOFF_STATE,
-	TRANSMIT_STATE
-};
-
 BoardState state = BOOTUP_STATE;
 
 static GPS gps;
 TimerEvent_t SleepTimeoutTimer;
-#define SLEEP_TIMEOUT 25000
 static uint32_t shutoffCount = 0;
 uint32_t shutOffStartTime = 0;
+
+struct Timestamp
+{
+	uint8_t hour;
+	uint8_t minute;
+	uint8_t second;
+};
+
+struct GeoCoordinates
+{
+	double lattitude;
+	double longitude;
+};
+
+struct CommPacket
+{
+	uint32_t ids[3];
+	Timestamp timestamp;
+	GeoCoordinates geoCoordinates;
+};
 
 void generatePayload(uint8_t* buffer, uint32_t size)
 {
 	char* payload = (char*) buffer;
 
-	int len = 0;
-	len = snprintf(payload, size, "%s", MY_IDENTIFIER);
+	CommPacket packet;
+	memcpy(payload, MY_IDENTIFIER, strlen(MY_IDENTIFIER));
 #if CUSTOM_BOARD_ID
-	len += snprintf(payload, size, "ID: %08X, ", BOARD_ID);
+	packet.ids[0] = BOARD_ID;
 #else
 	uint32_t boardIds[] = {HAL_GetUIDw0(), HAL_GetUIDw1(), HAL_GetUIDw2()};
-	len += snprintf(payload, size, "ID: %08X%08X%08X, ", (unsigned int)boardIds[0], (unsigned int)boardIds[1], (unsigned int)boardIds[2]);
+	memcpy(packet.ids, boardIds, sizeof(packet.ids));
 #endif
-	size -= len;
-	len += snprintf(payload, size, "TimeStamp: %d:%d:%d ", gps.gps.time.hour(), gps.gps.time.minute(), gps.gps.time.second());
-	size -= len;
-	len += snprintf(payload, size, "Lat: %0.2f, ", gps.gps.location.lat());
-	size -= len;
-	len += snprintf(payload, size, "Long: %0.2f ", gps.gps.location.lng());
+	packet.timestamp.hour = gps.gps.time.hour();
+	packet.timestamp.minute = gps.gps.time.minute();
+	packet.timestamp.second = gps.gps.time.second();
+	packet.geoCoordinates.lattitude = gps.gps.location.lat();
+	packet.geoCoordinates.longitude = gps.gps.location.lng();
+	memcpy(payload + strlen(MY_IDENTIFIER), &packet, sizeof(packet));
 }
 
 void UpTimerEventCallback( void *context )
