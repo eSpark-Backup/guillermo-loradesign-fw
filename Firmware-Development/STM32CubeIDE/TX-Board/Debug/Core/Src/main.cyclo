@@ -1,16 +1,5 @@
 ../Drivers/CMSIS/Include/core_cm4.h:2059:26:uint32_t ITM_SendChar(uint32_t)	5
-../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_bus.h:449:22:void LL_AHB2_GRP1_EnableClock(uint32_t)	1
-D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Libraries/TinyGPSPlus/TinyGPS++.h:70:9:bool TinyGPSLocation::isValid() const	1
-D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Libraries/TinyGPSPlus/TinyGPS++.h:94:9:bool TinyGPSDate::isValid() const	1
-D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Libraries/TinyGPSPlus/TinyGPS++.h:118:9:bool TinyGPSTime::isValid() const	1
-D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Libraries/TinyGPSPlus/TinyGPS++.h:257:12:uint32_t TinyGPSPlus::charsProcessed() const	1
-../Core/Src/main.cpp:41:16:int _write(int, char*, int)	2
-../Core/Src/main.cpp:48:6:)	2
-../Core/Src/main.cpp:75:6:void displayInfo()	4
-../Core/Src/main.cpp:128:5:int main()	6
-../Core/Src/main.cpp:210:6:void SystemClock_Config()	3
-../Core/Src/main.cpp:253:13:void MX_USART1_UART_Init()	5
-../Core/Src/main.cpp:301:13:void MX_GPIO_Init()	1
-../Core/Src/main.cpp:346:6:void Error_Handler()	1
-../Core/Src/main.cpp:355:1:void __static_initialization_and_destruction_0(int, int)	3
-../Core/Src/main.cpp:355:1:cpp)	1
+../Core/Src/main.cpp:65:6:)	2
+../Core/Src/main.cpp:82:5:int main()	1
+../Core/Src/main.cpp:132:6:void SystemClock_Config()	3
+../Core/Src/main.cpp:180:6:void Error_Handler()	1

@@ -7,6 +7,10 @@
 ../Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart.c:632:19:HAL_UART_DeInit	16	static
 ../Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart.c:679:13:HAL_UART_MspInit	16	static
 ../Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart.c:694:13:HAL_UART_MspDeInit	16	static
+../Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart.c:730:19:HAL_UART_RegisterCallback	32	static
+../Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart.c:858:19:HAL_UART_UnRegisterCallback	24	static
+../Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart.c:963:19:HAL_UART_RegisterRxEventCallback	24	static
+../Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart.c:994:19:HAL_UART_UnRegisterRxEventCallback	24	static
 ../Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart.c:1123:19:HAL_UART_Transmit	48	static
 ../Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart.c:1227:19:HAL_UART_Receive	48	static
 ../Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart.c:1328:19:HAL_UART_Transmit_IT	72	static,ignoring_inline_asm
@@ -43,6 +47,7 @@
 ../Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart.c:3004:19:HAL_LIN_SendBreak	16	static
 ../Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart.c:3049:23:HAL_UART_GetState	24	static
 ../Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart.c:3065:10:HAL_UART_GetError	16	static
+../Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart.c:3087:6:UART_InitCallbacksToDefault	16	static
 ../Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart.c:3111:19:UART_SetConfig	80	static
 ../Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart.c:3328:6:UART_AdvFeatureConfig	16	static
 ../Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_uart.c:3402:19:UART_CheckIdleState	32	static

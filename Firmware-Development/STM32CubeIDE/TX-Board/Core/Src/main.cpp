@@ -18,12 +18,19 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "dma.h"
+#include "rtc.h"
+#include "app_subghz_phy.h"
+#include "usart.h"
+#include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include  <stdio.h>
 #include <stdarg.h>
-#include "TinyGPS++.h"
+#include "subghz.h"
+#include "app.h"
+#include "stm32_lpm_if.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -38,13 +45,23 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-extern "C" int _write(int file, char *ptr, int len) {
-    for (int i = 0; i < len; i++) {
-        ITM_SendChar(ptr[i]);
-    }
-    return len;
-}
 
+/* USER CODE END PM */
+
+/* Private variables ---------------------------------------------------------*/
+
+/* USER CODE BEGIN PV */
+App app;
+/* USER CODE END PV */
+
+/* Private function prototypes -----------------------------------------------*/
+void SystemClock_Config(void);
+/* USER CODE BEGIN PFP */
+
+/* USER CODE END PFP */
+
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
 void itm_printf(const char* format, ...) {
     char buffer[256]; // Temporary buffer for formatted string
     va_list args;
@@ -56,69 +73,6 @@ void itm_printf(const char* format, ...) {
         ITM_SendChar((uint8_t)buffer[i]);
     }
 }
-#define printf itm_printf
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
-UART_HandleTypeDef huart1;
-
-/* USER CODE BEGIN PV */
-unsigned long lastGnssDisplay = 0;
-TinyGPSPlus gps;
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
-void SystemClock_Config(void);
-static void MX_GPIO_Init(void);
-static void MX_USART1_UART_Init(void);
-/* USER CODE BEGIN PFP */
-void displayInfo()
-{
-    printf("Location: ");
-    if (gps.location.isValid())
-    {
-        printf("%.6f,%.6f", gps.location.lat(), gps.location.lng());
-    }
-    else
-    {
-//        printf("INVALID");
-    }
-
-    printf("  Date/Time: ");
-    if (gps.date.isValid())
-    {
-        uint8_t month, day;
-        uint16_t year;
-        month = gps.date.month();
-        day = gps.date.day();
-        year = gps.date.year();
-        year = gps.date.year();
-        printf("%02d/%02d/%04d ", gps.date.month(), gps.date.day(), gps.date.year());
-
-    }
-    else
-    {
-//        printf("INVALID ");
-    }
-
-    if (gps.time.isValid())
-    {
-        printf("%02d:%02d:%02d.%02d\r\n",
-               gps.time.hour(),
-               gps.time.minute(),
-               gps.time.second(),
-               gps.time.centisecond());
-    }
-    else
-    {
-//        printf("INVALID\r\n");
-    }
-}
-/* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
 /* USER CODE END 0 */
 
 /**
@@ -150,53 +104,21 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+//  MX_DMA_Init();
   MX_USART1_UART_Init();
+//  MX_RTC_Init();
+  MX_SubGHz_Phy_Init();
   /* USER CODE BEGIN 2 */
-  HAL_GPIO_WritePin(GNSS_RESET_GPIO_Port, GNSS_RESET_Pin, GPIO_PIN_RESET);
-  HAL_Delay(400);
-  HAL_GPIO_WritePin(GNSS_RESET_GPIO_Port, GNSS_RESET_Pin, GPIO_PIN_SET);
-//  HAL_Delay(1000);
-//  while(1)
-//  {
-//	  itm_printf("No GPS detected: che");
-//
-//	  HAL_Delay(1000);
-//  }
+  app.setup();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-
-  uint32_t lastGnssDisplay = 0;
   while (1)
   {
-	  uint8_t data;  // Buffer to store GNSS data
-	  if (HAL_UART_Receive(&huart1, &data, 1, 10) == HAL_OK)
-	  {
-		  gps.encode(data);
-	  }
-	  else
-	  {
-		  if ((HAL_GetTick() - lastGnssDisplay) > 500)
-		  {
-		  	 lastGnssDisplay = HAL_GetTick();
-		  	 displayInfo();
-		  }
-
-	  }
-
-	  // Check for GNSS module connectivity
-	  if (HAL_GetTick() > 5000 && gps.charsProcessed() < 10)
-	  {
-		  printf("No GPS detected: check wiring.\r\n");
-		  while (1)
-		  {
-			  HAL_Delay(10); // Stay here if no GPS is detected
-		  }
-	  }
-//	  HAL_GPIO_TogglePin(GPIOA, LED1_Pin|LED2_Pin);
-//	  HAL_Delay(100);
+	app.loop();
     /* USER CODE END WHILE */
+    MX_SubGHz_Phy_Process();
 
     /* USER CODE BEGIN 3 */
   }
@@ -218,10 +140,12 @@ void SystemClock_Config(void)
 
   /** Initializes the CPU, AHB and APB buses clocks
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_MSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_MSI;
   RCC_OscInitStruct.MSIState = RCC_MSI_ON;
   RCC_OscInitStruct.MSICalibrationValue = RCC_MSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_6;
+  RCC_OscInitStruct.LSIDiv = RCC_LSI_DIV1;
+  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
@@ -243,96 +167,6 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-}
-
-/**
-  * @brief USART1 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_USART1_UART_Init(void)
-{
-
-  /* USER CODE BEGIN USART1_Init 0 */
-
-  /* USER CODE END USART1_Init 0 */
-
-  /* USER CODE BEGIN USART1_Init 1 */
-
-  /* USER CODE END USART1_Init 1 */
-  huart1.Instance = USART1;
-  huart1.Init.BaudRate = 9600;
-  huart1.Init.WordLength = UART_WORDLENGTH_8B;
-  huart1.Init.StopBits = UART_STOPBITS_1;
-  huart1.Init.Parity = UART_PARITY_NONE;
-  huart1.Init.Mode = UART_MODE_TX_RX;
-  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
-  huart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-  huart1.Init.ClockPrescaler = UART_PRESCALER_DIV1;
-  huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  if (HAL_UART_Init(&huart1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_UARTEx_SetTxFifoThreshold(&huart1, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_UARTEx_SetRxFifoThreshold(&huart1, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_UARTEx_DisableFifoMode(&huart1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN USART1_Init 2 */
-
-  /* USER CODE END USART1_Init 2 */
-
-}
-
-/**
-  * @brief GPIO Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_GPIO_Init(void)
-{
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
-/* USER CODE BEGIN MX_GPIO_Init_1 */
-/* USER CODE END MX_GPIO_Init_1 */
-
-  /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GNSS_PWR_GPIO_Port, GNSS_PWR_Pin, GPIO_PIN_SET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GNSS_RESET_GPIO_Port, GNSS_RESET_Pin, GPIO_PIN_SET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, LED1_Pin|LED2_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin : GNSS_PWR_Pin */
-  GPIO_InitStruct.Pin = GNSS_PWR_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GNSS_PWR_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : GNSS_RESET_Pin LED1_Pin LED2_Pin */
-  GPIO_InitStruct.Pin = GNSS_RESET_Pin|LED1_Pin|LED2_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-/* USER CODE BEGIN MX_GPIO_Init_2 */
-/* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
@@ -366,7 +200,7 @@ void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+     ex: LOG_D("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
