@@ -1,9 +1,0 @@
-D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/Relay-Board/Libraries/TinyGPSPlus/TinyGPS++.h:70:9:bool TinyGPSLocation::isValid() const	16	static
-D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/Relay-Board/Libraries/TinyGPSPlus/TinyGPS++.h:94:9:bool TinyGPSDate::isValid() const	16	static
-D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/Relay-Board/Libraries/TinyGPSPlus/TinyGPS++.h:118:9:bool TinyGPSTime::isValid() const	16	static
-../Components/GPS/gps.cpp:6:6:static void GPS::processData(UART_HandleTypeDef*)	16	static
-../Components/GPS/gps.cpp:12:6:void GPS::setup()	16	static
-../Components/GPS/gps.cpp:21:6:void GPS::displayInfo()	48	static
-../Components/GPS/gps.cpp:64:6:void GPS::loop()	16	static
-../Components/GPS/gps.cpp:81:1:void __static_initialization_and_destruction_0(int, int)	16	static
-../Components/GPS/gps.cpp:81:1:cpp)	8	static
