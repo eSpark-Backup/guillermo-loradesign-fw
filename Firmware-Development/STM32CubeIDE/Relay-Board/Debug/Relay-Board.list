@@ -7,23 +7,23 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
   1 .text         0000fe74  08000140  08000140  00001140  2**4
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .rodata       000008d0  0800ffb8  0800ffb8  00010fb8  2**3
+  2 .rodata       000008d8  0800ffb8  0800ffb8  00010fb8  2**3
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  3 .ARM.extab    00000000  08010888  08010888  000121f8  2**0
+  3 .ARM.extab    00000000  08010890  08010890  000121f8  2**0
                   CONTENTS
-  4 .ARM          00000008  08010888  08010888  00011888  2**2
+  4 .ARM          00000008  08010890  08010890  00011890  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  5 .preinit_array 00000000  08010890  08010890  000121f8  2**0
+  5 .preinit_array 00000000  08010898  08010898  000121f8  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  6 .init_array   00000008  08010890  08010890  00011890  2**2
+  6 .init_array   00000008  08010898  08010898  00011898  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  7 .fini_array   00000004  08010898  08010898  00011898  2**2
+  7 .fini_array   00000004  080108a0  080108a0  000118a0  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  8 .data         000001f8  20000000  0801089c  00012000  2**2
+  8 .data         000001f8  20000000  080108a4  00012000  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  9 .bss          00000a88  200001f8  08010a94  000121f8  2**2
+  9 .bss          00000a88  200001f8  08010a9c  000121f8  2**2
                   ALLOC
- 10 ._user_heap_stack 00000600  20000c80  08010a94  00012c80  2**0
+ 10 ._user_heap_stack 00000600  20000c80  08010a9c  00012c80  2**0
                   ALLOC
  11 .ARM.attributes 0000002a  00000000  00000000  000121f8  2**0
                   CONTENTS, READONLY
@@ -35,17 +35,17 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  15 .debug_rnglists 00001917  00000000  00000000  000463c0  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  00024397  00000000  00000000  00047cd7  2**0
+ 16 .debug_macro  000243cd  00000000  00000000  00047cd7  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   0002839c  00000000  00000000  0006c06e  2**0
+ 17 .debug_line   0002839b  00000000  00000000  0006c0a4  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    000c0cb5  00000000  00000000  0009440a  2**0
+ 18 .debug_str    000c0d06  00000000  00000000  0009443f  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  001550bf  2**0
+ 19 .comment      00000043  00000000  00000000  00155145  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  0000995c  00000000  00000000  00155104  2**2
+ 20 .debug_frame  0000995c  00000000  00000000  00155188  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 0000007e  00000000  00000000  0015ea60  2**0
+ 21 .debug_line_str 0000007e  00000000  00000000  0015eae4  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -1265,9 +1265,9 @@ extern "C" void RX_Done_Process(char* buffer, uint32_t size)
  8000ea4:	2220      	movs	r2, #32
  8000ea6:	4618      	mov	r0, r3
  8000ea8:	f00d f833 	bl	800df12 <memcpy>
-		HAL_UART_Transmit(&huart1, (uint8_t*)MY_IDENTIFIER, strlen(MY_IDENTIFIER), 1000);
+		HAL_UART_Transmit(&huart1, (uint8_t*)MY_PACKET_IDENTIFIER, strlen(MY_PACKET_IDENTIFIER), 1000);
  8000eac:	f44f 737a 	mov.w	r3, #1000	@ 0x3e8
- 8000eb0:	2206      	movs	r2, #6
+ 8000eb0:	220d      	movs	r2, #13
  8000eb2:	490b      	ldr	r1, [pc, #44]	@ (8000ee0 <RX_Done_Process+0x74>)
  8000eb4:	480b      	ldr	r0, [pc, #44]	@ (8000ee4 <RX_Done_Process+0x78>)
  8000eb6:	f004 fe47 	bl	8005b48 <HAL_UART_Transmit>
@@ -1312,7 +1312,7 @@ extern "C" void RX_Timeout_Process(void)
  8000f02:	bf00      	nop
  8000f04:	bd80      	pop	{r7, pc}
  8000f06:	bf00      	nop
- 8000f08:	080103c4 	.word	0x080103c4
+ 8000f08:	080103cc 	.word	0x080103cc
  8000f0c:	20000218 	.word	0x20000218
 
 08000f10 <_ZN3App5setupEv>:
@@ -1377,7 +1377,7 @@ void App::setup(void)
  8000f76:	bd80      	pop	{r7, pc}
  8000f78:	08000e49 	.word	0x08000e49
  8000f7c:	20000218 	.word	0x20000218
- 8000f80:	080103c4 	.word	0x080103c4
+ 8000f80:	080103cc 	.word	0x080103cc
  8000f84:	20000000 	.word	0x20000000
 
 08000f88 <_ZN3App4loopEv>:
@@ -2838,7 +2838,7 @@ static void TimestampNow(uint8_t *buff, uint16_t *size)
  800166a:	3710      	adds	r7, #16
  800166c:	46bd      	mov	sp, r7
  800166e:	bd80      	pop	{r7, pc}
- 8001670:	0801003c 	.word	0x0801003c
+ 8001670:	08010044 	.word	0x08010044
 
 08001674 <UTIL_ADV_TRACE_PreSendHook>:
 
@@ -5375,7 +5375,7 @@ LoopForever:
   ldr r1, =_edata
  80023a0:	200001f8 	.word	0x200001f8
   ldr r2, =_sidata
- 80023a4:	0801089c 	.word	0x0801089c
+ 80023a4:	080108a4 	.word	0x080108a4
   ldr r2, =_sbss
  80023a8:	200001f8 	.word	0x200001f8
   ldr r4, =_ebss
@@ -11030,7 +11030,7 @@ uint32_t HAL_RCC_GetSysClockFreq(void)
  80043ae:	371c      	adds	r7, #28
  80043b0:	46bd      	mov	sp, r7
  80043b2:	bd90      	pop	{r4, r7, pc}
- 80043b4:	0801030c 	.word	0x0801030c
+ 80043b4:	08010314 	.word	0x08010314
  80043b8:	00f42400 	.word	0x00f42400
  80043bc:	01e84800 	.word	0x01e84800
 
@@ -11057,7 +11057,7 @@ uint32_t HAL_RCC_GetHCLKFreq(void)
 }
  80043e0:	4618      	mov	r0, r3
  80043e2:	bd98      	pop	{r3, r4, r7, pc}
- 80043e4:	080102ac 	.word	0x080102ac
+ 80043e4:	080102b4 	.word	0x080102b4
 
 080043e8 <HAL_RCC_GetPCLK1Freq>:
 /**
@@ -11081,7 +11081,7 @@ uint32_t HAL_RCC_GetPCLK1Freq(void)
 }
  8004404:	4618      	mov	r0, r3
  8004406:	bd98      	pop	{r3, r4, r7, pc}
- 8004408:	080102ec 	.word	0x080102ec
+ 8004408:	080102f4 	.word	0x080102f4
 
 0800440c <HAL_RCC_GetPCLK2Freq>:
 /**
@@ -11105,7 +11105,7 @@ uint32_t HAL_RCC_GetPCLK2Freq(void)
 }
  8004428:	4618      	mov	r0, r3
  800442a:	bd98      	pop	{r3, r4, r7, pc}
- 800442c:	080102ec 	.word	0x080102ec
+ 800442c:	080102f4 	.word	0x080102f4
 
 08004430 <RCC_SetFlashLatencyFromMSIRange>:
             voltage range.
@@ -11156,8 +11156,8 @@ static HAL_StatusTypeDef RCC_SetFlashLatencyFromMSIRange(uint32_t MSI_Range)
  800447e:	3714      	adds	r7, #20
  8004480:	46bd      	mov	sp, r7
  8004482:	bd90      	pop	{r4, r7, pc}
- 8004484:	0801030c 	.word	0x0801030c
- 8004488:	080102ac 	.word	0x080102ac
+ 8004484:	08010314 	.word	0x08010314
+ 8004488:	080102b4 	.word	0x080102b4
  800448c:	431bde83 	.word	0x431bde83
 
 08004490 <RCC_SetFlashLatency>:
@@ -11328,9 +11328,9 @@ static HAL_StatusTypeDef RCC_SetFlashLatency(uint32_t Flash_ClkSrcFreq, uint32_t
  800457e:	46bd      	mov	sp, r7
  8004580:	bd80      	pop	{r7, pc}
  8004582:	bf00      	nop
- 8004584:	08010048 	.word	0x08010048
- 8004588:	08010050 	.word	0x08010050
- 800458c:	08010058 	.word	0x08010058
+ 8004584:	08010050 	.word	0x08010050
+ 8004588:	08010058 	.word	0x08010058
+ 800458c:	08010060 	.word	0x08010060
  8004590:	58004000 	.word	0x58004000
 
 08004594 <LL_RCC_LSE_IsReady>:
@@ -17585,7 +17585,7 @@ HAL_StatusTypeDef UART_SetConfig(UART_HandleTypeDef *huart)
  8006804:	40013800 	.word	0x40013800
  8006808:	40004400 	.word	0x40004400
  800680c:	00f42400 	.word	0x00f42400
- 8006810:	0801039c 	.word	0x0801039c
+ 8006810:	080103a4 	.word	0x080103a4
       }
       else
       {
@@ -17924,7 +17924,7 @@ HAL_StatusTypeDef UART_SetConfig(UART_HandleTypeDef *huart)
  8006a54:	46bd      	mov	sp, r7
  8006a56:	e8bd 8fb0 	ldmia.w	sp!, {r4, r5, r7, r8, r9, sl, fp, pc}
  8006a5a:	bf00      	nop
- 8006a5c:	0801039c 	.word	0x0801039c
+ 8006a5c:	080103a4 	.word	0x080103a4
  8006a60:	00f42400 	.word	0x00f42400
 
 08006a64 <UART_AdvFeatureConfig>:
@@ -21682,8 +21682,8 @@ static void UARTEx_SetNbDataToProcess(UART_HandleTypeDef *huart)
  800811e:	46bd      	mov	sp, r7
  8008120:	bc80      	pop	{r7}
  8008122:	4770      	bx	lr
- 8008124:	080103b4 	.word	0x080103b4
- 8008128:	080103bc 	.word	0x080103bc
+ 8008124:	080103bc 	.word	0x080103bc
+ 8008128:	080103c4 	.word	0x080103c4
 
 0800812c <_ZN10RawDegreesC1Ev>:
 {
@@ -22887,9 +22887,9 @@ static uint32_t RadioRandom( void )
  80088f0:	20000015 	.word	0x20000015
  80088f4:	20000704 	.word	0x20000704
  80088f8:	200006da 	.word	0x200006da
- 80088fc:	08010064 	.word	0x08010064
- 8008900:	0801006c 	.word	0x0801006c
- 8008904:	08010450 	.word	0x08010450
+ 80088fc:	0801006c 	.word	0x0801006c
+ 8008900:	08010074 	.word	0x08010074
+ 8008904:	08010458 	.word	0x08010458
                 SubgRf.ModulationParams.Params.LoRa.LowDatarateOptimize = 0x00;
  8008908:	4b3b      	ldr	r3, [pc, #236]	@ (80089f8 <RadioSetRxConfig+0x408>)
  800890a:	2200      	movs	r2, #0
@@ -23312,8 +23312,8 @@ static void RadioSetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev,
  8008c14:	200006cc 	.word	0x200006cc
  8008c18:	20000704 	.word	0x20000704
  8008c1c:	200006da 	.word	0x200006da
- 8008c20:	0801006c 	.word	0x0801006c
- 8008c24:	08010450 	.word	0x08010450
+ 8008c20:	08010074 	.word	0x08010074
+ 8008c24:	08010458 	.word	0x08010458
  8008c28:	20000015 	.word	0x20000015
 
 08008c2c <RadioCheckRfFrequency>:
@@ -23785,7 +23785,7 @@ static uint32_t RadioTimeOnAir( RadioModems_t modem, uint32_t bandwidth,
  8008eea:	46bd      	mov	sp, r7
  8008eec:	bd80      	pop	{r7, pc}
  8008eee:	bf00      	nop
- 8008ef0:	08010450 	.word	0x08010450
+ 8008ef0:	08010458 	.word	0x08010458
 
 08008ef4 <RadioSend>:
 
@@ -24092,7 +24092,7 @@ static radio_status_t RadioSend( uint8_t *buffer, uint8_t size )
  80090de:	bf00      	nop
  80090e0:	200006cc 	.word	0x200006cc
  80090e4:	200006da 	.word	0x200006da
- 80090e8:	08010074 	.word	0x08010074
+ 80090e8:	0801007c 	.word	0x0801007c
  80090ec:	200005c8 	.word	0x200005c8
  80090f0:	20000728 	.word	0x20000728
 
@@ -25144,7 +25144,7 @@ static void RadioIrqProcess( void )
  80097cc:	200005c8 	.word	0x200005c8
  80097d0:	200006f0 	.word	0x200006f0
  80097d4:	10624dd3 	.word	0x10624dd3
- 80097d8:	0801008c 	.word	0x0801008c
+ 80097d8:	08010094 	.word	0x08010094
         MW_LOG( TS_ON, VLEVEL_M,  "PRE OK\r\n" );
  80097dc:	4b54      	ldr	r3, [pc, #336]	@ (8009930 <RadioIrqProcess+0x424>)
  80097de:	2201      	movs	r2, #1
@@ -25333,16 +25333,16 @@ static void RadioIrqProcess( void )
  800992a:	46bd      	mov	sp, r7
  800992c:	bdb0      	pop	{r4, r5, r7, pc}
  800992e:	bf00      	nop
- 8009930:	080100a0 	.word	0x080100a0
+ 8009930:	080100a8 	.word	0x080100a8
  8009934:	200006cc 	.word	0x200006cc
  8009938:	0800931d 	.word	0x0800931d
  800993c:	08009341 	.word	0x08009341
- 8009940:	080100ac 	.word	0x080100ac
- 8009944:	080100b8 	.word	0x080100b8
+ 8009940:	080100b4 	.word	0x080100b4
+ 8009944:	080100c0 	.word	0x080100c0
  8009948:	20000740 	.word	0x20000740
  800994c:	200006c8 	.word	0x200006c8
- 8009950:	080100c4 	.word	0x080100c4
- 8009954:	080100d0 	.word	0x080100d0
+ 8009950:	080100cc 	.word	0x080100cc
+ 8009954:	080100d8 	.word	0x080100d8
 
 08009958 <RadioTxPrbs>:
 
@@ -28749,7 +28749,7 @@ void SUBGRF_SetModulationParams( ModulationParams_t *modulationParams )
  800ae94:	46bd      	mov	sp, r7
  800ae96:	e8bd 83b0 	ldmia.w	sp!, {r4, r5, r7, r8, r9, pc}
  800ae9a:	bf00      	nop
- 800ae9c:	080100e0 	.word	0x080100e0
+ 800ae9c:	080100e8 	.word	0x080100e8
  800aea0:	20000759 	.word	0x20000759
  800aea4:	3d090000 	.word	0x3d090000
  800aea8:	01e84800 	.word	0x01e84800
@@ -28955,7 +28955,7 @@ void SUBGRF_SetPacketParams( PacketParams_t *packetParams )
  800afd6:	3718      	adds	r7, #24
  800afd8:	46bd      	mov	sp, r7
  800afda:	bd80      	pop	{r7, pc}
- 800afdc:	080100e8 	.word	0x080100e8
+ 800afdc:	080100f0 	.word	0x080100f0
  800afe0:	20000759 	.word	0x20000759
  800afe4:	2000075a 	.word	0x2000075a
 
@@ -30054,7 +30054,7 @@ uint8_t SUBGRF_GetFskBandwidthRegValue( uint32_t bandwidth )
  800b5ea:	46bd      	mov	sp, r7
  800b5ec:	bc80      	pop	{r7}
  800b5ee:	4770      	bx	lr
- 800b5f0:	08010454 	.word	0x08010454
+ 800b5f0:	0801045c 	.word	0x0801045c
 
 0800b5f4 <SUBGRF_GetCFO>:
 void SUBGRF_GetCFO( uint32_t bitRate, int32_t *cfo)
@@ -30733,23 +30733,23 @@ void SubghzApp_Init(void)
  800b942:	46bd      	mov	sp, r7
  800b944:	bd90      	pop	{r4, r7, pc}
  800b946:	bf00      	nop
- 800b948:	080100f4 	.word	0x080100f4
- 800b94c:	08010118 	.word	0x08010118
- 800b950:	0801013c 	.word	0x0801013c
- 800b954:	08010150 	.word	0x08010150
+ 800b948:	080100fc 	.word	0x080100fc
+ 800b94c:	08010120 	.word	0x08010120
+ 800b950:	08010144 	.word	0x08010144
+ 800b954:	08010158 	.word	0x08010158
  800b958:	0001e848 	.word	0x0001e848
- 800b95c:	08010164 	.word	0x08010164
+ 800b95c:	0801016c 	.word	0x0801016c
  800b960:	2000076c 	.word	0x2000076c
  800b964:	0800ba71 	.word	0x0800ba71
  800b968:	0800ba8d 	.word	0x0800ba8d
  800b96c:	0800baf1 	.word	0x0800baf1
  800b970:	0800bb0d 	.word	0x0800bb0d
  800b974:	0800bb29 	.word	0x0800bb29
- 800b978:	080103c4 	.word	0x080103c4
+ 800b978:	080103cc 	.word	0x080103cc
  800b97c:	33bca100 	.word	0x33bca100
  800b980:	200007e0 	.word	0x200007e0
  800b984:	20000768 	.word	0x20000768
- 800b988:	08010174 	.word	0x08010174
+ 800b988:	0801017c 	.word	0x0801017c
  800b98c:	0800bb45 	.word	0x0800bb45
 
 0800b990 <SwitchToTxMode>:
@@ -30822,8 +30822,8 @@ void SwitchToTxMode(uint8_t *payload, uint16_t size)
  800b9f4:	46bd      	mov	sp, r7
  800b9f6:	bd90      	pop	{r4, r7, pc}
  800b9f8:	20000768 	.word	0x20000768
- 800b9fc:	08010184 	.word	0x08010184
- 800ba00:	080103c4 	.word	0x080103c4
+ 800b9fc:	0801018c 	.word	0x0801018c
+ 800ba00:	080103cc 	.word	0x080103cc
 
 0800ba04 <SwitchToRxMode>:
 
@@ -30891,8 +30891,8 @@ void SwitchToRxMode(void)
  800ba60:	46bd      	mov	sp, r7
  800ba62:	bd90      	pop	{r4, r7, pc}
  800ba64:	20000768 	.word	0x20000768
- 800ba68:	0801019c 	.word	0x0801019c
- 800ba6c:	080103c4 	.word	0x080103c4
+ 800ba68:	080101a4 	.word	0x080101a4
+ 800ba6c:	080103cc 	.word	0x080103cc
 
 0800ba70 <OnTxDone>:
 
@@ -31354,24 +31354,24 @@ static void Per_Process(void)
  800bd34:	20000790 	.word	0x20000790
  800bd38:	2000079c 	.word	0x2000079c
  800bd3c:	2000079e 	.word	0x2000079e
- 800bd40:	080101b4 	.word	0x080101b4
- 800bd44:	080101c0 	.word	0x080101c0
+ 800bd40:	080101bc 	.word	0x080101bc
+ 800bd44:	080101c8 	.word	0x080101c8
  800bd48:	20000016 	.word	0x20000016
- 800bd4c:	080101e0 	.word	0x080101e0
+ 800bd4c:	080101e8 	.word	0x080101e8
  800bd50:	200007a0 	.word	0x200007a0
  800bd54:	20000794 	.word	0x20000794
- 800bd58:	080101f8 	.word	0x080101f8
+ 800bd58:	08010200 	.word	0x08010200
  800bd5c:	20000798 	.word	0x20000798
- 800bd60:	08010208 	.word	0x08010208
+ 800bd60:	08010210 	.word	0x08010210
  800bd64:	200007e8 	.word	0x200007e8
  800bd68:	200007e4 	.word	0x200007e4
  800bd6c:	200007ec 	.word	0x200007ec
- 800bd70:	08010214 	.word	0x08010214
+ 800bd70:	0801021c 	.word	0x0801021c
  800bd74:	20000788 	.word	0x20000788
- 800bd78:	0801022c 	.word	0x0801022c
+ 800bd78:	08010234 	.word	0x08010234
  800bd7c:	2000078c 	.word	0x2000078c
- 800bd80:	08010238 	.word	0x08010238
- 800bd84:	08010248 	.word	0x08010248
+ 800bd80:	08010240 	.word	0x08010240
+ 800bd84:	08010250 	.word	0x08010250
 
 0800bd88 <tx_payload_generator>:
 
@@ -32015,7 +32015,7 @@ SysTime_t SysTimeGet( void )
  800c08a:	3720      	adds	r7, #32
  800c08c:	46bd      	mov	sp, r7
  800c08e:	bd80      	pop	{r7, pc}
- 800c090:	08010378 	.word	0x08010378
+ 800c090:	08010380 	.word	0x08010380
 
 0800c094 <ee_skip_atoi>:
   return sc - s;
@@ -32781,7 +32781,7 @@ int tiny_vsnprintf_like(char *buf, const int size, const char *fmt, va_list args
  800c556:	46bd      	mov	sp, r7
  800c558:	bd80      	pop	{r7, pc}
  800c55a:	bf00      	nop
- 800c55c:	080102a4 	.word	0x080102a4
+ 800c55c:	080102ac 	.word	0x080102ac
 
 0800c560 <UTIL_SEQ_Run>:
  * That is the reason why many variables that are used only in that function are declared static.
@@ -33334,7 +33334,7 @@ uint32_t lvalue = Value;
  800c872:	bc80      	pop	{r7}
  800c874:	4770      	bx	lr
  800c876:	bf00      	nop
- 800c878:	08010504 	.word	0x08010504
+ 800c878:	0801050c 	.word	0x0801050c
 
 0800c87c <UTIL_TIMER_Init>:
   * @addtogroup TIMER_SERVER_exported_function
@@ -33360,7 +33360,7 @@ UTIL_TIMER_Status_t UTIL_TIMER_Init(void)
  800c890:	bd80      	pop	{r7, pc}
  800c892:	bf00      	nop
  800c894:	20000818 	.word	0x20000818
- 800c898:	0801034c 	.word	0x0801034c
+ 800c898:	08010354 	.word	0x08010354
 
 0800c89c <UTIL_TIMER_Create>:
 {
@@ -33439,7 +33439,7 @@ UTIL_TIMER_Status_t UTIL_TIMER_Create( UTIL_TIMER_Object_t *TimerObject, uint32_
  800c8fe:	3710      	adds	r7, #16
  800c900:	46bd      	mov	sp, r7
  800c902:	bd80      	pop	{r7, pc}
- 800c904:	0801034c 	.word	0x0801034c
+ 800c904:	08010354 	.word	0x08010354
 
 0800c908 <UTIL_TIMER_Start>:
 
@@ -33594,7 +33594,7 @@ UTIL_TIMER_Status_t UTIL_TIMER_Start( UTIL_TIMER_Object_t *TimerObject)
  800c9d6:	3728      	adds	r7, #40	@ 0x28
  800c9d8:	46bd      	mov	sp, r7
  800c9da:	bd80      	pop	{r7, pc}
- 800c9dc:	0801034c 	.word	0x0801034c
+ 800c9dc:	08010354 	.word	0x08010354
  800c9e0:	20000818 	.word	0x20000818
 
 0800c9e4 <UTIL_TIMER_Stop>:
@@ -33781,7 +33781,7 @@ UTIL_TIMER_Status_t UTIL_TIMER_Stop( UTIL_TIMER_Object_t *TimerObject )
  800cab8:	46bd      	mov	sp, r7
  800caba:	bd80      	pop	{r7, pc}
  800cabc:	20000818 	.word	0x20000818
- 800cac0:	0801034c 	.word	0x0801034c
+ 800cac0:	08010354 	.word	0x08010354
 
 0800cac4 <UTIL_TIMER_SetPeriod>:
 
@@ -33841,7 +33841,7 @@ UTIL_TIMER_Status_t UTIL_TIMER_SetPeriod(UTIL_TIMER_Object_t *TimerObject, uint3
  800cb0e:	46bd      	mov	sp, r7
  800cb10:	bd80      	pop	{r7, pc}
  800cb12:	bf00      	nop
- 800cb14:	0801034c 	.word	0x0801034c
+ 800cb14:	08010354 	.word	0x08010354
 
 0800cb18 <UTIL_TIMER_IRQ_Handler>:
 	}
@@ -34026,7 +34026,7 @@ void UTIL_TIMER_IRQ_Handler( void )
  800cc0a:	3724      	adds	r7, #36	@ 0x24
  800cc0c:	46bd      	mov	sp, r7
  800cc0e:	bd90      	pop	{r4, r7, pc}
- 800cc10:	0801034c 	.word	0x0801034c
+ 800cc10:	08010354 	.word	0x08010354
  800cc14:	20000818 	.word	0x20000818
 
 0800cc18 <UTIL_TIMER_GetCurrentTime>:
@@ -34052,7 +34052,7 @@ UTIL_TIMER_Time_t UTIL_TIMER_GetCurrentTime(void)
  800cc32:	3708      	adds	r7, #8
  800cc34:	46bd      	mov	sp, r7
  800cc36:	bd80      	pop	{r7, pc}
- 800cc38:	0801034c 	.word	0x0801034c
+ 800cc38:	08010354 	.word	0x08010354
 
 0800cc3c <UTIL_TIMER_GetElapsedTime>:
 
@@ -34089,7 +34089,7 @@ UTIL_TIMER_Time_t UTIL_TIMER_GetElapsedTime(UTIL_TIMER_Time_t past )
  800cc6a:	46bd      	mov	sp, r7
  800cc6c:	bd80      	pop	{r7, pc}
  800cc6e:	bf00      	nop
- 800cc70:	0801034c 	.word	0x0801034c
+ 800cc70:	08010354 	.word	0x08010354
 
 0800cc74 <TimerExists>:
  *
@@ -34196,7 +34196,7 @@ void TimerSetTimeout( UTIL_TIMER_Object_t *TimerObject )
  800ccf6:	46bd      	mov	sp, r7
  800ccf8:	bd90      	pop	{r4, r7, pc}
  800ccfa:	bf00      	nop
- 800ccfc:	0801034c 	.word	0x0801034c
+ 800ccfc:	08010354 	.word	0x08010354
 
 0800cd00 <TimerInsertTimer>:
  *     next timer to expire.
@@ -34358,7 +34358,7 @@ UTIL_ADV_TRACE_Status_t UTIL_ADV_TRACE_Init(void)
  800cdc2:	bd80      	pop	{r7, pc}
  800cdc4:	2000081c 	.word	0x2000081c
  800cdc8:	20000834 	.word	0x20000834
- 800cdcc:	0801038c 	.word	0x0801038c
+ 800cdcc:	08010394 	.word	0x08010394
  800cdd0:	0800d019 	.word	0x0800d019
 
 0800cdd4 <UTIL_ADV_TRACE_COND_FSend>:
@@ -34785,7 +34785,7 @@ static UTIL_ADV_TRACE_Status_t TRACE_Send(void)
  800d00a:	bf00      	nop
  800d00c:	2000081c 	.word	0x2000081c
  800d010:	20000834 	.word	0x20000834
- 800d014:	0801038c 	.word	0x0801038c
+ 800d014:	08010394 	.word	0x08010394
 
 0800d018 <TRACE_TxCpltCallback>:
  * @brief Tx callback called by the low layer level to inform a transfer complete
@@ -34998,7 +34998,7 @@ static void TRACE_TxCpltCallback(void *Ptr)
  800d122:	bd80      	pop	{r7, pc}
  800d124:	2000081c 	.word	0x2000081c
  800d128:	20000834 	.word	0x20000834
- 800d12c:	0801038c 	.word	0x0801038c
+ 800d12c:	08010394 	.word	0x08010394
 
 0800d130 <TRACE_AllocateBufer>:
  * @param  Size to allocate within fifo
@@ -35720,11 +35720,11 @@ static uint32_t TRACE_IsLocked(void)
  800d6c8:	e7ee      	b.n	800d6a8 <_printf_float+0x2a8>
  800d6ca:	bf00      	nop
  800d6cc:	7fefffff 	.word	0x7fefffff
- 800d6d0:	08010615 	.word	0x08010615
- 800d6d4:	08010619 	.word	0x08010619
- 800d6d8:	0801061d 	.word	0x0801061d
- 800d6dc:	08010621 	.word	0x08010621
- 800d6e0:	08010625 	.word	0x08010625
+ 800d6d0:	0801061d 	.word	0x0801061d
+ 800d6d4:	08010621 	.word	0x08010621
+ 800d6d8:	08010625 	.word	0x08010625
+ 800d6dc:	08010629 	.word	0x08010629
+ 800d6e0:	0801062d 	.word	0x0801062d
  800d6e4:	6da3      	ldr	r3, [r4, #88]	@ 0x58
  800d6e6:	f8dd a038 	ldr.w	sl, [sp, #56]	@ 0x38
  800d6ea:	4553      	cmp	r3, sl
@@ -36204,8 +36204,8 @@ static uint32_t TRACE_IsLocked(void)
  800db64:	f104 0619 	add.w	r6, r4, #25
  800db68:	e7f5      	b.n	800db56 <_printf_i+0x222>
  800db6a:	bf00      	nop
- 800db6c:	08010627 	.word	0x08010627
- 800db70:	08010638 	.word	0x08010638
+ 800db6c:	0801062f 	.word	0x0801062f
+ 800db70:	08010640 	.word	0x08010640
 
 0800db74 <std>:
  800db74:	2300      	movs	r3, #0
@@ -36615,10 +36615,10 @@ static uint32_t TRACE_IsLocked(void)
  800def6:	4798      	blx	r3
  800def8:	3601      	adds	r6, #1
  800defa:	e7f2      	b.n	800dee2 <__libc_init_array+0x1e>
- 800defc:	08010890 	.word	0x08010890
- 800df00:	08010890 	.word	0x08010890
- 800df04:	08010890 	.word	0x08010890
- 800df08:	08010898 	.word	0x08010898
+ 800defc:	08010898 	.word	0x08010898
+ 800df00:	08010898 	.word	0x08010898
+ 800df04:	08010898 	.word	0x08010898
+ 800df08:	080108a0 	.word	0x080108a0
 
 0800df0c <__retarget_lock_init_recursive>:
  800df0c:	4770      	bx	lr
@@ -37023,15 +37023,15 @@ static uint32_t TRACE_IsLocked(void)
  800e2fc:	3fc68a28 	.word	0x3fc68a28
  800e300:	509f79fb 	.word	0x509f79fb
  800e304:	3fd34413 	.word	0x3fd34413
- 800e308:	08010656 	.word	0x08010656
- 800e30c:	0801066d 	.word	0x0801066d
+ 800e308:	0801065e 	.word	0x0801065e
+ 800e30c:	08010675 	.word	0x08010675
  800e310:	7ff00000 	.word	0x7ff00000
- 800e314:	08010652 	.word	0x08010652
- 800e318:	08010626 	.word	0x08010626
- 800e31c:	08010625 	.word	0x08010625
+ 800e314:	0801065a 	.word	0x0801065a
+ 800e318:	0801062e 	.word	0x0801062e
+ 800e31c:	0801062d 	.word	0x0801062d
  800e320:	3ff80000 	.word	0x3ff80000
- 800e324:	08010768 	.word	0x08010768
- 800e328:	080106c5 	.word	0x080106c5
+ 800e324:	08010770 	.word	0x08010770
+ 800e328:	080106cd 	.word	0x080106cd
  800e32c:	f8db 301c 	ldr.w	r3, [fp, #28]
  800e330:	6018      	str	r0, [r3, #0]
  800e332:	9b07      	ldr	r3, [sp, #28]
@@ -37231,8 +37231,8 @@ static uint32_t TRACE_IsLocked(void)
  800e55a:	9704      	str	r7, [sp, #16]
  800e55c:	e761      	b.n	800e422 <_dtoa_r+0x3e2>
  800e55e:	bf00      	nop
- 800e560:	08010768 	.word	0x08010768
- 800e564:	08010740 	.word	0x08010740
+ 800e560:	08010770 	.word	0x08010770
+ 800e564:	08010748 	.word	0x08010748
  800e568:	3ff00000 	.word	0x3ff00000
  800e56c:	40240000 	.word	0x40240000
  800e570:	401c0000 	.word	0x401c0000
@@ -37402,7 +37402,7 @@ static uint32_t TRACE_IsLocked(void)
  800e734:	2800      	cmp	r0, #0
  800e736:	f43f aebc 	beq.w	800e4b2 <_dtoa_r+0x472>
  800e73a:	e6f1      	b.n	800e520 <_dtoa_r+0x4e0>
- 800e73c:	08010768 	.word	0x08010768
+ 800e73c:	08010770 	.word	0x08010770
  800e740:	3fe00000 	.word	0x3fe00000
  800e744:	3ff00000 	.word	0x3ff00000
  800e748:	40240000 	.word	0x40240000
@@ -37889,8 +37889,8 @@ static uint32_t TRACE_IsLocked(void)
  800ebc2:	4681      	mov	r9, r0
  800ebc4:	e7ea      	b.n	800eb9c <_dtoa_r+0xb5c>
  800ebc6:	bf00      	nop
- 800ebc8:	080106c5 	.word	0x080106c5
- 800ebcc:	08010649 	.word	0x08010649
+ 800ebc8:	080106cd 	.word	0x080106cd
+ 800ebcc:	08010651 	.word	0x08010651
 
 0800ebd0 <_free_r>:
  800ebd0:	b538      	push	{r3, r4, r5, lr}
@@ -38174,8 +38174,8 @@ static uint32_t TRACE_IsLocked(void)
  800ee40:	e9c0 3303 	strd	r3, r3, [r0, #12]
  800ee44:	e7f7      	b.n	800ee36 <_Balloc+0x66>
  800ee46:	bf00      	nop
- 800ee48:	08010656 	.word	0x08010656
- 800ee4c:	080106d6 	.word	0x080106d6
+ 800ee48:	0801065e 	.word	0x0801065e
+ 800ee4c:	080106de 	.word	0x080106de
 
 0800ee50 <_Bfree>:
  800ee50:	b570      	push	{r4, r5, r6, lr}
@@ -38203,8 +38203,8 @@ static uint32_t TRACE_IsLocked(void)
  800ee84:	6021      	str	r1, [r4, #0]
  800ee86:	f843 4022 	str.w	r4, [r3, r2, lsl #2]
  800ee8a:	bd70      	pop	{r4, r5, r6, pc}
- 800ee8c:	08010656 	.word	0x08010656
- 800ee90:	080106d6 	.word	0x080106d6
+ 800ee8c:	0801065e 	.word	0x0801065e
+ 800ee90:	080106de 	.word	0x080106de
 
 0800ee94 <__multadd>:
  800ee94:	e92d 41f0 	stmdb	sp!, {r4, r5, r6, r7, r8, lr}
@@ -38258,8 +38258,8 @@ static uint32_t TRACE_IsLocked(void)
  800ef10:	6125      	str	r5, [r4, #16]
  800ef12:	4620      	mov	r0, r4
  800ef14:	e8bd 81f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, pc}
- 800ef18:	080106c5 	.word	0x080106c5
- 800ef1c:	080106d6 	.word	0x080106d6
+ 800ef18:	080106cd 	.word	0x080106cd
+ 800ef1c:	080106de 	.word	0x080106de
 
 0800ef20 <__hi0bits>:
  800ef20:	f5b0 3f80 	cmp.w	r0, #65536	@ 0x10000
@@ -38349,8 +38349,8 @@ static uint32_t TRACE_IsLocked(void)
  800efd6:	6103      	str	r3, [r0, #16]
  800efd8:	bd10      	pop	{r4, pc}
  800efda:	bf00      	nop
- 800efdc:	080106c5 	.word	0x080106c5
- 800efe0:	080106d6 	.word	0x080106d6
+ 800efdc:	080106cd 	.word	0x080106cd
+ 800efe0:	080106de 	.word	0x080106de
 
 0800efe4 <__multiply>:
  800efe4:	e92d 4ff0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
@@ -38470,8 +38470,8 @@ static uint32_t TRACE_IsLocked(void)
  800f12a:	3e01      	subs	r6, #1
  800f12c:	e79c      	b.n	800f068 <__multiply+0x84>
  800f12e:	bf00      	nop
- 800f130:	080106c5 	.word	0x080106c5
- 800f134:	080106d6 	.word	0x080106d6
+ 800f130:	080106cd 	.word	0x080106cd
+ 800f134:	080106de 	.word	0x080106de
 
 0800f138 <__pow5mult>:
  800f138:	e92d 43f8 	stmdb	sp!, {r3, r4, r5, r6, r7, r8, r9, lr}
@@ -38539,9 +38539,9 @@ static uint32_t TRACE_IsLocked(void)
  800f1d8:	4630      	mov	r0, r6
  800f1da:	e8bd 83f8 	ldmia.w	sp!, {r3, r4, r5, r6, r7, r8, r9, pc}
  800f1de:	bf00      	nop
- 800f1e0:	08010730 	.word	0x08010730
- 800f1e4:	08010656 	.word	0x08010656
- 800f1e8:	080106d6 	.word	0x080106d6
+ 800f1e0:	08010738 	.word	0x08010738
+ 800f1e4:	0801065e 	.word	0x0801065e
+ 800f1e8:	080106de 	.word	0x080106de
 
 0800f1ec <__lshift>:
  800f1ec:	e92d 47f0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, lr}
@@ -38620,8 +38620,8 @@ static uint32_t TRACE_IsLocked(void)
  800f2b6:	d8f9      	bhi.n	800f2ac <__lshift+0xc0>
  800f2b8:	e7ea      	b.n	800f290 <__lshift+0xa4>
  800f2ba:	bf00      	nop
- 800f2bc:	080106c5 	.word	0x080106c5
- 800f2c0:	080106d6 	.word	0x080106d6
+ 800f2bc:	080106cd 	.word	0x080106cd
+ 800f2c0:	080106de 	.word	0x080106de
 
 0800f2c4 <__mcmp>:
  800f2c4:	690a      	ldr	r2, [r1, #16]
@@ -38755,8 +38755,8 @@ static uint32_t TRACE_IsLocked(void)
  800f412:	e7dd      	b.n	800f3d0 <__mdiff+0xd4>
  800f414:	3f01      	subs	r7, #1
  800f416:	e7e7      	b.n	800f3e8 <__mdiff+0xec>
- 800f418:	080106c5 	.word	0x080106c5
- 800f41c:	080106d6 	.word	0x080106d6
+ 800f418:	080106cd 	.word	0x080106cd
+ 800f41c:	080106de 	.word	0x080106de
 
 0800f420 <__d2b>:
  800f420:	e92d 4373 	stmdb	sp!, {r0, r1, r4, r5, r6, r8, r9, lr}
@@ -38823,8 +38823,8 @@ static uint32_t TRACE_IsLocked(void)
  800f4be:	f7ff fd2f 	bl	800ef20 <__hi0bits>
  800f4c2:	ebc0 1042 	rsb	r0, r0, r2, lsl #5
  800f4c6:	e7e4      	b.n	800f492 <__d2b+0x72>
- 800f4c8:	080106c5 	.word	0x080106c5
- 800f4cc:	080106d6 	.word	0x080106d6
+ 800f4c8:	080106cd 	.word	0x080106cd
+ 800f4cc:	080106de 	.word	0x080106de
 
 0800f4d0 <__ssputs_r>:
  800f4d0:	e92d 47f0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, lr}
@@ -39101,9 +39101,9 @@ static uint32_t TRACE_IsLocked(void)
  800f764:	4638      	mov	r0, r7
  800f766:	f7fe f8e5 	bl	800d934 <_printf_i>
  800f76a:	e7ed      	b.n	800f748 <_svfiprintf_r+0x1c0>
- 800f76c:	08010830 	.word	0x08010830
- 800f770:	08010836 	.word	0x08010836
- 800f774:	0801083a 	.word	0x0801083a
+ 800f76c:	08010838 	.word	0x08010838
+ 800f770:	0801083e 	.word	0x0801083e
+ 800f774:	08010842 	.word	0x08010842
  800f778:	0800d401 	.word	0x0800d401
  800f77c:	0800f4d1 	.word	0x0800f4d1
 
@@ -39324,9 +39324,9 @@ static uint32_t TRACE_IsLocked(void)
  800f94c:	e7f4      	b.n	800f938 <__assert_func+0x14>
  800f94e:	bf00      	nop
  800f950:	2000003c 	.word	0x2000003c
- 800f954:	08010886 	.word	0x08010886
- 800f958:	08010858 	.word	0x08010858
- 800f95c:	0801084b 	.word	0x0801084b
+ 800f954:	0801088e 	.word	0x0801088e
+ 800f958:	08010860 	.word	0x08010860
+ 800f95c:	08010853 	.word	0x08010853
 
 0800f960 <_calloc_r>:
  800f960:	b570      	push	{r4, r5, r6, lr}
@@ -39714,9 +39714,9 @@ static uint32_t TRACE_IsLocked(void)
  800fcc8:	4630      	mov	r0, r6
  800fcca:	f7fd fe33 	bl	800d934 <_printf_i>
  800fcce:	e7e4      	b.n	800fc9a <_vfiprintf_r+0x1e6>
- 800fcd0:	08010830 	.word	0x08010830
- 800fcd4:	08010836 	.word	0x08010836
- 800fcd8:	0801083a 	.word	0x0801083a
+ 800fcd0:	08010838 	.word	0x08010838
+ 800fcd4:	0801083e 	.word	0x0801083e
+ 800fcd8:	08010842 	.word	0x08010842
  800fcdc:	0800d401 	.word	0x0800d401
  800fce0:	0800fa91 	.word	0x0800fa91
 

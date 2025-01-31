@@ -11,14 +11,6 @@
 #include "timer.h"
 #include <cstdio>
 
-#define TX_BOARD_IDENTIFIER "TX:"
-#define MY_IDENTIFIER "RELAY:"
-
-#define MCU_1 1
-#define MCU_2 2
-
-#define RELAYBOARD MCU_1
-
 BoardState state = BOOTUP_STATE;
 uint8_t HelloCommand[] = MY_IDENTIFIER"HELLO";
 TimerEvent_t WaitTimer;
@@ -61,7 +53,7 @@ extern "C" void RX_Done_Process(char* buffer, uint32_t size)
 	{
 		CommPacket packet;
 		memcpy(&packet, buffer+ identifier_length, sizeof(packet));
-		HAL_UART_Transmit(&huart1, (uint8_t*)MY_IDENTIFIER, strlen(MY_IDENTIFIER), 1000);
+		HAL_UART_Transmit(&huart1, (uint8_t*)MY_PACKET_IDENTIFIER, strlen(MY_PACKET_IDENTIFIER), 1000);
 		HAL_UART_Transmit(&huart1, (uint8_t*)(buffer + identifier_length), size, 1000);
 	}
 }

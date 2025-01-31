@@ -7,6 +7,16 @@
 #define BOARD_ID 0x1234
 #define DAY_TIMEOUT 60000U // (1000U * 60U * 60U * 24U) // 1 Day Timeout
 
+#define TX_BOARD_IDENTIFIER "TX:"
+#define MY_IDENTIFIER "RELAY:"
+#define PACKET_IDENTIFIER "PACKET:"
+#define MY_PACKET_IDENTIFIER MY_IDENTIFIER PACKET_IDENTIFIER
+
+#define MCU_1 1
+#define MCU_2 2
+
+#define RELAYBOARD MCU_1
+
 enum BoardState
 {
 	BOOTUP_STATE,
