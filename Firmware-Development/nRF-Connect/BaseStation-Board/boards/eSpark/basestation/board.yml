@@ -1,8 +1,0 @@
-board:
-  name: basestation
-  vendor: eSpark
-  socs:
-  - name: nrf5340
-    variants:
-    - name: ns
-      cpucluster: cpuapp
