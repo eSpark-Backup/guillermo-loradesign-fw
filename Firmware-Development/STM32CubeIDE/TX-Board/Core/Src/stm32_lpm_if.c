@@ -79,6 +79,21 @@ void PWR_EnterOffMode(void)
 {
   /* USER CODE BEGIN EnterOffMode_1 */
 
+	HAL_DBGMCU_DisableDBGSleepMode();
+	HAL_DBGMCU_DisableDBGStopMode();
+	HAL_DBGMCU_DisableDBGStandbyMode();
+
+	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_A, LED1_Pin);
+	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_A, LED2_Pin);
+	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_B, GNSS_PWR_Pin);
+	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_A, GNSS_RESET_Pin);
+	HAL_PWREx_EnablePullUpPullDownConfig();
+	HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN1);
+	HAL_SuspendTick();
+  /* Clear Status Flag before entering STOP/STANDBY Mode */
+  LL_PWR_ClearFlag_C1STOP_C1STB();
+  LL_PWR_ClearFlag_WU();
+	HAL_PWREx_EnterSHUTDOWNMode();
   /* USER CODE END EnterOffMode_1 */
 }
 
@@ -86,6 +101,9 @@ void PWR_ExitOffMode(void)
 {
   /* USER CODE BEGIN ExitOffMode_1 */
 
+  void SystemClock_Config(void);
+  SystemClock_Config();
+  HAL_ResumeTick();
   /* USER CODE END ExitOffMode_1 */
 }
 

@@ -77,10 +77,12 @@ void sleep(uint32_t timeout)
 	TimerStop( &RxTimeoutTimer );
 	TimerStop( &TxTimeoutTimer );
 	TimerStop( &SleepTimeoutTimer );
-	TimerSetValue( &SleepTimeoutTimer, timeout );
-	TimerStart( &SleepTimeoutTimer );
-	PWR_EnterStopMode();
-	PWR_ExitStopMode();
+//	TimerSetValue( &SleepTimeoutTimer, timeout );
+//	TimerStart( &SleepTimeoutTimer );
+	extern SUBGHZ_HandleTypeDef hsubghz;
+	HAL_SUBGHZ_DeInit(&hsubghz);
+	PWR_EnterOffMode();
+	PWR_ExitOffMode();
 	LOG_D("Starts Receiving Data\r\n");
 	Radio.Rx(5000);
 }
@@ -126,6 +128,7 @@ void App::setup(void)
 	TimerInit( &SleepTimeoutTimer, UpTimerEventCallback );
 	TimerStop( &SleepTimeoutTimer );
 	gps.setup();
+	sleep(60000);
 }
 
 void App::loop(void)
