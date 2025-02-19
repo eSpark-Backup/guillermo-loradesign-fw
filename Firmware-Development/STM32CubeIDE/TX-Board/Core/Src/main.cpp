@@ -103,6 +103,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+//  for(int x = 0; x<900000; x++);
 //  MX_DMA_Init();
   MX_USART1_UART_Init();
 //  MX_RTC_Init();
@@ -128,7 +129,7 @@ int main(void)
   * @brief System Clock Configuration
   * @retval None
   */
-extern "C" void SystemClock_Config(void)
+void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};

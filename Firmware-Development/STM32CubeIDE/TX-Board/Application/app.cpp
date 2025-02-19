@@ -77,8 +77,8 @@ void sleep(uint32_t timeout)
 	TimerStop( &RxTimeoutTimer );
 	TimerStop( &TxTimeoutTimer );
 	TimerStop( &SleepTimeoutTimer );
-//	TimerSetValue( &SleepTimeoutTimer, timeout );
-//	TimerStart( &SleepTimeoutTimer );
+	TimerSetValue( &SleepTimeoutTimer, timeout );
+	TimerStart( &SleepTimeoutTimer );
 	extern SUBGHZ_HandleTypeDef hsubghz;
 	HAL_SUBGHZ_DeInit(&hsubghz);
 	PWR_EnterOffMode();
@@ -128,6 +128,7 @@ void App::setup(void)
 	TimerInit( &SleepTimeoutTimer, UpTimerEventCallback );
 	TimerStop( &SleepTimeoutTimer );
 	gps.setup();
+	HAL_Delay(3000);
 	sleep(60000);
 }
 

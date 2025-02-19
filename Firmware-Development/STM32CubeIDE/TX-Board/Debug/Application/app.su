@@ -4,4 +4,4 @@
 ../Application/app.cpp:90:17:void receiveTimeout()	8	static
 ../Application/app.cpp:105:17:void dataReceived(char*, uint32_t)	16	static
 ../Application/app.cpp:125:6:void App::setup()	24	static
-../Application/app.cpp:134:6:void App::loop()	152	static
+../Application/app.cpp:135:6:void App::loop()	152	static
