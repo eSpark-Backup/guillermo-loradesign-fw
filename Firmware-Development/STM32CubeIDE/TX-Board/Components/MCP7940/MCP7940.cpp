@@ -5,9 +5,11 @@ Arduino Library for the MCP7940M and MCP7940N Real-Time Clock devices\n\n
 See main library header file for details
 */
 #include "MCP7940.h"
+#include <cstdlib>
+
 
 /*! Define the number of days in each month */
-const uint8_t   daysInMonth[] PROGMEM = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+const uint8_t   daysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 static uint16_t date2days(uint16_t y, uint8_t m, uint8_t d) {
   /*!
    * @brief   returns the number of days from a given Y M D value
@@ -20,7 +22,7 @@ static uint16_t date2days(uint16_t y, uint8_t m, uint8_t d) {
   uint16_t days = d;
   for (uint8_t i = 1; i < m; ++i)  // Add number of days for each month
   {
-    days += pgm_read_byte(daysInMonth + i - 1);
+    days += daysInMonth[i - 1];
   }                         // of for-next loop for each month
   if (m > 2 && y % 4 == 0)  // Deal with leap years
   {
@@ -78,7 +80,7 @@ DateTime::DateTime(uint32_t t) {
     days -= 365 + leap;
   }  // of for-next each year
   for (m = 1;; ++m) {
-    uint8_t daysPerMonth = pgm_read_byte(daysInMonth + m - 1);
+    uint8_t daysPerMonth = daysInMonth[m - 1];
     if (leap && m == 2) ++daysPerMonth;
     if (days < daysPerMonth) break;
     days -= daysPerMonth;
@@ -123,6 +125,11 @@ DateTime::DateTime(const char* date, const char* time) {
   "MMM DD YYYY" and a time string formatted as "hh:mm:ss" for the value
   @param[in] date Pointer to date string
   @param[in] time Pointer to time string */
+  char date_buff[12] = {0};
+  char time_buff[8] = {0};
+  strncpy(date_buff, date, sizeof(date_buff) - 1);
+  strncpy(time_buff, time, sizeof(time_buff) - 1);
+
   yOff = conv2d(date + 9);
   switch (date[0]) {
     case 'J': m = (date[1] == 'a') ? 1 : ((date[2] == 'n') ? 6 : 7); break;  // Jan June July
@@ -139,22 +146,7 @@ DateTime::DateTime(const char* date, const char* time) {
   mm = conv2d(time + 3);
   ss = conv2d(time + 6);
 }  // of method DateTime()
-DateTime::DateTime(const __FlashStringHelper* date, const __FlashStringHelper* time) {
-  /*!
-   @brief   DateTime constructor (overloaded)
-   @details Class Constructor for DateTime instantiates the class. This is an overloaded class
-   constructor so there are multiple definitions. This implementation uses the compile date and
-   time as the value to set. It only works when the compiler runs in English. This implementation
-   uses a Date string formatted as "MMM DD YYYY" and a time string formatted as "hh:mm:ss" for the
-   value
-   @param[in] date Pointer to date string
-   @param[in] time Pointer to time string */
-  char date_buff[12];
-  memcpy_P(date_buff, date, 12);
-  char time_buff[8];
-  memcpy_P(time_buff, time, 8);
-  DateTime(date_buff, time_buff);  // Call actual DateTime constructor
-}  // of method DateTime()
+
 uint8_t DateTime::dayOfTheWeek() const {
   /*!
   @brief     return the current day-of-week where Monday is day 1, Sunday is 7
@@ -228,42 +220,25 @@ TimeSpan TimeSpan::operator+(const TimeSpan& right) {
 TimeSpan TimeSpan::operator-(const TimeSpan& right) {
   return TimeSpan(_seconds - right._seconds);
 }  // of overloaded subtract
-bool MCP7940_Class::begin(const uint32_t i2cSpeed) const {
-  /*!
-      @brief     Start I2C device communications
-      @details   Starts I2C comms with the device, using a default speed if one is not specified
-      @param[in] i2cSpeed defaults to I2C_STANDARD_MODE, otherwise use speed in Herz
-      @return    true if successfully started communication, otherwise false
-  */
-  return begin(SDA, SCL, i2cSpeed);
-}  // of method begin()
-bool MCP7940_Class::begin(const uint8_t sda, const uint8_t scl, const uint32_t i2cSpeed) const {
-  /*!
-      @brief     Start I2C device communications
-      @details   Starts I2C comms with the device, using default SDA and SCL ports as well as speed
-                 if they are not specified
-      @param[in] sda defaults to PIN_WIRE_SDA, otherwise use pin (ignored if not ESP8266)
-      @param[in] scl defaults to PIN_WIRE_SCL, otherwise use pin (ignored if not ESP8266)
-      @param[in] i2cSpeed defaults to I2C_STANDARD_MODE, otherwise use speed in Herz
-      @return    true if successfully started communication, otherwise false
-  */
-#if defined(ESP8266)
-  Wire.begin(sda, scl);  // Start I2C as master device using the specified SDA and SCL
-#else
-  Wire.begin();  // Start I2C as master device
-#endif
-  (void)sda;                // force compiler to ignore this potentially unused parameter
-  (void)scl;                // force compiler to ignore this potentially unused parameter
-  Wire.setClock(i2cSpeed);  // Set the I2C bus speed
-  Wire.beginTransmission(MCP7940_ADDRESS);  // Address the MCP7940
-  if (Wire.endTransmission() == 0)          // If there a device present
-  {
-    clearRegisterBit(MCP7940_RTCHOUR, MCP7940_12_24);  // Use 24 hour clock
-    setRegisterBit(MCP7940_CONTROL, MCP7940_ALMPOL);   // assert alarm low, default high
-    return true;                                       // return success
-  } else {
-    return false;  // return error if no device found
-  }                // of if-then-else device detected
+
+bool MCP7940_Class::begin() const {
+	/*!
+		@brief     Start I2C device communications
+		@details   Initializes the I2C bus and checks if the MCP7940 is responsive
+		@param[in] i2cSpeed I2C bus speed in Hertz
+		@return    true if communication is successful, otherwise false
+	*/
+
+	// Check if the MCP7940 is responsive
+	if (HAL_I2C_IsDeviceReady(&hi2c3, MCP7940_ADDRESS << 1, 1, HAL_MAX_DELAY) != HAL_OK) {
+		return false;  // Device not responding
+	}
+
+	// Configure MCP7940 settings (24-hour format and alarm polarity)
+	clearRegisterBit(MCP7940_RTCHOUR, MCP7940_12_24);  // Use 24-hour clock
+	setRegisterBit(MCP7940_CONTROL, MCP7940_ALMPOL);   // Assert alarm low, default high
+
+	return true;  // Communication successful
 }  // of method begin()
 
 uint8_t MCP7940_Class::readByte(const uint8_t addr) const {
@@ -421,8 +396,8 @@ void MCP7940_Class::adjust() {
      adjust() function
   */
   char tempDate[13], tempTime[13];     // define temporary character arrays to hold values
-  strcpy_P(tempDate, PSTR(__DATE__));  // Copy values to buffer
-  strcpy_P(tempTime, PSTR(__TIME__));  // Copy values to buffer
+  strcpy(tempDate, __DATE__);  // Copy values to buffer
+  strcpy(tempTime, __TIME__);  // Copy values to buffer
   DateTime tempDt = DateTime(tempDate, tempTime);  // Create a datetime
   adjust(tempDt);                                  // Set to library compile Date/Time //
 }  // of method "adjust()"
@@ -461,7 +436,7 @@ uint8_t MCP7940_Class::weekdayWrite(const uint8_t dow) const {
       @param[in] dow Day of week (1-7)
       @return    Values 1-7 for the day set, returns MCP7940 value if "dow" is out of range
   */
-  uint8_t retval = (readByte(MCP7940_RTCWKDAY) & B11111000) | dow;  // Read, mask DOW bits & add DOW
+  uint8_t retval = (readByte(MCP7940_RTCWKDAY) & 0b11111000) | dow;  // Read, mask DOW bits & add DOW
   if (dow > 0 && dow < 8)  // If parameter is in range, then
   {
     I2C_write(MCP7940_RTCWKDAY, retval);  // Write the register
@@ -729,7 +704,7 @@ DateTime MCP7940_Class::getAlarm(const uint8_t alarmNumber, uint8_t& alarmType) 
     return DateTime(0);
   }                                  // of if-then bad alarm number
   uint8_t offset = 7 * alarmNumber;  // Offset to be applied
-  alarmType      = (readByte(MCP7940_ALM0WKDAY + offset) >> 4) & B111;  // get 3 bits for alarmType
+  alarmType      = (readByte(MCP7940_ALM0WKDAY + offset) >> 4) & 0b111;  // get 3 bits for alarmType
   uint8_t ss     = bcd2int(readByte(MCP7940_ALM0SEC + offset) & 0x7F);  // Clear high bit in seconds
   uint8_t mm     = bcd2int(readByte(MCP7940_ALM0MIN + offset) & 0x7F);  // Clear high bit in minutes
   uint8_t hh     = bcd2int(readByte(MCP7940_ALM0HOUR + offset) & 0x3F);  // Clear high bits in hours

@@ -100,11 +100,18 @@ Version| Date       | Developer           | Comments
 
 // clang-format on
 
-#include "Arduino.h"  // Arduino data type definitions
-#include "Wire.h"     // Standard I2C "Wire" library
 #ifndef MCP7940_h
   /** @brief  Guard code definition */
   #define MCP7940_h  // Define the name inside guard code
+#include "stm32wlxx_hal.h"
+#include <cstring>
+#include "i2c.h"
+#include <algorithm>
+
+#define constrain(x, a, b) ((x < a) ? a : ((x > b) ? b : x))
+#define bitRead(value, bit) (((value) >> (bit)) & 0x01)
+#define bitWrite(value, bit, bitvalue) ((bitvalue) ? ((value) |= (1UL << (bit))) : ((value) &= ~(1UL << (bit))))
+#define delay(x) HAL_Delay(x)
 /***************************************************************************************************
 ** Declare classes used in within the class                                                       **
 ***************************************************************************************************/
@@ -191,7 +198,6 @@ class DateTime {
            uint8_t sec = 0);
   DateTime(const DateTime& copy);
   DateTime(const char* date, const char* time);
-  DateTime(const __FlashStringHelper* date, const __FlashStringHelper* time);
   uint16_t year() const { /*! return the current year */
     return 2000U + yOff;
   }
@@ -256,9 +262,7 @@ class MCP7940_Class {
  public:
   MCP7940_Class(){};   ///< Unused Class constructor
   ~MCP7940_Class(){};  ///< Unused Class destructor
-  bool     begin(const uint32_t i2cSpeed) const;
-  bool     begin(const uint8_t sda = SDA, const uint8_t scl = SCL,
-                 const uint32_t i2cSpeed = I2C_STANDARD_MODE) const;
+  bool     begin() const;
   bool     deviceStatus() const;
   bool     deviceStart() const;
   bool     deviceStop() const;
@@ -329,53 +333,66 @@ class MCP7940_Class {
   }  // of method writeRAM()
   template <typename T>
   uint8_t readEUI(const uint8_t& addr, T& value) const {
-    /*!
-     @brief     Template for readEUI()
-     @details   As a template it can support compile-time data type definitions. This is a special
-                call as it access a different I2C address and a different memory block
-     @param[in] addr     Memory address
-     @param[in] value    Data Type "T" to read
-     @return             Pointer to return data structure
-    */
-    uint8_t i{0};                                        // return number of bytes read
-    Wire.beginTransmission(MCP7940_EUI_ADDRESS);         // Address the special I2C address
-    Wire.write((addr % 8) + MCP7940_EUI_RAM_ADDRESS);    // Send register address to read from
-    if (Wire.endTransmission() == 0) {                   // Close transmission and check error code
-      Wire.requestFrom(MCP7940_EUI_ADDRESS, sizeof(T));  // Request a block of data, max 61 bits
-      uint8_t* bytePtr = (uint8_t*)&value;               // Declare pointer to start of structure
-      for (i = 0; i < sizeof(T); i++) {                  // Loop for each byte to be read
-        *bytePtr++ = Wire.read();                        // Read a byte
-      }                                                  // of for-next each byte
-    }                                                    // if-then success
-    return i;                                            // return number of bytes read
-  }                                                      // of method readEUI()
+      /*!
+       @brief     Template for readEUI()
+       @details   Reads from a different I2C address and memory block.
+       @param[in] addr     Memory address
+       @param[out] value   Data Type "T" to store the read data
+       @return    number of bytes read
+      */
+
+      uint8_t i{0};  // Number of bytes read
+      HAL_StatusTypeDef status;
+      uint8_t regAddr = (addr % 8) + MCP7940_EUI_RAM_ADDRESS;
+
+      // Send the register address to read from
+      status = HAL_I2C_Master_Transmit(&hi2c3, MCP7940_EUI_ADDRESS << 1, &regAddr, 1, HAL_MAX_DELAY);
+      if (status == HAL_OK) {
+          // Read the data
+          status = HAL_I2C_Master_Receive(&hi2c3, MCP7940_EUI_ADDRESS << 1, reinterpret_cast<uint8_t*>(&value), sizeof(T), HAL_MAX_DELAY);
+          if (status == HAL_OK) {
+              i = sizeof(T);  // Return number of bytes read
+          }
+      }
+
+      return i;  // Return number of bytes read (0 if failed)
+  }
+                                                     // of method readEUI()
   template <typename T>
-  uint8_t writeEUI(const uint8_t& addr, T& value) const {
-    /*!
-     @brief     Template for writeEUI()
-     @details   As a template it can support compile-time data type definitions. This is a special
-                call as it access a different I2C address and a different memory block and also has
-                to unlock the area prior to writing
-     @param[in] addr     Memory address
-     @param[in] value    Data Type "T" to read
-     @return             Pointer to  data structure to write
-    */
-    uint8_t i{0};                                      // return number of bytes read
-    Wire.beginTransmission(MCP7940_EUI_ADDRESS);       // Address the special I2C address
-    Wire.write(MCP7940_EEUNLOCK);                      // Send special register address to write to
-    Wire.write(0x55);                                  // Special write value to start unlock
-    i = Wire.endTransmission();                        // close transmission of first byte
-    Wire.beginTransmission(MCP7940_EUI_ADDRESS);       // Address the special I2C address
-    Wire.write(MCP7940_EEUNLOCK);                      // Send special register address to write to
-    Wire.write(0x55);                                  // Special write value to complete unlock
-    i = Wire.endTransmission();                        // close transmission of second byte
-    Wire.beginTransmission(MCP7940_EUI_ADDRESS);       // Address the special I2C address
-    Wire.write((addr % 8) + MCP7940_EUI_RAM_ADDRESS);  // Send register address to read from
-    Wire.write((uint8_t*)&value, sizeof(T));           // write the data
-    i = Wire.endTransmission();                        // close transmission of actual write
-    if (i == 0) i = sizeof(T);                         // return number of bytes on success
-    return i;                                          // return number of bytes read
-  }                                                    // of method writeEUI()
+  uint8_t writeEUI(const uint8_t& addr, const T& value) const {
+      /*!
+       @brief     Template for writeEUI()
+       @details   Writes to a different I2C address and memory block, unlocking the area before writing.
+       @param[in] addr     Memory address
+       @param[in] value    Data Type "T" to write
+       @return    number of bytes written
+      */
+
+      uint8_t i{0};  // Number of bytes written
+      HAL_StatusTypeDef status;
+      uint8_t unlock_seq[2] = {MCP7940_EEUNLOCK, 0x55};
+
+      // Send the first unlock sequence
+      status = HAL_I2C_Master_Transmit(&hi2c3, MCP7940_EUI_ADDRESS << 1, unlock_seq, sizeof(unlock_seq), HAL_MAX_DELAY);
+      if (status != HAL_OK) return 0;
+
+      // Send the second unlock sequence
+      status = HAL_I2C_Master_Transmit(&hi2c3, MCP7940_EUI_ADDRESS << 1, unlock_seq, sizeof(unlock_seq), HAL_MAX_DELAY);
+      if (status != HAL_OK) return 0;
+
+      // Prepare the write buffer
+      uint8_t buffer[sizeof(T) + 1];
+      buffer[0] = (addr % 8) + MCP7940_EUI_RAM_ADDRESS;
+      memcpy(&buffer[1], &value, sizeof(T));  // Copy data into buffer
+
+      // Send the actual data
+      status = HAL_I2C_Master_Transmit(&hi2c3, MCP7940_EUI_ADDRESS << 1, buffer, sizeof(buffer), HAL_MAX_DELAY);
+      if (status == HAL_OK) {
+          i = sizeof(T);  // Return number of bytes written
+      }
+
+      return i;  // Return number of bytes written (0 if failed)
+  }
 
  private:
   uint32_t _SetUnixTime{0};  ///< UNIX time when clock last set
@@ -388,46 +405,48 @@ class MCP7940_Class {
   *************************************************************************************************/
   template <typename T>
   uint8_t I2C_read(const uint8_t address, T& value) const {
-    /*!
-    @brief     Template for I2C_read() generic read function
-    @details   The template supports reading any number of bytes from a structure. The size of the
-               structure is determined by the template and determines how often the main loop is
-               entered.
-    @param[in] device  I2C Device number
-    @param[in] address Memory address to read from on device
-    @param[in] value   Data Type "T" to read
-    @return    number of bytes read
-   */
-    uint8_t i{0};                                    // return number of bytes read
-    Wire.beginTransmission(MCP7940_ADDRESS);         // Address the I2C device
-    Wire.write(address);                             // Send register address to read from
-    if (Wire.endTransmission() == 0) {               // Close transmission and check error code
-      Wire.requestFrom(MCP7940_ADDRESS, sizeof(T));  // Request a block of data
-      uint8_t* bytePtr = (uint8_t*)&value;           // Declare pointer to start of structure
-      for (i = 0; i < sizeof(T); i++) {              // Loop for each byte to be read
-        *bytePtr++ = Wire.read();                    // Read a byte
-      }                                              // of for-next each byte
-    }                                                // if-then success
-    return i;                                        // return number of bytes read
-  }                                                  // end of template method "I2C_read"
+      /*!
+      @brief     Template for I2C_read() generic read function
+      @details   The template supports reading any number of bytes from a structure. The size of the
+                 structure is determined by the template and determines how many bytes are read.
+      @param[in] address  Memory address to read from on the device
+      @param[out] value   Data Type "T" to store the read data
+      @return    number of bytes read
+      */
+
+      uint8_t i{0};  // Return number of bytes read
+      HAL_StatusTypeDef status;
+
+      // Send the register address to read from
+      status = HAL_I2C_Master_Transmit(&hi2c3, MCP7940_ADDRESS << 1, (uint8_t*)&address, 1, HAL_MAX_DELAY);
+      if (status == HAL_OK) {
+          // Read the data
+          status = HAL_I2C_Master_Receive(&hi2c3, MCP7940_ADDRESS << 1, reinterpret_cast<uint8_t*>(&value), sizeof(T), HAL_MAX_DELAY);
+          if (status == HAL_OK) {
+              i = sizeof(T);  // Return number of bytes read on success
+          }
+      }
+
+      return i;  // Return number of bytes read (0 if failed)
+  }
+
   template <typename T>
   uint8_t I2C_write(const uint8_t address, const T& value) const {
-    /*!
-      @brief     Template for I2C_write() generic read function
-      @details   The template supports writing any number of bytes into a structure. The size of the
-                 structure is determined by the template and determines how many bytes are written
-      @param[in] device  I2C Device number
-      @param[in] address Memory address to write to on device
-      @param[in] value   Data Type "T" to write
-      @return    number of bytes written
-     */
-    Wire.beginTransmission(MCP7940_ADDRESS);   // Address the I2C device
-    Wire.write(address);                       // Send register address to read from
-    Wire.write((uint8_t*)&value, sizeof(T));   // write the data
-    uint8_t i = Wire.endTransmission();        // close transmission and save status
-    if (i == 0) i = sizeof(T);                 // return number of bytes on success
-    return i;                                  // return the number of bytes written
-  }                                            // end of template method "I2C_write()"
+      /*!
+        @brief     Template for I2C_write() generic write function
+        @details   The template supports writing any number of bytes into a structure.
+        @param[in] address  Memory address to write to on the device
+        @param[in] value    Data Type "T" to write
+        @return    number of bytes written
+      */
+
+      uint8_t buffer[sizeof(T) + 1];
+      buffer[0] = address;
+      memcpy(&buffer[1], &value, sizeof(T)); // Copy data to buffer
+
+      HAL_StatusTypeDef status = HAL_I2C_Master_Transmit(&hi2c3, MCP7940_ADDRESS << 1, buffer, sizeof(buffer), HAL_MAX_DELAY);
+      return (status == HAL_OK) ? sizeof(T) : 0; // Return bytes written on success, 0 on failure
+  }
   uint8_t readByte(const uint8_t addr) const;  // Read 1 byte from address on I2C
   uint8_t bcd2int(const uint8_t bcd) const;    // convert BCD digits to integer
   uint8_t int2bcd(const uint8_t dec) const;    // convert integer to BCD

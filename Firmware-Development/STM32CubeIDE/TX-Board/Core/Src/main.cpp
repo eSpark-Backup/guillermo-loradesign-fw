@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "dma.h"
+#include "i2c.h"
 #include "rtc.h"
 #include "app_subghz_phy.h"
 #include "usart.h"
@@ -108,6 +109,7 @@ int main(void)
   MX_USART1_UART_Init();
 //  MX_RTC_Init();
   MX_SubGHz_Phy_Init();
+  MX_I2C3_Init();
   /* USER CODE BEGIN 2 */
   app.setup();
   /* USER CODE END 2 */

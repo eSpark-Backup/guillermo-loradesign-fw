@@ -9,6 +9,7 @@
 #include "stm32_lpm_if.h"
 #include "radio.h"
 #include "timer.h"
+#include "MCP7940.h"
 #include <cstdio>
 
 BoardState state = BOOTUP_STATE;
@@ -17,6 +18,7 @@ static GPS gps;
 TimerEvent_t SleepTimeoutTimer;
 static uint32_t shutoffCount = 0;
 uint32_t shutOffStartTime = 0;
+MCP7940_Class  MCP7940;
 
 struct Timestamp
 {
@@ -120,12 +122,56 @@ extern "C" void dataReceived(char* buffer, uint32_t size)
 	}
 }
 
+void setup_test() {
+    /*!
+        @brief  STM32 HAL setup function
+    */
+
+    // Initialize I2C communication with RTC
+    while (!MCP7940.begin()) {
+        HAL_Delay(3000);
+    }
+
+    // Ensure the oscillator is running
+    while (!MCP7940.deviceStatus()) {
+        bool deviceStatus = MCP7940.deviceStart();
+        if (!deviceStatus) {
+            HAL_Delay(1000);
+        }
+    }
+
+    // Set the RTC to the compile time
+    DateTime compileTime(__DATE__, __TIME__);
+    MCP7940.adjust(compileTime);
+    LOG_D("RTC time set to: %04d-%02d-%02d %02d:%02d:%02d\r\n",
+               compileTime.year(), compileTime.month(), compileTime.day(),
+               compileTime.hour(), compileTime.minute(), compileTime.second());
+
+}
+
+void loop_test() {
+    /*!
+        @brief  STM32 HAL main loop function
+    */
+    static uint8_t secs = 0;
+    DateTime now = MCP7940.now();  // Get the current time
+
+    if (secs != now.second()) {
+        secs = now.second();
+        LOG_D("Current RTC time: %04d-%02d-%02d %02d:%02d:%02d\r\n",
+                       now.year(), now.month(), now.day(),
+                       now.hour(), now.minute(), now.second());
+    }
+}
 void App::setup(void)
 {
 
 	TimerInit( &SleepTimeoutTimer, UpTimerEventCallback );
 	TimerStop( &SleepTimeoutTimer );
 	gps.setup();
+	setup_test();
+	while(1)
+	  loop_test();
 }
 
 void App::loop(void)
