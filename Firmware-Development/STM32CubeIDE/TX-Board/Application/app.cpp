@@ -20,26 +20,6 @@ static uint32_t shutoffCount = 0;
 uint32_t shutOffStartTime = 0;
 MCP7940_Class  MCP7940;
 
-struct Timestamp
-{
-	uint8_t hour;
-	uint8_t minute;
-	uint8_t second;
-};
-
-struct GeoCoordinates
-{
-	double lattitude;
-	double longitude;
-};
-
-struct CommPacket
-{
-	uint32_t ids[3];
-	Timestamp timestamp;
-	GeoCoordinates geoCoordinates;
-};
-
 void generatePayload(uint8_t* buffer, uint32_t size)
 {
 	char* payload = (char*) buffer;
@@ -68,7 +48,8 @@ void UpTimerEventCallback( void *context )
 
 void sleep(uint32_t timeout)
 {
-	LOG_D("Going to sleep for %d seconds\r\n", timeout);
+	uint32_t seconds = timeout/1000;
+	LOG_D("Going to sleep for %d seconds\r\n", seconds);
 	HAL_GPIO_WritePin(GNSS_RESET_GPIO_Port, GNSS_RESET_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(GNSS_PWR_GPIO_Port, GNSS_PWR_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
@@ -79,8 +60,16 @@ void sleep(uint32_t timeout)
 	TimerStop( &RxTimeoutTimer );
 	TimerStop( &TxTimeoutTimer );
 	TimerStop( &SleepTimeoutTimer );
-	TimerSetValue( &SleepTimeoutTimer, timeout );
-	TimerStart( &SleepTimeoutTimer );
+//	TimerSetValue( &SleepTimeoutTimer, timeout );
+//	TimerStart( &SleepTimeoutTimer );
+	DateTime now = MCP7940.now();
+	DateTime alarmTime = now + TimeSpan(seconds);
+
+	MCP7940.setAlarm(0, matchAll, alarmTime, true);  // Set one-time alarm
+
+	LOG_D("Alarm 0 set for: %04d-%02d-%02d %02d:%02d:%02d\r\n",
+		   alarmTime.year(), alarmTime.month(), alarmTime.day(),
+		   alarmTime.hour(), alarmTime.minute(), alarmTime.second());
 	PWR_EnterStopMode();
 	PWR_ExitStopMode();
 	LOG_D("Starts Receiving Data\r\n");
@@ -106,7 +95,12 @@ extern "C" void dataReceived(char* buffer, uint32_t size)
 {
 	LOG_D("Received %s \r\n", buffer);
 
-	if(strcmp(buffer, "SHUTOFF") == 0)
+	uint32_t boardIds[] = {HAL_GetUIDw0(), HAL_GetUIDw1(), HAL_GetUIDw2()};
+	char mergedData[sizeof(boardIds) + 7];  // 3 * uint32_t (12 bytes) + "SHUTOFF" (7 bytes) = 19 bytes
+	memcpy(mergedData, boardIds, sizeof(boardIds));
+	memcpy(mergedData + sizeof(boardIds), "SHUTOFF", 7);  // Append "SHUTOFF"
+
+	if(memcmp(buffer, mergedData, sizeof(mergedData)) == 0)
 	{
 		LOG_D("Sleeping for a day\r\n");
 		state = BOOTUP_STATE;
@@ -147,6 +141,7 @@ void setup_test() {
                compileTime.year(), compileTime.month(), compileTime.day(),
                compileTime.hour(), compileTime.minute(), compileTime.second());
 
+    MCP7940.setAlarmPolarity(false);
 }
 
 void loop_test() {
@@ -162,6 +157,11 @@ void loop_test() {
                        now.year(), now.month(), now.day(),
                        now.hour(), now.minute(), now.second());
     }
+
+    if (MCP7940.isAlarm(0)) {
+            LOG_D("*Alarm 0 Triggered!*\r\n");
+            MCP7940.clearAlarm(0);
+        }
 }
 void App::setup(void)
 {
@@ -170,8 +170,8 @@ void App::setup(void)
 	TimerStop( &SleepTimeoutTimer );
 	gps.setup();
 	setup_test();
-	while(1)
-	  loop_test();
+//	while(1)
+//	  loop_test();
 }
 
 void App::loop(void)

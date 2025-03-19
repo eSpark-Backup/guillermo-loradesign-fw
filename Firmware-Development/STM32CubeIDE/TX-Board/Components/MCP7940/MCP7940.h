@@ -112,6 +112,18 @@ Version| Date       | Developer           | Comments
 #define bitRead(value, bit) (((value) >> (bit)) & 0x01)
 #define bitWrite(value, bit, bitvalue) ((bitvalue) ? ((value) |= (1UL << (bit))) : ((value) &= ~(1UL << (bit))))
 #define delay(x) HAL_Delay(x)
+
+enum alarmTypes {
+  matchSeconds,
+  matchMinutes,
+  matchHours,
+  matchDayOfWeek,
+  matchDayOfMonth,
+  Unused1,
+  Unused2,
+  matchAll,
+  Unknown
+};
 /***************************************************************************************************
 ** Declare classes used in within the class                                                       **
 ***************************************************************************************************/
