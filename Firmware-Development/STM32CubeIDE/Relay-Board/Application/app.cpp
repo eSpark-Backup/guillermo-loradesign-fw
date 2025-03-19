@@ -16,6 +16,7 @@ uint8_t HelloCommand[] = MY_IDENTIFIER"HELLO";
 TimerEvent_t WaitTimer;
 
 uint8_t data[64];
+CommPacket lastMessage;
 
 void DurationElapsedCallback( void *context )
 {
@@ -51,10 +52,10 @@ extern "C" void RX_Done_Process(char* buffer, uint32_t size)
 	uint8_t identifier_length = strlen(TX_BOARD_IDENTIFIER);
 	if (strncmp(buffer, TX_BOARD_IDENTIFIER, identifier_length) == 0)
 	{
-		CommPacket packet;
-		memcpy(&packet, buffer+ identifier_length, sizeof(packet));
+		memcpy(&lastMessage, buffer+ identifier_length, sizeof(lastMessage));
 		HAL_UART_Transmit(&huart1, (uint8_t*)MY_PACKET_IDENTIFIER, strlen(MY_PACKET_IDENTIFIER), 1000);
 		HAL_UART_Transmit(&huart1, (uint8_t*)(buffer + identifier_length), size, 1000);
+		state = SEND_SHUTOFF_STATE;
 	}
 }
 
@@ -93,7 +94,16 @@ void App::loop(void)
 		SwitchToRxMode();
 		state = BOOTUP_STATE;
 		break;
-
+	case SEND_SHUTOFF_STATE:
+		uint8_t mergedData[sizeof(lastMessage.ids) + 7];  // 3 * uint32_t (12 bytes) + "SHUTOFF" (7 bytes) = 19 bytes
+		memcpy(mergedData, lastMessage.ids, sizeof(lastMessage.ids));
+		memcpy(mergedData + sizeof(lastMessage.ids), "SHUTOFF", 7);
+		SwitchToTxMode(mergedData, sizeof(mergedData));
+		while(!isTXDone());
+		MX_SubGHz_Phy_Process();
+		SwitchToRxMode();
+		state = BOOTUP_STATE;
+		break;
 	default:
 		break;
 	}

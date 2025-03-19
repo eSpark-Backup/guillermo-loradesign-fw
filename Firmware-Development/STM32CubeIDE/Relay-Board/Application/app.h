@@ -20,7 +20,8 @@
 enum BoardState
 {
 	BOOTUP_STATE,
-	SEQUENCE_END_STATE
+	SEQUENCE_END_STATE,
+	SEND_SHUTOFF_STATE
 };
 
 struct Timestamp
