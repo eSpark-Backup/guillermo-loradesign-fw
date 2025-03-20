@@ -1,7 +1,12 @@
-../Application/app.cpp:41:6:void generatePayload(uint8_t*, uint32_t)	1
-../Application/app.cpp:61:6:void UpTimerEventCallback(void*)	1
-../Application/app.cpp:67:6:void sleep(uint32_t)	1
-../Application/app.cpp:90:17:void receiveTimeout()	2
-../Application/app.cpp:105:17:void dataReceived(char*, uint32_t)	4
-../Application/app.cpp:125:6:void App::setup()	1
-../Application/app.cpp:135:6:void App::loop()	7
+D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Components/MCP7940/MCP7940.h:275:3:MCP7940_Class::MCP7940_Class()	1
+D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Components/MCP7940/MCP7940.h:276:3:MCP7940_Class::~MCP7940_Class()	1
+../Application/app.cpp:43:6:void generatePayload(uint8_t*, uint32_t)	1
+../Application/app.cpp:63:6:void UpTimerEventCallback(void*)	1
+../Application/app.cpp:69:6:void sleep(uint32_t)	1
+../Application/app.cpp:92:17:void receiveTimeout()	2
+../Application/app.cpp:107:17:void dataReceived(char*, uint32_t)	4
+../Application/app.cpp:127:6:void App::setup()	4
+../Application/app.cpp:149:6:void App::loop()	7
+../Application/app.cpp:194:1:void __static_initialization_and_destruction_0(int, int)	5
+../Application/app.cpp:194:1:cpp)	1
+../Application/app.cpp:194:1:cpp)	1

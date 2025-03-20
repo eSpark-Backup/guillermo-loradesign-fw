@@ -9,6 +9,7 @@
 #include "stm32_lpm_if.h"
 #include "radio.h"
 #include "timer.h"
+#include "MCP7940.h"
 #include <cstdio>
 
 BoardState state = BOOTUP_STATE;
@@ -17,6 +18,7 @@ static GPS gps;
 TimerEvent_t SleepTimeoutTimer;
 static uint32_t shutoffCount = 0;
 uint32_t shutOffStartTime = 0;
+MCP7940_Class  MCP7940;
 
 struct Timestamp
 {
@@ -128,6 +130,18 @@ void App::setup(void)
 	TimerInit( &SleepTimeoutTimer, UpTimerEventCallback );
 	TimerStop( &SleepTimeoutTimer );
 	gps.setup();
+	while (!MCP7940.begin()) {
+		HAL_Delay(3000);
+	}
+
+	// Ensure the oscillator is running
+	while (!MCP7940.deviceStatus()) {
+		bool deviceStatus = MCP7940.deviceStart();
+		if (!deviceStatus) {
+			HAL_Delay(1000);
+		}
+	}
+//	MCP7940.deviceStop();
 	HAL_Delay(3000);
 	sleep(60000);
 }

@@ -40,6 +40,7 @@ CPP_DEPS :=
 SUBDIRS := \
 Application \
 Components/GPS \
+Components/MCP7940 \
 Core/Src \
 Core/Startup \
 Drivers/STM32WLxx_HAL_Driver/Src \

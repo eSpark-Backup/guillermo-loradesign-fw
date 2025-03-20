@@ -85,9 +85,16 @@ void PWR_EnterOffMode(void)
 
 //	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_A, LED1_Pin);
 //	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_A, LED2_Pin);
-	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_B, GNSS_PWR_Pin);
+//	HAL_PWREx_EnableGPIOPullUp(PWR_GPIO_B, GPIO_PIN_All);
 //	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_A, GNSS_RESET_Pin);
-	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_A, GPIO_PIN_All);
+	HAL_PWREx_EnableGPIOPullUp(PWR_GPIO_B, GPIO_PIN_All);
+	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_B, GPIO_PIN_0);
+	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_B, GNSS_PWR_Pin);
+//	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_B, GPIO_PIN_8);
+//	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_A, GPIO_PIN_All);
+
+	HAL_PWREx_EnableGPIOPullUp(PWR_GPIO_A, GPIO_PIN_7);
+
 //	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_B, GPIO_PIN_All);
 //	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_C, GPIO_PIN_All);
 //	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_H, GPIO_PIN_All);
