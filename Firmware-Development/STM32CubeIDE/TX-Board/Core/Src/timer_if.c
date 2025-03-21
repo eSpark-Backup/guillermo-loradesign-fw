@@ -510,7 +510,6 @@ static inline uint32_t GetTimerTicks(void)
   {
     ssr = LL_RTC_TIME_GetSubSecond(RTC);
   }
-
   return UINT32_MAX - ssr;
   /* USER CODE BEGIN GetTimerTicks_Last */
 

@@ -63,6 +63,8 @@ void Error_Handler(void);
 #define RTC_PREDIV_S ((1<<RTC_N_PREDIV_S)-1)
 #define GNSS_PWR_Pin GPIO_PIN_5
 #define GNSS_PWR_GPIO_Port GPIOB
+#define GPS_VBCKUP_EN_Pin GPIO_PIN_8
+#define GPS_VBCKUP_EN_GPIO_Port GPIOB
 #define GNSS_RESET_Pin GPIO_PIN_4
 #define GNSS_RESET_GPIO_Port GPIOA
 #define LED1_Pin GPIO_PIN_5
