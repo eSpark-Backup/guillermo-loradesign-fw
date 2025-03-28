@@ -34,7 +34,7 @@
 #define BASE_TIME_MM  59
 #define BASE_TIME_HH  14
 
-#define DELAY_TIME    30           // minutes
+#define DELAY_TIME    3            // minutes
 
 struct Timestamp {
     uint8_t hour;
