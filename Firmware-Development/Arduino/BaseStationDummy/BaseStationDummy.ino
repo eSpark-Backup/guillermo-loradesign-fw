@@ -30,13 +30,17 @@
 #define NO_OF_DEVICES 5
 #define NO_OF_REGIONS NO_OF_DEVICES
 #define BASE_TIME     1743051579   // UNIX-Epoch time, Thu Mar 27 2025 04:59:39 GMT+0000
+#define BASE_TIME_SS  15
+#define BASE_TIME_MM  59
+#define BASE_TIME_HH  14
+
 #define DELAY_TIME    30           // minutes
 
-// struct Timestamp {
-//     uint8_t hour;
-//     uint8_t minute;
-//     uint8_t second;
-// };
+struct Timestamp {
+    uint8_t hour;
+    uint8_t minute;
+    uint8_t second;
+};
 
 struct GeoCoordinates {
     double latitude;
@@ -45,7 +49,7 @@ struct GeoCoordinates {
 
 struct CommPacket {
     uint32_t ids[3];
-    uint64_t timestamp;
+    Timestamp timestamp;
     GeoCoordinates geoCoordinates;
 }DevicePacket;
 
@@ -158,9 +162,14 @@ char* convertToJson(struct CommPacket *packet) {
   }
   cJSON_AddItemToObject(json, "ids", idsArray);
 
-  char formatted_time[30];  
-  formatTimestamp(packet->timestamp, formatted_time, sizeof(formatted_time));
-  cJSON_AddStringToObject(json, "timestamp", formatted_time);
+  // char formatted_time[30];  
+  // formatTimestamp(packet->timestamp, formatted_time, sizeof(formatted_time));
+  // cJSON_AddStringToObject(json, "timestamp", formatted_time);
+  cJSON *timestamp = cJSON_CreateObject();
+  cJSON_AddNumberToObject(timestamp, "hour", packet->timestamp.hour);
+  cJSON_AddNumberToObject(timestamp, "minute", packet->timestamp.minute);
+  cJSON_AddNumberToObject(timestamp, "second", packet->timestamp.second);
+  cJSON_AddItemToObject(json, "timestamp", timestamp);
 
   cJSON *geo = cJSON_CreateObject();
   cJSON_AddNumberToObject(geo, "latitude", packet->geoCoordinates.latitude);
@@ -179,10 +188,10 @@ void generatePacket(int deviceNo) {
 
   int64_t microseconds = esp_timer_get_time();
   int seconds = microseconds / 1000000;
-  // DevicePacket.timestamp.second = (BASE_TIME_SS + seconds) % 60;
-  // DevicePacket.timestamp.minute = BASE_TIME_MM + minutes;
-  // DevicePacket.timestamp.hour =  12;
-  DevicePacket.timestamp =  1743051579 + seconds;
+  // DevicePacket.timestamp =  1743051579 + seconds;
+  DevicePacket.timestamp.second = (BASE_TIME_SS + seconds) % 60;
+  DevicePacket.timestamp.minute = (((BASE_TIME_SS + seconds)/60) + BASE_TIME_MM) % 60;
+  DevicePacket.timestamp.hour =   (((((BASE_TIME_SS + seconds)/60) + BASE_TIME_MM)/60) + BASE_TIME_HH) % 24;
 
   uint8_t areaIndex = (txValue % NO_OF_DEVICES);
   DevicePacket.geoCoordinates.latitude = LocationCoordinates[deviceNo][areaIndex][0];
