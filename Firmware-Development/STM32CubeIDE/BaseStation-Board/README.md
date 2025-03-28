@@ -32,7 +32,7 @@ There are two ways that MCU should be powered depending upon board version.
 2 - If v2.0, apply 4.2v on Vin/+ve terminal on base-board.
 
 ## 4 - Connecting the Segger J-Link
-The programming pins are extending to 6 pin Male-Header(U8) which should be connected with the J-Link Interface board female headers. Make sure to align the ground (Black wire) to the ground of J-Link Inteface board female header which are also labeled accordingly.
+The programming pins are extending to 10 pin Male-Header(U8) which should be connected with the J-Link Interface board female headers. Make sure to align the ground (Black wire) to the ground of J-Link Inteface board female header which are also labeled accordingly.
 **Make sure the debugger 10pin ribbon connector is attached in correct orientation as shown in the image below.**
 
 ## 5 - Flashing the MCU using STM32CubeIDE.
