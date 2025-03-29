@@ -50,7 +50,7 @@ There are two ways that MCU should be powered depending upon board version.
 
 ## 4 - Connecting the Segger J-Link
 The programming pins are extending to 6 pin Male-Header(U6) which should be connected with the J-Link Interface board female headers. Make sure to align the ground (Black wire) to the ground of J-Link Inteface board female header which are also labeled accordingly.
-**Make sure the debugger 10pin ribbon connector is attached in correct orientation as shown in the image below.**
+**Make sure the debugger 10pin ribbon connector is attached in correct orientation.**
 
 ## 5 - Flashing the MCU using NRF Connect SDK from VS Code.
 
@@ -60,7 +60,7 @@ The programming pins are extending to 6 pin Male-Header(U6) which should be conn
 >`CONFIG_CLOCK_CONTROL_NRF_K32SRC_RC=y`
 
 
-On the VS Code click on **Open an existing application** and open the application as shown.
+On the VS Code click on **Open an existing application** and open the application.
 
 **Main.c** file is located in the **src** directory.
 Click on **Build** option located on the bottom tab called **NRF:CONNECT: ACTIONS:**
