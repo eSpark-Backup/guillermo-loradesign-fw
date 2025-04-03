@@ -102,6 +102,12 @@ void App::loop(void)
 		while(!isTXDone());
 		MX_SubGHz_Phy_Process();
 		SwitchToRxMode();
+		static int count;
+		if(2 == count++)
+		{
+			count = 0;
+			state = BOOTUP_STATE;
+		}
 		state = BOOTUP_STATE;
 		break;
 	default:
