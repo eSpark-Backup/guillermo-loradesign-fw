@@ -54,11 +54,11 @@
 /* USER CODE BEGIN PV */
 App app;
 /* USER CODE END PV */
-
+extern "C" {
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-
+}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
