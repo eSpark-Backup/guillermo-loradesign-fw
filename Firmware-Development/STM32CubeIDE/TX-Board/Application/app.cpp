@@ -91,7 +91,7 @@ extern "C" void receiveTimeout(void)
 	{
 	case BOOTUP_STATE:
 		LOG_D("No Signal Received\r\n");
-		sleep(SLEEP_TIMEOUT);
+		// sleep(SLEEP_TIMEOUT);
 		break;
 
 	default:
@@ -126,6 +126,9 @@ void App::setup(void)
 	TimerInit( &SleepTimeoutTimer, UpTimerEventCallback );
 	TimerStop( &SleepTimeoutTimer );
 	gps.setup();
+
+	LOG_D("Setting Continuous Wave mode.\r\n");
+	Radio.SetTxContinuousWave(RF_FREQUENCY, TX_OUTPUT_POWER, 0xFFFF);
 }
 
 void App::loop(void)

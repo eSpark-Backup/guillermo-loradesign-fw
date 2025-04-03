@@ -82,7 +82,8 @@ extern "C" {
 /* Test Configurations */
 /*if TEST_MODE is RADIO_TX, board will send packet indefinitely*/
 /*if TEST_MODE is RADIO_RX, board will receive packet indefinitely*/
-#define TEST_MODE                     RADIO_RX
+#define TEST_MODE                     RADIO_TX
+// #define TEST_MODE                     RADIO_RX
 
 /* USER CODE END EC */
 

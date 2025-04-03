@@ -116,7 +116,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	app.loop();
+	// app.loop();
     /* USER CODE END WHILE */
     MX_SubGHz_Phy_Process();
 

@@ -591,7 +591,7 @@ static void Per_Process(void)
 
 static int32_t tx_payload_generator(void)
 {
-	static char str[] = "HELLO";
+	static char str[] = "HELLO_continuous-wave";
 	memcpy(data_buffer, str, strlen(str));
 	return 0;
 }
