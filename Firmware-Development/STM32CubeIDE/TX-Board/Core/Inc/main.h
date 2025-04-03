@@ -67,10 +67,10 @@ void Error_Handler(void);
 #define GPS_VBCKUP_EN_GPIO_Port GPIOB
 #define GNSS_RESET_Pin GPIO_PIN_4
 #define GNSS_RESET_GPIO_Port GPIOA
-#define LED1_Pin GPIO_PIN_5
-#define LED1_GPIO_Port GPIOA
-#define LED2_Pin GPIO_PIN_6
+#define LED2_Pin GPIO_PIN_11
 #define LED2_GPIO_Port GPIOA
+#define LED1_Pin GPIO_PIN_12
+#define LED1_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 
