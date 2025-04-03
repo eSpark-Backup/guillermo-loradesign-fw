@@ -93,7 +93,12 @@ extern "C" void receiveTimeout(void)
 
 extern "C" void dataReceived(char* buffer, uint32_t size)
 {
-	LOG_D("Received %s \r\n", buffer);
+	LOG_D("Received ");
+	for (int i = 0; i < size; i++) {
+	    LOG_D("%02X ", (unsigned char)buffer[i]);
+	}
+	LOG_D("\r\n");
+
 
 	uint32_t boardIds[] = {HAL_GetUIDw0(), HAL_GetUIDw1(), HAL_GetUIDw2()};
 	char mergedData[sizeof(boardIds) + 7];  // 3 * uint32_t (12 bytes) + "SHUTOFF" (7 bytes) = 19 bytes
