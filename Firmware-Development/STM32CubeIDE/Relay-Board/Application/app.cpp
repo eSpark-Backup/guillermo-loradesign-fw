@@ -108,7 +108,6 @@ void App::loop(void)
 			count = 0;
 			state = BOOTUP_STATE;
 		}
-		state = BOOTUP_STATE;
 		break;
 	default:
 		break;
