@@ -1,0 +1,44 @@
+../Libraries/TinyGPSPlus/TinyGPS++.h:62:4:RawDegrees::RawDegrees()	1
+../Libraries/TinyGPSPlus/TinyGPS++.h:78:4:TinyGPSLocation::TinyGPSLocation()	1
+../Libraries/TinyGPSPlus/TinyGPS++.h:103:4:TinyGPSDate::TinyGPSDate()	1
+../Libraries/TinyGPSPlus/TinyGPS++.h:128:4:TinyGPSTime::TinyGPSTime()	1
+../Libraries/TinyGPSPlus/TinyGPS++.h:148:4:TinyGPSDecimal::TinyGPSDecimal()	1
+../Libraries/TinyGPSPlus/TinyGPS++.h:168:4:TinyGPSInteger::TinyGPSInteger()	1
+../Libraries/TinyGPSPlus/TinyGPS++.h:179:8:TinyGPSSpeed::TinyGPSSpeed()	1
+../Libraries/TinyGPSPlus/TinyGPS++.h:187:8:TinyGPSCourse::TinyGPSCourse()	1
+../Libraries/TinyGPSPlus/TinyGPS++.h:192:8:TinyGPSAltitude::TinyGPSAltitude()	1
+../Libraries/TinyGPSPlus/TinyGPS++.h:200:8:TinyGPSHDOP::TinyGPSHDOP()	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:35:1:TinyGPSPlus::TinyGPSPlus()	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:56:6:bool TinyGPSPlus::encode(char)	7
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:103:5:int TinyGPSPlus::fromHex(char)	5
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:115:9:static int32_t TinyGPSPlus::parseDecimal(const char*)	7
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:132:6:static void TinyGPSPlus::parseDegrees(const char*, RawDegrees&)	4
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:159:6:bool TinyGPSPlus::endOfTermHandler()	38
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:285:8:static double TinyGPSPlus::distanceBetween(double, double, double, double)	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:310:8:static double TinyGPSPlus::courseTo(double, double, double, double)	2
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:330:13:static const char* TinyGPSPlus::cardinal(double)	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:337:6:void TinyGPSLocation::commit()	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:345:6:void TinyGPSLocation::setLatitude(const char*)	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:350:6:void TinyGPSLocation::setLongitude(const char*)	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:355:8:double TinyGPSLocation::lat()	2
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:362:8:double TinyGPSLocation::lng()	2
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:369:6:void TinyGPSDate::commit()	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:376:6:void TinyGPSTime::commit()	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:383:6:void TinyGPSTime::setTime(const char*)	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:388:6:void TinyGPSDate::setDate(const char*)	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:393:10:uint16_t TinyGPSDate::year()	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:400:9:uint8_t TinyGPSDate::month()	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:406:9:uint8_t TinyGPSDate::day()	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:412:9:uint8_t TinyGPSTime::hour()	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:418:9:uint8_t TinyGPSTime::minute()	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:424:9:uint8_t TinyGPSTime::second()	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:430:9:uint8_t TinyGPSTime::centisecond()	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:436:6:void TinyGPSDecimal::commit()	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:443:6:void TinyGPSDecimal::set(const char*)	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:448:6:void TinyGPSInteger::commit()	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:455:6:void TinyGPSInteger::set(const char*)	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:460:1:TinyGPSCustom::TinyGPSCustom(TinyGPSPlus&, const char*, int)	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:465:6:void TinyGPSCustom::begin(TinyGPSPlus&, const char*, int)	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:478:6:void TinyGPSCustom::commit()	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:485:6:void TinyGPSCustom::set(const char*)	1
+../Libraries/TinyGPSPlus/TinyGPS++.cpp:490:6:void TinyGPSPlus::insertCustom(TinyGPSCustom*, const char*, int)	5

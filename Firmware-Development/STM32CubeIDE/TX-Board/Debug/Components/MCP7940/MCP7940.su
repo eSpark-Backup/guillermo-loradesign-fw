@@ -1,0 +1,75 @@
+../Components/MCP7940/MCP7940.h:213:12:uint16_t DateTime::year() const	16	static
+../Components/MCP7940/MCP7940.h:216:11:uint8_t DateTime::month() const	16	static
+../Components/MCP7940/MCP7940.h:219:11:uint8_t DateTime::day() const	16	static
+../Components/MCP7940/MCP7940.h:222:11:uint8_t DateTime::hour() const	16	static
+../Components/MCP7940/MCP7940.h:225:11:uint8_t DateTime::minute() const	16	static
+../Components/MCP7940/MCP7940.h:228:11:uint8_t DateTime::second() const	16	static
+../Components/MCP7940/MCP7940.h:262:12:int32_t TimeSpan::totalseconds() const	16	static
+../Components/MCP7940/MCP7940.cpp:13:17:uint16_t date2days(uint16_t, uint8_t, uint8_t)	24	static
+../Components/MCP7940/MCP7940.cpp:37:13:long int time2long(uint16_t, uint8_t, uint8_t, uint8_t)	16	static
+../Components/MCP7940/MCP7940.cpp:48:16:uint8_t conv2d(const char*)	24	static
+../Components/MCP7940/MCP7940.cpp:58:1:DateTime::DateTime(uint32_t)	24	static
+../Components/MCP7940/MCP7940.cpp:90:1:DateTime::DateTime(uint16_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t)	16	static
+../Components/MCP7940/MCP7940.cpp:111:1:DateTime::DateTime(const DateTime&)	16	static
+../Components/MCP7940/MCP7940.cpp:120:1:DateTime::DateTime(const char*, const char*)	48	static
+../Components/MCP7940/MCP7940.cpp:150:9:uint8_t DateTime::dayOfTheWeek() const	24	static
+../Components/MCP7940/MCP7940.cpp:162:10:uint32_t DateTime::unixtime() const	24	static
+../Components/MCP7940/MCP7940.cpp:172:6:long int DateTime::secondstime() const	24	static
+../Components/MCP7940/MCP7940.cpp:181:6:bool DateTime::equals(const DateTime*)	16	static
+../Components/MCP7940/MCP7940.cpp:189:10:DateTime DateTime::operator+(const TimeSpan&)	32	static
+../Components/MCP7940/MCP7940.cpp:196:10:DateTime DateTime::operator-(const TimeSpan&)	32	static
+../Components/MCP7940/MCP7940.cpp:203:10:TimeSpan DateTime::operator-(const DateTime&)	32	static
+../Components/MCP7940/MCP7940.cpp:213:1:TimeSpan::TimeSpan(int32_t)	16	static
+../Components/MCP7940/MCP7940.cpp:214:1:TimeSpan::TimeSpan(int16_t, int8_t, int8_t, int8_t)	16	static
+../Components/MCP7940/MCP7940.cpp:216:1:TimeSpan::TimeSpan(const TimeSpan&)	16	static
+../Components/MCP7940/MCP7940.cpp:217:10:TimeSpan TimeSpan::operator+(const TimeSpan&)	24	static
+../Components/MCP7940/MCP7940.cpp:220:10:TimeSpan TimeSpan::operator-(const TimeSpan&)	24	static
+../Components/MCP7940/MCP7940.cpp:224:6:bool MCP7940_Class::begin() const	16	static
+../Components/MCP7940/MCP7940.cpp:244:9:uint8_t MCP7940_Class::readByte(uint8_t) const	24	static
+../Components/MCP7940/MCP7940.cpp:254:6:void MCP7940_Class::clearRegisterBit(uint8_t, uint8_t) const	24	static
+../Components/MCP7940/MCP7940.cpp:263:6:void MCP7940_Class::setRegisterBit(uint8_t, uint8_t) const	24	static
+../Components/MCP7940/MCP7940.cpp:271:6:void MCP7940_Class::writeRegisterBit(uint8_t, uint8_t, bool) const	16	static
+../Components/MCP7940/MCP7940.cpp:281:9:uint8_t MCP7940_Class::readRegisterBit(uint8_t, uint8_t) const	16	static
+../Components/MCP7940/MCP7940.cpp:290:9:uint8_t MCP7940_Class::bcd2int(uint8_t) const	16	static
+../Components/MCP7940/MCP7940.cpp:298:9:uint8_t MCP7940_Class::int2bcd(uint8_t) const	16	static
+../Components/MCP7940/MCP7940.cpp:306:6:bool MCP7940_Class::deviceStatus() const	16	static
+../Components/MCP7940/MCP7940.cpp:314:6:bool MCP7940_Class::deviceStart() const	24	static
+../Components/MCP7940/MCP7940.cpp:331:6:bool MCP7940_Class::deviceStop() const	24	static
+../Components/MCP7940/MCP7940.cpp:347:10:DateTime MCP7940_Class::now() const	64	static
+../Components/MCP7940/MCP7940.cpp:359:10:DateTime MCP7940_Class::getPowerDown() const	40	static
+../Components/MCP7940/MCP7940.cpp:375:10:DateTime MCP7940_Class::getPowerUp() const	40	static
+../Components/MCP7940/MCP7940.cpp:390:6:void MCP7940_Class::adjust()	56	static
+../Components/MCP7940/MCP7940.cpp:404:6:void MCP7940_Class::adjust(const DateTime&)	24	static
+../Components/MCP7940/MCP7940.cpp:422:9:uint8_t MCP7940_Class::weekdayRead() const	16	static
+../Components/MCP7940/MCP7940.cpp:431:9:uint8_t MCP7940_Class::weekdayWrite(uint8_t) const	24	static
+../Components/MCP7940/MCP7940.cpp:447:8:int8_t MCP7940_Class::calibrate() const	24	static
+../Components/MCP7940/MCP7940.cpp:457:8:int8_t MCP7940_Class::calibrate(int8_t)	32	static
+../Components/MCP7940/MCP7940.cpp:474:8:int8_t MCP7940_Class::calibrate(const DateTime&)	24	static
+../Components/MCP7940/MCP7940.cpp:503:8:int8_t MCP7940_Class::calibrate(float) const	48	static
+../Components/MCP7940/MCP7940.cpp:534:8:int8_t MCP7940_Class::calibrateOrAdjust(const DateTime&)	24	static
+../Components/MCP7940/MCP7940.cpp:554:9:int32_t MCP7940_Class::getPPMDeviation(const DateTime&) const	48	static
+../Components/MCP7940/MCP7940.cpp:568:6:void MCP7940_Class::setSetUnixTime(uint32_t)	16	static
+../Components/MCP7940/MCP7940.cpp:579:10:uint32_t MCP7940_Class::getSetUnixTime() const	16	static
+../Components/MCP7940/MCP7940.cpp:588:8:int8_t MCP7940_Class::getCalibrationTrim() const	24	static
+../Components/MCP7940/MCP7940.cpp:601:6:bool MCP7940_Class::setMFP(bool) const	16	static
+../Components/MCP7940/MCP7940.cpp:614:9:uint8_t MCP7940_Class::getMFP() const	24	static
+../Components/MCP7940/MCP7940.cpp:636:6:bool MCP7940_Class::setAlarm(uint8_t, uint8_t, const DateTime&, bool) const	40	static
+../Components/MCP7940/MCP7940.cpp:678:6:void MCP7940_Class::setAlarmPolarity(bool) const	16	static
+../Components/MCP7940/MCP7940.cpp:694:10:DateTime MCP7940_Class::getAlarm(uint8_t, uint8_t&) const	48	static
+../Components/MCP7940/MCP7940.cpp:717:6:bool MCP7940_Class::clearAlarm(uint8_t) const	16	static
+../Components/MCP7940/MCP7940.cpp:728:6:bool MCP7940_Class::setAlarmState(uint8_t, bool) const	16	static
+../Components/MCP7940/MCP7940.cpp:740:6:bool MCP7940_Class::getAlarmState(uint8_t) const	16	static
+../Components/MCP7940/MCP7940.cpp:750:6:bool MCP7940_Class::isAlarm(uint8_t) const	16	static
+../Components/MCP7940/MCP7940.cpp:760:9:uint8_t MCP7940_Class::getSQWSpeed() const	24	static
+../Components/MCP7940/MCP7940.cpp:777:6:bool MCP7940_Class::setSQWSpeed(uint8_t, bool) const	24	static
+../Components/MCP7940/MCP7940.cpp:804:6:bool MCP7940_Class::setSQWState(bool) const	16	static
+../Components/MCP7940/MCP7940.cpp:813:6:bool MCP7940_Class::getSQWState() const	16	static
+../Components/MCP7940/MCP7940.cpp:820:6:bool MCP7940_Class::setBattery(bool) const	16	static
+../Components/MCP7940/MCP7940.cpp:830:6:bool MCP7940_Class::getBattery() const	16	static
+../Components/MCP7940/MCP7940.cpp:838:6:bool MCP7940_Class::getPowerFail() const	24	static
+../Components/MCP7940/MCP7940.cpp:847:6:bool MCP7940_Class::clearPowerFail() const	24	static
+../Components/MCP7940/MCP7940.h:419:11:uint8_t MCP7940_Class::I2C_read(uint8_t, T&) const [with T = unsigned char]	40	static
+../Components/MCP7940/MCP7940.h:446:11:uint8_t MCP7940_Class::I2C_write(uint8_t, const T&) const [with T = unsigned char]	40	static
+../Components/MCP7940/MCP7940.h:419:11:uint8_t MCP7940_Class::I2C_read(uint8_t, T&) const [with T = unsigned char [7]]	40	static
+../Components/MCP7940/MCP7940.h:419:11:uint8_t MCP7940_Class::I2C_read(uint8_t, T&) const [with T = unsigned char [4]]	40	static
+../Components/MCP7940/MCP7940.h:446:11:uint8_t MCP7940_Class::I2C_write(uint8_t, const T&) const [with T = signed char]	40	static
