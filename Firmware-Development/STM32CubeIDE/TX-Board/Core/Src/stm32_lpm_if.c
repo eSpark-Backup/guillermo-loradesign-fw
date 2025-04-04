@@ -78,14 +78,33 @@ const struct UTIL_LPM_Driver_s UTIL_PowerDriver =
 void PWR_EnterOffMode(void)
 {
   /* USER CODE BEGIN EnterOffMode_1 */
+  HAL_DBGMCU_DisableDBGSleepMode();
+  HAL_DBGMCU_DisableDBGStopMode();
+  HAL_DBGMCU_DisableDBGStandbyMode();
 
+  HAL_PWREx_EnableGPIOPullUp(PWR_GPIO_B, GPIO_PIN_All);
+  HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_B, GPIO_PIN_0);
+  HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_B, GNSS_PWR_Pin);
+  HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_B, GPIO_PIN_8);
+  //	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_A, GPIO_PIN_All);
+  HAL_PWREx_EnableGPIOPullUp(PWR_GPIO_A, GPIO_PIN_7);
+
+  HAL_PWREx_EnablePullUpPullDownConfig();
+
+ __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
+  HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN1_LOW);
+  HAL_SuspendTick();
+  /* Clear Status Flag before entering STOP/STANDBY Mode */
+  LL_PWR_ClearFlag_C1STOP_C1STB();
+  LL_PWR_ClearFlag_WU();
+  HAL_PWREx_EnterSHUTDOWNMode();
   /* USER CODE END EnterOffMode_1 */
 }
 
 void PWR_ExitOffMode(void)
 {
   /* USER CODE BEGIN ExitOffMode_1 */
-
+	// This won't be called as the MCU will get restarted
   /* USER CODE END ExitOffMode_1 */
 }
 

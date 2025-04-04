@@ -125,11 +125,11 @@ void SystemApp_Init(void)
 void UTIL_SEQ_Idle(void)
 {
   /* USER CODE BEGIN UTIL_SEQ_Idle_1 */
-
+#if 0
   /* USER CODE END UTIL_SEQ_Idle_1 */
-//  UTIL_LPM_EnterLowPower();
+  UTIL_LPM_EnterLowPower();
   /* USER CODE BEGIN UTIL_SEQ_Idle_2 */
-
+#endif
   /* USER CODE END UTIL_SEQ_Idle_2 */
 }
 

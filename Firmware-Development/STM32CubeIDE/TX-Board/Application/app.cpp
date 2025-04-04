@@ -55,13 +55,16 @@ void sleep(uint32_t timeout)
 	HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
 	Radio.Sleep();
+
 	extern TimerEvent_t RxTimeoutTimer;
 	extern TimerEvent_t TxTimeoutTimer;
 	TimerStop( &RxTimeoutTimer );
 	TimerStop( &TxTimeoutTimer );
 	TimerStop( &SleepTimeoutTimer );
-//	TimerSetValue( &SleepTimeoutTimer, timeout );
-//	TimerStart( &SleepTimeoutTimer );
+
+	extern SUBGHZ_HandleTypeDef hsubghz;
+	HAL_SUBGHZ_DeInit(&hsubghz);
+
 	DateTime now = MCP7940.now();
 	DateTime alarmTime = now + TimeSpan(seconds);
 
@@ -70,8 +73,10 @@ void sleep(uint32_t timeout)
 	LOG_D("Alarm 0 set for: %04d-%02d-%02d %02d:%02d:%02d\r\n",
 		   alarmTime.year(), alarmTime.month(), alarmTime.day(),
 		   alarmTime.hour(), alarmTime.minute(), alarmTime.second());
-	PWR_EnterStopMode();
-	PWR_ExitStopMode();
+
+	PWR_EnterOffMode();
+	PWR_ExitOffMode();
+
 	LOG_D("Starts Receiving Data\r\n");
 	Radio.Rx(5000);
 }
@@ -94,7 +99,7 @@ extern "C" void receiveTimeout(void)
 extern "C" void dataReceived(char* buffer, uint32_t size)
 {
 	LOG_D("Received ");
-	for (int i = 0; i < size; i++) {
+	for (uint32_t i = 0; i < size; i++) {
 	    LOG_D("%02X ", (unsigned char)buffer[i]);
 	}
 	LOG_D("\r\n");
