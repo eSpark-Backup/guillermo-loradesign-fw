@@ -35,6 +35,9 @@
 # Vagrant directory
 .vagrant/
 
+# metadata directory
+.metadata/
+
 # Include makefiles
 !Makefile
 *~

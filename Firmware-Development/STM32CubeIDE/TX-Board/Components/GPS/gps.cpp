@@ -1,7 +1,32 @@
 #include "gps.h"
+#include "rtc.h"
 
 TinyGPSPlus GPS::gps;
 uint8_t GPS::data;
+
+void GPS::rtcOperation(RtcOperation opr, RtcData_t* data)
+{
+    uint32_t* rtc_words = reinterpret_cast<uint32_t*>(data);
+
+    for (int i = 0; i < RTC_BKP_WORD_COUNT; i++)
+    {
+        uint32_t addr = RTC_BKP_BASE_ADDR + i;
+
+        if (opr == STORE)
+        {
+            HAL_RTCEx_BKUPWrite(&hrtc, addr, rtc_words[i]);
+        }
+        else if (opr == RETRIEVE)
+        {
+            rtc_words[i] = HAL_RTCEx_BKUPRead(&hrtc, addr);
+        }
+        else
+        {
+            LOG_D("Invalid RTC operation.\r\n");
+            break;
+        }
+    }
+}
 
 void GPS::processData(UART_HandleTypeDef *huart)
 {
@@ -20,10 +45,22 @@ void GPS::setup(void)
 
 void GPS::displayInfo(void)
 {
+    bool updatedFlag = false;
+    RtcData_t gnssData;
+
+    if(gps.location.isUpdated() &&
+       gps.date.isUpdated() &&
+       gps.time.isUpdated())
+    {
+        updatedFlag = true;
+    }
+
     LOG_D("Location: ");
     if (gps.location.isValid())
     {
-        LOG_D("%.6f,%.6f", gps.location.lat(), gps.location.lng());
+        gnssData.latitude = gps.location.lat();
+        gnssData.longitude = gps.location.lng();
+        LOG_D("%.6f,%.6f", gnssData.latitude, gnssData.longitude);
     }
     else
     {
@@ -33,13 +70,12 @@ void GPS::displayInfo(void)
     LOG_D("  Date/Time: ");
     if (gps.date.isValid())
     {
-        uint8_t month, day;
-        uint16_t year;
-        month = gps.date.month();
-        day = gps.date.day();
-        year = gps.date.year();
-        year = gps.date.year();
-        LOG_D("%02d/%02d/%04d ", gps.date.month(), gps.date.day(), gps.date.year());
+        // uint8_t month, day;
+        // uint16_t year;
+        gnssData.month = gps.date.month();
+        gnssData.day = gps.date.day();
+        gnssData.year = gps.date.year();
+        LOG_D("%02d/%02d/%04d ", gnssData.month, gnssData.day, gnssData.year);
 
     }
     else
@@ -49,15 +85,26 @@ void GPS::displayInfo(void)
 
     if (gps.time.isValid())
     {
+        gnssData.hour = gps.time.hour();
+        gnssData.minute = gps.time.minute();
+        gnssData.second = gps.time.second();
+        gnssData.centisecond = gps.time.centisecond();
         LOG_D("%02d:%02d:%02d.%02d\r\n",
-               gps.time.hour(),
-               gps.time.minute(),
-               gps.time.second(),
-               gps.time.centisecond());
+               gnssData.hour,
+               gnssData.minute,
+               gnssData.second,
+               gnssData.centisecond);
     }
     else
     {
         LOG_D("INVALID\r\n");
+    }
+
+    if( updatedFlag &&
+        gps.time.isValid() && gps.date.isValid()
+        && gps.location.isValid())
+    {
+        rtcOperation(STORE, &gnssData);
     }
 }
 

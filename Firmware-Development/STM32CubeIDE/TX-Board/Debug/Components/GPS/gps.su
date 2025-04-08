@@ -1,9 +1,13 @@
-D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Libraries/TinyGPSPlus/TinyGPS++.h:70:9:bool TinyGPSLocation::isValid() const	16	static
-D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Libraries/TinyGPSPlus/TinyGPS++.h:94:9:bool TinyGPSDate::isValid() const	16	static
-D:/GitHub/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Libraries/TinyGPSPlus/TinyGPS++.h:118:9:bool TinyGPSTime::isValid() const	16	static
-../Components/GPS/gps.cpp:6:6:static void GPS::processData(UART_HandleTypeDef*)	16	static
-../Components/GPS/gps.cpp:12:6:void GPS::setup()	16	static
-../Components/GPS/gps.cpp:21:6:void GPS::displayInfo()	48	static
-../Components/GPS/gps.cpp:64:6:void GPS::loop()	16	static
-../Components/GPS/gps.cpp:81:1:void __static_initialization_and_destruction_0(int, int)	16	static
-../Components/GPS/gps.cpp:81:1:cpp)	8	static
+D:/.Embedded/.GITHUB/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Libraries/TinyGPSPlus/TinyGPS++.h:70:9:bool TinyGPSLocation::isValid() const	16	static
+D:/.Embedded/.GITHUB/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Libraries/TinyGPSPlus/TinyGPS++.h:71:9:bool TinyGPSLocation::isUpdated() const	16	static
+D:/.Embedded/.GITHUB/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Libraries/TinyGPSPlus/TinyGPS++.h:94:9:bool TinyGPSDate::isValid() const	16	static
+D:/.Embedded/.GITHUB/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Libraries/TinyGPSPlus/TinyGPS++.h:95:9:bool TinyGPSDate::isUpdated() const	16	static
+D:/.Embedded/.GITHUB/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Libraries/TinyGPSPlus/TinyGPS++.h:118:9:bool TinyGPSTime::isValid() const	16	static
+D:/.Embedded/.GITHUB/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Libraries/TinyGPSPlus/TinyGPS++.h:119:9:bool TinyGPSTime::isUpdated() const	16	static
+../Components/GPS/gps.cpp:7:6:static void GPS::rtcOperation(RtcOperation, RtcData_t*)	40	static
+../Components/GPS/gps.cpp:31:6:static void GPS::processData(UART_HandleTypeDef*)	16	static
+../Components/GPS/gps.cpp:37:6:void GPS::setup()	16	static
+../Components/GPS/gps.cpp:46:6:void GPS::displayInfo()	56	static
+../Components/GPS/gps.cpp:111:6:void GPS::loop()	16	static
+../Components/GPS/gps.cpp:128:1:void __static_initialization_and_destruction_0(int, int)	16	static
+../Components/GPS/gps.cpp:128:1:cpp)	8	static
