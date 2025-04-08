@@ -32,11 +32,13 @@ void generatePayload(uint8_t* buffer, uint32_t size)
 	uint32_t boardIds[] = {HAL_GetUIDw0(), HAL_GetUIDw1(), HAL_GetUIDw2()};
 	memcpy(packet.ids, boardIds, sizeof(packet.ids));
 #endif
-	packet.timestamp.hour = gps.gps.time.hour();
-	packet.timestamp.minute = gps.gps.time.minute();
-	packet.timestamp.second = gps.gps.time.second();
-	packet.geoCoordinates.lattitude = gps.gps.location.lat();
-	packet.geoCoordinates.longitude = gps.gps.location.lng();
+	RtcData_t rtcStoredData;
+	GPS::rtcOperation(RETRIEVE, &rtcStoredData);
+	packet.timestamp.hour = rtcStoredData.hour;
+	packet.timestamp.minute = rtcStoredData.minute;
+	packet.timestamp.second = rtcStoredData.second;
+	packet.geoCoordinates.lattitude = rtcStoredData.latitude;
+	packet.geoCoordinates.longitude = rtcStoredData.longitude;
 	memcpy(payload + strlen(MY_IDENTIFIER), &packet, sizeof(packet));
 }
 
@@ -126,7 +128,7 @@ extern "C" void dataReceived(char* buffer, uint32_t size)
 	}
 }
 
-void setup_test() {
+void rtcInit() {
     /*!
         @brief  STM32 HAL setup function
     */
@@ -179,7 +181,7 @@ void App::setup(void)
 	TimerInit( &SleepTimeoutTimer, UpTimerEventCallback );
 	TimerStop( &SleepTimeoutTimer );
 	gps.setup();
-	setup_test();
+	rtcInit();
 //	while(1)
 //	  loop_test();
 }

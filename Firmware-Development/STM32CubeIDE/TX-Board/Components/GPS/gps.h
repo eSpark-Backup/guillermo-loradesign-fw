@@ -11,7 +11,7 @@
 // #define DATE_RTC_ADDR           RTC_BKP_DR15
 // #define TIME_RTC_ADDR           RTC_BKP_DR14
 
-#define RTC_BKP_BASE_ADDR     RTC_BKP_DR13   // Starting from DR13
+#define RTC_BKP_BASE_ADDR     RTC_BKP_DR14   // Starting from DR13
 #define RTC_BKP_WORD_COUNT    6              // 6 x 4-byte backup registers
 
 enum RtcOperation
