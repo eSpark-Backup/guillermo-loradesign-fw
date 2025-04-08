@@ -33,7 +33,7 @@ void generatePayload(uint8_t* buffer, uint32_t size)
 	memcpy(packet.ids, boardIds, sizeof(packet.ids));
 #endif
 	RtcData_t rtcStoredData;
-	GPS::rtcOperation(RETRIEVE, &rtcStoredData);
+	GPS::getGnssData(&rtcStoredData);
 	packet.timestamp.hour = rtcStoredData.hour;
 	packet.timestamp.minute = rtcStoredData.minute;
 	packet.timestamp.second = rtcStoredData.second;
@@ -89,7 +89,19 @@ extern "C" void receiveTimeout(void)
 	{
 	case BOOTUP_STATE:
 		LOG_D("No Signal Received\r\n");
-		sleep(SLEEP_TIMEOUT);
+		RtcData_t rtcStoredData;
+		GPS::getGnssData(&rtcStoredData);
+
+		if(rtcStoredData.hour >= HOUR_THRESHOLD)
+		{
+			LOG_D("Hour threshold exceeded. ");
+			LOG_D("Sleeping for a day\r\n");
+			sleep(DAY_TIMEOUT);
+		}
+		else
+		{
+			sleep(SLEEP_TIMEOUT);
+		}
 		break;
 
 	default:
@@ -184,6 +196,14 @@ void App::setup(void)
 	rtcInit();
 //	while(1)
 //	  loop_test();
+
+	// dont execute app state machine unless we get gnss lock
+	uint32_t flag;
+	do
+	{
+		gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
+		gps.loop();
+	}while(flag != GNSS_LOCK_FLAG);
 }
 
 void App::loop(void)

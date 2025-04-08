@@ -113,7 +113,7 @@ int main(void)
   MX_I2C3_Init();
   /* USER CODE BEGIN 2 */
   // Enable access to the backup domain
-  HAL_PWR_EnableBkUpAccess();
+//  HAL_PWR_EnableBkUpAccess();
   app.setup();
   /* USER CODE END 2 */
 

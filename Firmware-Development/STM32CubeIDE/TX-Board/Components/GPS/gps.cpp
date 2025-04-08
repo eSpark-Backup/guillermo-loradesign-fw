@@ -4,27 +4,43 @@
 TinyGPSPlus GPS::gps;
 uint8_t GPS::data;
 
-void GPS::rtcOperation(RtcOperation opr, RtcData_t* data)
+void GPS::getGnssData(RtcData_t* data)
 {
     uint32_t* rtc_words = reinterpret_cast<uint32_t*>(data);
-
+    
+    // Loop to retrieve data from the RTC registers
     for (int i = 0; i < RTC_BKP_WORD_COUNT; i++)
     {
         uint32_t addr = RTC_BKP_BASE_ADDR + i;
+        rtcOperation(RETRIEVE, addr, &rtc_words[i]);
+    }
+}
 
-        if (opr == STORE)
-        {
-            HAL_RTCEx_BKUPWrite(&hrtc, addr, rtc_words[i]);
-        }
-        else if (opr == RETRIEVE)
-        {
-            rtc_words[i] = HAL_RTCEx_BKUPRead(&hrtc, addr);
-        }
-        else
-        {
-            LOG_D("Invalid RTC operation.\r\n");
-            break;
-        }
+void GPS::setGnssData(RtcData_t* data)
+{
+    uint32_t* rtc_words = reinterpret_cast<uint32_t*>(data);
+    
+    // Loop to store data to the RTC registers
+    for (int i = 0; i < RTC_BKP_WORD_COUNT; i++)
+    {
+        uint32_t addr = RTC_BKP_BASE_ADDR + i;
+        rtcOperation(STORE, addr, &rtc_words[i]);
+    }
+}
+
+void GPS::rtcOperation(RtcOperation opr, uint32_t adr, uint32_t* data)
+{
+    if (opr == STORE)
+    {
+        HAL_RTCEx_BKUPWrite(&hrtc, adr, *data);  // Store single value at the given address
+    }
+    else if (opr == RETRIEVE)
+    {
+        *data = HAL_RTCEx_BKUPRead(&hrtc, adr);  // Retrieve value from the given address
+    }
+    else
+    {
+        LOG_D("Invalid RTC operation.\r\n");
     }
 }
 
@@ -102,9 +118,11 @@ void GPS::displayInfo(void)
 
     if( updatedFlag &&
         gps.time.isValid() && gps.date.isValid()
-        && gps.location.isValid())
+        && gps.location.isValid() )
     {
-        rtcOperation(STORE, &gnssData);
+        getGnssData(&gnssData);
+        uint32_t val = GNSS_LOCK_FLAG;
+        rtcOperation(STORE, GNSS_LOCK_FLAG_ADDR, &val);
     }
 }
 
@@ -117,12 +135,12 @@ void GPS::loop(void)
 	 displayInfo();
 	}
 
-//	if (HAL_GetTick() > 5000 && gps.charsProcessed() < 10)
-//	{
-//	  LOG_D("No GPS detected: check wiring.\r\n");
-//	  while (1)
-//	  {
-//		  HAL_Delay(10);
-//	  }
-//	}
+	// if (HAL_GetTick() > 5000 && gps.charsProcessed() < 10)
+	// {
+	//   LOG_D("No GPS detected: check wiring.\r\n");
+	//   while (1)
+	//   {
+	// 	  HAL_Delay(10);
+	//   }
+	// }
 }

@@ -6,6 +6,7 @@
 #define BOARD_ID 0x1234
 #define DAY_TIMEOUT 60000U // (1000U * 60U * 60U * 24U) // 1 Day Timeout
 #define SLEEP_TIMEOUT 25000
+#define HOUR_THRESHOLD 10		// 24-hour format // device should sleep if current hour is more than threshold and no signal is received from relay board
 #define MY_IDENTIFIER "TX:"
 #define RELAY_BOARD_IDENTIFIER "RELAY:"
 #define HELLO_MESSAGE "HELLO"

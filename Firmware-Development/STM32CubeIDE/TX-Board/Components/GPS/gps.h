@@ -4,14 +4,9 @@
 #include "usart.h"
 #include "TinyGPS++.h"
 
-// #define LONGITUDE_RTC_ADDR      RTC_BKP_DR18
-// #define LONGITUDE_RTC_ADDR_H    RTC_BKP_DR17
-// #define LATITUDE_RTC_ADDR       RTC_BKP_DR16
-// #define LATITUDE_RTC_ADDR_H     RTC_BKP_DR13
-// #define DATE_RTC_ADDR           RTC_BKP_DR15
-// #define TIME_RTC_ADDR           RTC_BKP_DR14
-
-#define RTC_BKP_BASE_ADDR     RTC_BKP_DR14   // Starting from DR13
+#define GNSS_LOCK_FLAG		  0x9669
+#define GNSS_LOCK_FLAG_ADDR   RTC_BKP_DR0
+#define RTC_BKP_BASE_ADDR     RTC_BKP_DR14   // Starting from DR14
 #define RTC_BKP_WORD_COUNT    6              // 6 x 4-byte backup registers
 
 enum RtcOperation
@@ -20,7 +15,7 @@ enum RtcOperation
 	RETRIEVE,
 };
 
-typedef struct {//__attribute__((packed)) {
+typedef struct __attribute__((packed, aligned(1))) {
     double longitude;      // 8 bytes
     double latitude;       // 8 bytes
     uint8_t day;           // 1 byte
@@ -40,7 +35,10 @@ public:
 	void displayInfo();
 
 	static void processData(UART_HandleTypeDef *huart);
-	static void rtcOperation(RtcOperation opr, RtcData_t* data);
+
+	static void getGnssData(RtcData_t* data);
+	static void setGnssData(RtcData_t* data);
+	static void rtcOperation(RtcOperation opr, uint32_t adr, uint32_t* data);
 
 	static TinyGPSPlus gps;
 	static uint8_t data;
