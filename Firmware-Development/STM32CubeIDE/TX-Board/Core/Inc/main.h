@@ -31,7 +31,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -46,8 +46,11 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-extern void itm_printf(const char* format, ...);
-#define LOG_D itm_printf
+#define ENABLE_GNSS_STREAM_DEBUG
+// #define LOG_D
+#define LOG_D printf
+
+extern void itm_printf(uint32_t port, const char* format, ...);
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/

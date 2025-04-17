@@ -8,13 +8,13 @@ D:/.Embedded/.GITHUB/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/T
 D:/.Embedded/.GITHUB/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Components/MCP7940/MCP7940.h:276:3:MCP7940_Class::~MCP7940_Class()	16	static
 ../Application/app.cpp:23:6:void generatePayload(uint8_t*, uint32_t)	96	static
 ../Application/app.cpp:45:6:void UpTimerEventCallback(void*)	16	static
-../Application/app.cpp:51:6:void sleep(uint32_t)	80	static
+../Application/app.cpp:51:6:void sleep(uint32_t)	16	static
 ../Application/app.cpp:86:17:void receiveTimeout()	32	static
 ../Application/app.cpp:113:17:void dataReceived(char*, uint32_t)	56	static
 ../Application/app.cpp:143:6:void rtcInit()	56	static
 ../Application/app.cpp:171:6:void loop_test()	56	static
-../Application/app.cpp:190:6:void App::setup()	32	static
-../Application/app.cpp:209:6:void App::loop()	152	static
+../Application/app.cpp:190:6:void App::setup()	16	static
+../Application/app.cpp:209:6:void App::loop()	16	static
 ../Application/app.cpp:254:1:void __static_initialization_and_destruction_0(int, int)	16	static
 ../Application/app.cpp:254:1:cpp)	8	static
 ../Application/app.cpp:254:1:cpp)	8	static

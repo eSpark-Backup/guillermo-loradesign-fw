@@ -50,37 +50,37 @@ void UpTimerEventCallback( void *context )
 
 void sleep(uint32_t timeout)
 {
-	uint32_t seconds = timeout/1000;
-	LOG_D("Going to sleep for %d seconds\r\n", seconds);
-	HAL_GPIO_WritePin(GNSS_RESET_GPIO_Port, GNSS_RESET_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(GNSS_PWR_GPIO_Port, GNSS_PWR_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
-	Radio.Sleep();
+	// uint32_t seconds = timeout/1000;
+	// LOG_D("Going to sleep for %d seconds\r\n", seconds);
+	// HAL_GPIO_WritePin(GNSS_RESET_GPIO_Port, GNSS_RESET_Pin, GPIO_PIN_RESET);
+	// HAL_GPIO_WritePin(GNSS_PWR_GPIO_Port, GNSS_PWR_Pin, GPIO_PIN_RESET);
+	// HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
+	// HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
+	// Radio.Sleep();
 
-	extern TimerEvent_t RxTimeoutTimer;
-	extern TimerEvent_t TxTimeoutTimer;
-	TimerStop( &RxTimeoutTimer );
-	TimerStop( &TxTimeoutTimer );
-	TimerStop( &SleepTimeoutTimer );
+	// extern TimerEvent_t RxTimeoutTimer;
+	// extern TimerEvent_t TxTimeoutTimer;
+	// TimerStop( &RxTimeoutTimer );
+	// TimerStop( &TxTimeoutTimer );
+	// TimerStop( &SleepTimeoutTimer );
 
-	extern SUBGHZ_HandleTypeDef hsubghz;
-	HAL_SUBGHZ_DeInit(&hsubghz);
+	// extern SUBGHZ_HandleTypeDef hsubghz;
+	// HAL_SUBGHZ_DeInit(&hsubghz);
 
-	DateTime now = MCP7940.now();
-	DateTime alarmTime = now + TimeSpan(seconds);
+	// DateTime now = MCP7940.now();
+	// DateTime alarmTime = now + TimeSpan(seconds);
 
-	MCP7940.setAlarm(0, matchAll, alarmTime, true);  // Set one-time alarm
+	// MCP7940.setAlarm(0, matchAll, alarmTime, true);  // Set one-time alarm
 
-	LOG_D("Alarm 0 set for: %04d-%02d-%02d %02d:%02d:%02d\r\n",
-		   alarmTime.year(), alarmTime.month(), alarmTime.day(),
-		   alarmTime.hour(), alarmTime.minute(), alarmTime.second());
+	// LOG_D("Alarm 0 set for: %04d-%02d-%02d %02d:%02d:%02d\r\n",
+	// 	   alarmTime.year(), alarmTime.month(), alarmTime.day(),
+	// 	   alarmTime.hour(), alarmTime.minute(), alarmTime.second());
 
-	PWR_EnterOffMode();
-	PWR_ExitOffMode();
+	// PWR_EnterOffMode();
+	// PWR_ExitOffMode();
 
-	LOG_D("Starts Receiving Data\r\n");
-	Radio.Rx(5000);
+	// LOG_D("Starts Receiving Data\r\n");
+	// Radio.Rx(5000);
 }
 
 extern "C" void receiveTimeout(void)
@@ -190,65 +190,65 @@ void loop_test() {
 void App::setup(void)
 {
 
-	TimerInit( &SleepTimeoutTimer, UpTimerEventCallback );
-	TimerStop( &SleepTimeoutTimer );
+//	TimerInit( &SleepTimeoutTimer, UpTimerEventCallback );
+//	TimerStop( &SleepTimeoutTimer );
 	gps.setup();
-	rtcInit();
+//	rtcInit();
 //	while(1)
 //	  loop_test();
 
-	// dont execute app state machine unless we get gnss lock
-	uint32_t flag;
-	do
-	{
-		gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
-		gps.loop();
-	}while(flag != GNSS_LOCK_FLAG);
+//	// dont execute app state machine unless we get gnss lock
+//	uint32_t flag;
+//	do
+//	{
+//		gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
+//		gps.loop();
+//	}while(flag != GNSS_LOCK_FLAG);
 }
 
 void App::loop(void)
 {
 	gps.loop();
 
-	uint32_t currentTime = HAL_GetTick();
-	uint8_t data[64];
-	switch(state)
-	{
-	case SHUTOFF_STATE:
-		if((currentTime - shutOffStartTime) > 30000)
-		{
-			LOG_D("Sleeping for a day\r\n");
-			state = BOOTUP_STATE;
-			sleep(DAY_TIMEOUT);
-		}
-		else if( ( (currentTime - shutOffStartTime) / 5000U ) > shutoffCount)
-		{
-			LOG_D("SHUTOFF_STATE Count : %d\r\n", shutoffCount);
-			shutoffCount++;
-			generatePayload(data, sizeof(data));
-			SwitchToTxMode(data, sizeof(data));
-			while(!isTXDone());
-			MX_SubGHz_Phy_Process();
-			SwitchToRxMode();
-		}
-		break;
-
-	case TRANSMIT_STATE:
-	{
-		LOG_D("Entering shutoff state\r\n");
-		shutOffStartTime = HAL_GetTick();
-		shutoffCount = 0;
-		uint8_t data[64];
-		generatePayload(data, sizeof(data));
-		SwitchToTxMode(data, sizeof(data));
-		while(!isTXDone());
-		MX_SubGHz_Phy_Process();
-		SwitchToRxMode();
-		state = SHUTOFF_STATE;
-	}
-		break;
-
-	default:
-		break;
-	}
+//	uint32_t currentTime = HAL_GetTick();
+//	uint8_t data[64];
+//	switch(state)
+//	{
+//	case SHUTOFF_STATE:
+//		if((currentTime - shutOffStartTime) > 30000)
+//		{
+//			LOG_D("Sleeping for a day\r\n");
+//			state = BOOTUP_STATE;
+//			sleep(DAY_TIMEOUT);
+//		}
+//		else if( ( (currentTime - shutOffStartTime) / 5000U ) > shutoffCount)
+//		{
+//			LOG_D("SHUTOFF_STATE Count : %d\r\n", shutoffCount);
+//			shutoffCount++;
+//			generatePayload(data, sizeof(data));
+//			SwitchToTxMode(data, sizeof(data));
+//			while(!isTXDone());
+//			MX_SubGHz_Phy_Process();
+//			SwitchToRxMode();
+//		}
+//		break;
+//
+//	case TRANSMIT_STATE:
+//	{
+//		LOG_D("Entering shutoff state\r\n");
+//		shutOffStartTime = HAL_GetTick();
+//		shutoffCount = 0;
+//		uint8_t data[64];
+//		generatePayload(data, sizeof(data));
+//		SwitchToTxMode(data, sizeof(data));
+//		while(!isTXDone());
+//		MX_SubGHz_Phy_Process();
+//		SwitchToRxMode();
+//		state = SHUTOFF_STATE;
+//	}
+//		break;
+//
+//	default:
+//		break;
+//	}
 }

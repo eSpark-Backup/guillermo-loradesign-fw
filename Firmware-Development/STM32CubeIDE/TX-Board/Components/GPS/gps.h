@@ -4,6 +4,14 @@
 #include "usart.h"
 #include "TinyGPS++.h"
 
+#define GNSS_STREAM_PORT		1
+#ifdef  ENABLE_GNSS_STREAM_DEBUG
+#define LOG_GNSS_STREAM(fmt, ...)		itm_printf(GNSS_STREAM_PORT, fmt, ##__VA_ARGS__)
+#else
+#define LOG_GNSS_STREAM(fmt, ...)
+#endif
+
+
 #define GNSS_LOCK_FLAG		  0x9669
 #define GNSS_LOCK_FLAG_ADDR   RTC_BKP_DR0
 #define RTC_BKP_BASE_ADDR     RTC_BKP_DR14   // Starting from DR14
@@ -34,7 +42,10 @@ public:
 	void loop(void);
 	void displayInfo();
 
-	static void processData(UART_HandleTypeDef *huart);
+	static void processGpsStream(void);
+
+	static void processData(uint8_t *data, uint16_t len);
+	// static void processData(UART_HandleTypeDef *huart);
 
 	static void getGnssData(RtcData_t* data);
 	static void setGnssData(RtcData_t* data);
@@ -42,5 +53,8 @@ public:
 
 	static TinyGPSPlus gps;
 	static uint8_t data;
+
+	static uint32_t lastGnssDisplay;
+	static uint32_t lastStreamProcess;
 };
 #endif // GPS_H
