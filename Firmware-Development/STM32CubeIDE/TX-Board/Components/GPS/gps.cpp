@@ -11,6 +11,7 @@ volatile uint16_t gpsLastPos = 0;
 
 uint32_t GPS::lastGnssDisplay = 0;
 uint32_t GPS::lastStreamProcess = 0;
+uint64_t GPS::gnssStreamTimestamp = 0;
 
 void GPS::getGnssData(RtcData_t* data)
 {
@@ -71,17 +72,30 @@ void GPS::processGpsStream(void)
         }
 
         gpsLastPos = currentPos;
+        gnssStreamTimestamp = HAL_GetTick();
+    }
+    else if(HAL_GetTick() - gnssStreamTimestamp > UART_DMA_REINTI_TIMEOUT)
+    {
+        LOG_D("GNSS Stream stuck. ReInitializing UART DMA.\r\n");
+        HAL_UART_AbortReceive(&huart1);  // Stop current DMA
+
+        // Restart DMA in circular mode
+        HAL_UART_Receive_DMA(&huart1, gpsRxBuffer, GPS_RX_BUFFER_SIZE); 
+
+        // OR: Use idle mode for better sentence-level parsing
+        // HAL_UARTEx_ReceiveToIdle_DMA(&huartX, dmaBuffer, DMA_BUFFER_SIZE);
+        // __HAL_DMA_DISABLE_IT(huartX.hdmarx, DMA_IT_HT | DMA_IT_TC);
+
+        gnssStreamTimestamp = HAL_GetTick(); // Reset timestamp
     }
 }
 
 void GPS::processData(uint8_t *data, uint16_t len)
-// void GPS::processData(UART_HandleTypeDef *huart)
 {
 	for (uint16_t i = 0; i < len; i++)
     {
 		gps.encode(data[i]);
 		LOG_GNSS_STREAM("%c", data[i]);
-//	    HAL_UART_Receive_IT(&huart1, &data, 1);
     }
 }
 
@@ -97,8 +111,7 @@ void GPS::setup(void)
 	// SET_BIT(huart1.hdmarx->Instance->CCR, DMA_CCR_CIRC);
     HAL_UART_Receive_DMA(&huart1, gpsRxBuffer, GPS_RX_BUFFER_SIZE);
 
-    lastGnssDisplay = HAL_GetTick();
-    lastStreamProcess = HAL_GetTick();
+    INIT_TIMESTAMPS_GNSS;
 }
 
 void GPS::displayInfo(void)
@@ -170,14 +183,13 @@ void GPS::displayInfo(void)
 
 void GPS::loop(void)
 {
-	// static uint32_t lastGnssDisplay = 0;
-	// static uint32_t lastStreamProcess = 0;
+
 	if ((HAL_GetTick() - lastGnssDisplay) > 500)
 	{
 		lastGnssDisplay = HAL_GetTick();
 		displayInfo();
 	}
-	if ((HAL_GetTick() - lastStreamProcess) > 10)
+	if ((HAL_GetTick() - lastStreamProcess) > 50)
 	{
 		lastStreamProcess = HAL_GetTick();
 		processGpsStream();

@@ -78,8 +78,9 @@ void itm_printf(uint32_t port, const char* format, ...) {
 
 int putchar(int c)
 {
-    return ITM_SendChar( 0, (uint8_t)c );
+    return ITM_SendChar( DEBUG_PORT_NO, (uint8_t)c );
 }
+
 /* USER CODE END 0 */
 
 /**
@@ -96,9 +97,11 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+
   HAL_Init();
 
   /* USER CODE BEGIN Init */
+  INIT_ITM_DEBUG(DEBUG_PORT_NO, GNSS_STREAM_PORT);
 
   /* USER CODE END Init */
 
@@ -113,7 +116,7 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_USART1_UART_Init();
-//  MX_RTC_Init();
+  MX_RTC_Init();
   MX_SubGHz_Phy_Init();
   MX_I2C3_Init();
   /* USER CODE BEGIN 2 */
@@ -126,7 +129,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  app.loop();
+	app.loop();
     
     /* USER CODE END WHILE */
     MX_SubGHz_Phy_Process();

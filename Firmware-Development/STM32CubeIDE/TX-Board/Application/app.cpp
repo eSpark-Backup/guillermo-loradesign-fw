@@ -190,65 +190,65 @@ void loop_test() {
 void App::setup(void)
 {
 
-//	TimerInit( &SleepTimeoutTimer, UpTimerEventCallback );
-//	TimerStop( &SleepTimeoutTimer );
+	TimerInit( &SleepTimeoutTimer, UpTimerEventCallback );
+	TimerStop( &SleepTimeoutTimer );
 	gps.setup();
-//	rtcInit();
+	rtcInit();
 //	while(1)
 //	  loop_test();
 
-//	// dont execute app state machine unless we get gnss lock
-//	uint32_t flag;
-//	do
-//	{
-//		gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
-//		gps.loop();
-//	}while(flag != GNSS_LOCK_FLAG);
+	// dont execute app state machine unless we get gnss lock
+	uint32_t flag;
+	do
+	{
+		gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
+		gps.loop();
+	}while(flag != GNSS_LOCK_FLAG);
 }
 
 void App::loop(void)
 {
 	gps.loop();
 
-//	uint32_t currentTime = HAL_GetTick();
-//	uint8_t data[64];
-//	switch(state)
-//	{
-//	case SHUTOFF_STATE:
-//		if((currentTime - shutOffStartTime) > 30000)
-//		{
-//			LOG_D("Sleeping for a day\r\n");
-//			state = BOOTUP_STATE;
-//			sleep(DAY_TIMEOUT);
-//		}
-//		else if( ( (currentTime - shutOffStartTime) / 5000U ) > shutoffCount)
-//		{
-//			LOG_D("SHUTOFF_STATE Count : %d\r\n", shutoffCount);
-//			shutoffCount++;
-//			generatePayload(data, sizeof(data));
-//			SwitchToTxMode(data, sizeof(data));
-//			while(!isTXDone());
-//			MX_SubGHz_Phy_Process();
-//			SwitchToRxMode();
-//		}
-//		break;
-//
-//	case TRANSMIT_STATE:
-//	{
-//		LOG_D("Entering shutoff state\r\n");
-//		shutOffStartTime = HAL_GetTick();
-//		shutoffCount = 0;
-//		uint8_t data[64];
-//		generatePayload(data, sizeof(data));
-//		SwitchToTxMode(data, sizeof(data));
-//		while(!isTXDone());
-//		MX_SubGHz_Phy_Process();
-//		SwitchToRxMode();
-//		state = SHUTOFF_STATE;
-//	}
-//		break;
-//
-//	default:
-//		break;
-//	}
+	uint32_t currentTime = HAL_GetTick();
+	uint8_t data[64];
+	switch(state)
+	{
+	case SHUTOFF_STATE:
+		if((currentTime - shutOffStartTime) > 30000)
+		{
+			LOG_D("Sleeping for a day\r\n");
+			state = BOOTUP_STATE;
+			sleep(DAY_TIMEOUT);
+		}
+		else if( ( (currentTime - shutOffStartTime) / 5000U ) > shutoffCount)
+		{
+			LOG_D("SHUTOFF_STATE Count : %d\r\n", shutoffCount);
+			shutoffCount++;
+			generatePayload(data, sizeof(data));
+			SwitchToTxMode(data, sizeof(data));
+			while(!isTXDone());
+			MX_SubGHz_Phy_Process();
+			SwitchToRxMode();
+		}
+		break;
+
+	case TRANSMIT_STATE:
+	{
+		LOG_D("Entering shutoff state\r\n");
+		shutOffStartTime = HAL_GetTick();
+		shutoffCount = 0;
+		uint8_t data[64];
+		generatePayload(data, sizeof(data));
+		SwitchToTxMode(data, sizeof(data));
+		while(!isTXDone());
+		MX_SubGHz_Phy_Process();
+		SwitchToRxMode();
+		state = SHUTOFF_STATE;
+	}
+		break;
+
+	default:
+		break;
+	}
 }

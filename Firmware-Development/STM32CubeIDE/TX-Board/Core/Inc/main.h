@@ -47,16 +47,20 @@ extern "C" {
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
 #define ENABLE_GNSS_STREAM_DEBUG
-// #define LOG_D
-#define LOG_D printf
+#define DEBUG_PORT_NO   		0
+#define GNSS_STREAM_PORT		1
 
-extern void itm_printf(uint32_t port, const char* format, ...);
+// #define LOG_D printf
+// #define LOG_D(fmt, ...)
+ #define LOG_D(fmt, ...)  itm_printf(DEBUG_PORT_NO, fmt, ##__VA_ARGS__)
+
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
+extern void itm_printf(uint32_t port, const char* format, ...);
 
 /* USER CODE END EFP */
 
@@ -78,7 +82,31 @@ void Error_Handler(void);
 #define LED1_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
+#define __ITM_PORT_MASK_1(p)           (1U << (p))
+#define __ITM_PORT_MASK_2(p, ...)      ((1U << (p)) | __ITM_PORT_MASK_1(__VA_ARGS__))
+#define __ITM_PORT_MASK_3(p, ...)      ((1U << (p)) | __ITM_PORT_MASK_2(__VA_ARGS__))
+#define __ITM_PORT_MASK_4(p, ...)      ((1U << (p)) | __ITM_PORT_MASK_3(__VA_ARGS__))
+#define __ITM_PORT_MASK_5(p, ...)      ((1U << (p)) | __ITM_PORT_MASK_4(__VA_ARGS__))
+#define __ITM_PORT_MASK_6(p, ...)      ((1U << (p)) | __ITM_PORT_MASK_5(__VA_ARGS__))
+#define __ITM_PORT_MASK_7(p, ...)      ((1U << (p)) | __ITM_PORT_MASK_6(__VA_ARGS__))
+#define __ITM_PORT_MASK_8(p, ...)      ((1U << (p)) | __ITM_PORT_MASK_7(__VA_ARGS__))
 
+#define GET_MACRO(_1,_2,_3,_4,_5,_6,_7,_8,NAME,...) NAME
+#define __ITM_PORT_MASK(...) GET_MACRO(__VA_ARGS__, \
+      __ITM_PORT_MASK_8, __ITM_PORT_MASK_7, __ITM_PORT_MASK_6, __ITM_PORT_MASK_5, \
+      __ITM_PORT_MASK_4, __ITM_PORT_MASK_3, __ITM_PORT_MASK_2, __ITM_PORT_MASK_1)(__VA_ARGS__)
+
+
+#define INIT_ITM_DEBUG(...)                                       \
+  do {                                                            \
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;              \
+    ITM->LAR = 0xC5ACCE55;                                       \
+    ITM->TCR = ITM_TCR_ITMENA_Msk |                              \
+               ITM_TCR_SYNCENA_Msk |                             \
+               ITM_TCR_TSENA_Msk   |                             \
+               (1 << ITM_TCR_TraceBusID_Pos);                    \
+    ITM->TER = __ITM_PORT_MASK(__VA_ARGS__);                     \
+  } while (0)
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

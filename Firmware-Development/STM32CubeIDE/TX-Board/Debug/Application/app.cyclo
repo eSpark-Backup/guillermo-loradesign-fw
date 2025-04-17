@@ -13,8 +13,8 @@ D:/.Embedded/.GITHUB/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/T
 ../Application/app.cpp:113:17:void dataReceived(char*, uint32_t)	5
 ../Application/app.cpp:143:6:void rtcInit()	4
 ../Application/app.cpp:171:6:void loop_test()	3
-../Application/app.cpp:190:6:void App::setup()	1
-../Application/app.cpp:209:6:void App::loop()	1
+../Application/app.cpp:190:6:void App::setup()	2
+../Application/app.cpp:209:6:void App::loop()	7
 ../Application/app.cpp:254:1:void __static_initialization_and_destruction_0(int, int)	5
 ../Application/app.cpp:254:1:cpp)	1
 ../Application/app.cpp:254:1:cpp)	1

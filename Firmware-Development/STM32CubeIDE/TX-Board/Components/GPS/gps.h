@@ -4,13 +4,18 @@
 #include "usart.h"
 #include "TinyGPS++.h"
 
-#define GNSS_STREAM_PORT		1
 #ifdef  ENABLE_GNSS_STREAM_DEBUG
 #define LOG_GNSS_STREAM(fmt, ...)		itm_printf(GNSS_STREAM_PORT, fmt, ##__VA_ARGS__)
 #else
 #define LOG_GNSS_STREAM(fmt, ...)
 #endif
 
+#define INIT_TIMESTAMPS_GNSS				 \
+		lastGnssDisplay = HAL_GetTick();	 \
+		lastStreamProcess = HAL_GetTick();	 \
+		gnssStreamTimestamp = HAL_GetTick(); \
+
+#define UART_DMA_REINTI_TIMEOUT		1000
 
 #define GNSS_LOCK_FLAG		  0x9669
 #define GNSS_LOCK_FLAG_ADDR   RTC_BKP_DR0
@@ -56,5 +61,7 @@ public:
 
 	static uint32_t lastGnssDisplay;
 	static uint32_t lastStreamProcess;
+
+	static uint64_t gnssStreamTimestamp;
 };
 #endif // GPS_H
