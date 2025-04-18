@@ -10,12 +10,17 @@
 #define LOG_GNSS_STREAM(fmt, ...)
 #endif
 
-#define INIT_TIMESTAMPS_GNSS				 \
-		lastGnssDisplay = HAL_GetTick();	 \
-		lastStreamProcess = HAL_GetTick();	 \
-		gnssStreamTimestamp = HAL_GetTick(); \
+#define INIT_TIMESTAMPS_GNSS				 		\
+		lastGnssDisplay = HAL_GetTick();	 		\
+		lastStreamProcess = HAL_GetTick();	 		\
+		gnssStreamTimestamp = HAL_GetTick(); 		\
+		validGnssStreamTimestamp = HAL_GetTick(); 	\
 
-#define UART_DMA_REINTI_TIMEOUT		1000
+#define IS_UPDATED(parameter)   ( gps.parameter.isUpdated() ? ( ) : ( ) )
+
+
+#define UART_DMA_REINT_TIMEOUT		1000
+#define VALID_GNSS_SIGNAL_TIMEOUT	30000
 
 #define GNSS_LOCK_FLAG		  0x9669
 #define GNSS_LOCK_FLAG_ADDR   RTC_BKP_DR0
@@ -43,7 +48,7 @@ typedef struct __attribute__((packed, aligned(1))) {
 class GPS
 {
 public:
-	void setup(void);
+	void setup(RTC_HandleTypeDef* rtc, UART_HandleTypeDef* uart);
 	void loop(void);
 	void displayInfo();
 
@@ -56,12 +61,17 @@ public:
 	static void setGnssData(RtcData_t* data);
 	static void rtcOperation(RtcOperation opr, uint32_t adr, uint32_t* data);
 
+	static UART_HandleTypeDef* port;
+	static RTC_HandleTypeDef* rtcMemory;
 	static TinyGPSPlus gps;
-	static uint8_t data;
+	static RtcData_t gnssData;
 
 	static uint32_t lastGnssDisplay;
 	static uint32_t lastStreamProcess;
 
 	static uint64_t gnssStreamTimestamp;
+	static uint64_t validGnssStreamTimestamp;
+
+	static bool gnssSignalThresholdExceeded;
 };
 #endif // GPS_H

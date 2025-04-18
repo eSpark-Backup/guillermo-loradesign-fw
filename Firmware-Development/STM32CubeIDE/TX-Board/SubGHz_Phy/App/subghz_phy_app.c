@@ -276,7 +276,7 @@ void SubghzApp_Init(void)
 		#endif /* USE_MODEM_LORA | USE_MODEM_FSK */
 
 		#if (APP_LONG_PACKET==0)
-		  Radio.Rx(RX_TIMEOUT_VALUE);
+		//   Radio.Rx(RX_TIMEOUT_VALUE);
 		#else
 		  (void) Radio.ReceiveLongPacket(0, RX_TIMEOUT_VALUE, RxLongPacketChunk);
 		#endif /* APP_LONG_PACKET */

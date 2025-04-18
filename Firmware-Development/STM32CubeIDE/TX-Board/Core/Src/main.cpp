@@ -78,7 +78,7 @@ void itm_printf(uint32_t port, const char* format, ...) {
 
 int putchar(int c)
 {
-    return ITM_SendChar( DEBUG_PORT_NO, (uint8_t)c );
+    return ITM_SendChar( DEBUG_PORT, (uint8_t)c );
 }
 
 /* USER CODE END 0 */
@@ -101,7 +101,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  INIT_ITM_DEBUG(DEBUG_PORT_NO, GNSS_STREAM_PORT);
+  INIT_ITM_DEBUG(DEBUG_PORT, GNSS_STREAM_PORT);
 
   /* USER CODE END Init */
 

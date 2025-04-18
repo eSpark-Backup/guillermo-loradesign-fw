@@ -32,13 +32,13 @@ void generatePayload(uint8_t* buffer, uint32_t size)
 	uint32_t boardIds[] = {HAL_GetUIDw0(), HAL_GetUIDw1(), HAL_GetUIDw2()};
 	memcpy(packet.ids, boardIds, sizeof(packet.ids));
 #endif
-	RtcData_t rtcStoredData;
-	GPS::getGnssData(&rtcStoredData);
-	packet.timestamp.hour = rtcStoredData.hour;
-	packet.timestamp.minute = rtcStoredData.minute;
-	packet.timestamp.second = rtcStoredData.second;
-	packet.geoCoordinates.lattitude = rtcStoredData.latitude;
-	packet.geoCoordinates.longitude = rtcStoredData.longitude;
+	// RtcData_t rtcStoredData;
+	// GPS::getGnssData(&rtcStoredData);
+	packet.timestamp.hour = gps.gnssData.hour;
+	packet.timestamp.minute = gps.gnssData.minute;
+	packet.timestamp.second = gps.gnssData.second;
+	packet.geoCoordinates.lattitude = gps.gnssData.latitude;
+	packet.geoCoordinates.longitude = gps.gnssData.longitude;
 	memcpy(payload + strlen(MY_IDENTIFIER), &packet, sizeof(packet));
 }
 
@@ -50,37 +50,37 @@ void UpTimerEventCallback( void *context )
 
 void sleep(uint32_t timeout)
 {
-	// uint32_t seconds = timeout/1000;
-	// LOG_D("Going to sleep for %d seconds\r\n", seconds);
-	// HAL_GPIO_WritePin(GNSS_RESET_GPIO_Port, GNSS_RESET_Pin, GPIO_PIN_RESET);
-	// HAL_GPIO_WritePin(GNSS_PWR_GPIO_Port, GNSS_PWR_Pin, GPIO_PIN_RESET);
-	// HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
-	// HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
-	// Radio.Sleep();
+	uint32_t seconds = timeout/1000;
+	LOG_D("Going to sleep for %d seconds\r\n", seconds);
+	HAL_GPIO_WritePin(GNSS_RESET_GPIO_Port, GNSS_RESET_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GNSS_PWR_GPIO_Port, GNSS_PWR_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
+	Radio.Sleep();
 
-	// extern TimerEvent_t RxTimeoutTimer;
-	// extern TimerEvent_t TxTimeoutTimer;
-	// TimerStop( &RxTimeoutTimer );
-	// TimerStop( &TxTimeoutTimer );
-	// TimerStop( &SleepTimeoutTimer );
+	extern TimerEvent_t RxTimeoutTimer;
+	extern TimerEvent_t TxTimeoutTimer;
+	TimerStop( &RxTimeoutTimer );
+	TimerStop( &TxTimeoutTimer );
+	TimerStop( &SleepTimeoutTimer );
 
-	// extern SUBGHZ_HandleTypeDef hsubghz;
-	// HAL_SUBGHZ_DeInit(&hsubghz);
+	extern SUBGHZ_HandleTypeDef hsubghz;
+	HAL_SUBGHZ_DeInit(&hsubghz);
 
-	// DateTime now = MCP7940.now();
-	// DateTime alarmTime = now + TimeSpan(seconds);
+	DateTime now = MCP7940.now();
+	DateTime alarmTime = now + TimeSpan(seconds);
 
-	// MCP7940.setAlarm(0, matchAll, alarmTime, true);  // Set one-time alarm
+	MCP7940.setAlarm(0, matchAll, alarmTime, true);  // Set one-time alarm
 
-	// LOG_D("Alarm 0 set for: %04d-%02d-%02d %02d:%02d:%02d\r\n",
-	// 	   alarmTime.year(), alarmTime.month(), alarmTime.day(),
-	// 	   alarmTime.hour(), alarmTime.minute(), alarmTime.second());
+	LOG_D("Alarm 0 set for: %04d-%02d-%02d %02d:%02d:%02d\r\n",
+		   alarmTime.year(), alarmTime.month(), alarmTime.day(),
+		   alarmTime.hour(), alarmTime.minute(), alarmTime.second());
 
-	// PWR_EnterOffMode();
-	// PWR_ExitOffMode();
+	PWR_EnterOffMode();
+	PWR_ExitOffMode();
 
-	// LOG_D("Starts Receiving Data\r\n");
-	// Radio.Rx(5000);
+	LOG_D("Starts Receiving Data\r\n");
+	Radio.Rx(5000);
 }
 
 extern "C" void receiveTimeout(void)
@@ -89,10 +89,11 @@ extern "C" void receiveTimeout(void)
 	{
 	case BOOTUP_STATE:
 		LOG_D("No Signal Received\r\n");
-		RtcData_t rtcStoredData;
-		GPS::getGnssData(&rtcStoredData);
+		// RtcData_t rtcStoredData;
+		// GPS::getGnssData(&rtcStoredData);
+		// gps.gnssData.hour;
 
-		if(rtcStoredData.hour >= HOUR_THRESHOLD)
+		if(gps.gnssData.hour >= HOUR_THRESHOLD)
 		{
 			LOG_D("Hour threshold exceeded. ");
 			LOG_D("Sleeping for a day\r\n");
@@ -140,12 +141,12 @@ extern "C" void dataReceived(char* buffer, uint32_t size)
 	}
 }
 
-void rtcInit() {
+void rtcModuleInit() {
     /*!
         @brief  STM32 HAL setup function
     */
 
-    // Initialize I2C communication with RTC
+    // Initialize I2C communication with RTC module
     while (!MCP7940.begin()) {
         HAL_Delay(3000);
     }
@@ -158,7 +159,7 @@ void rtcInit() {
         }
     }
 
-    // Set the RTC to the compile time
+    // Set the RTC module to the compile time
     DateTime compileTime(__DATE__, __TIME__);
     MCP7940.adjust(compileTime);
     LOG_D("RTC time set to: %04d-%02d-%02d %02d:%02d:%02d\r\n",
@@ -192,8 +193,8 @@ void App::setup(void)
 
 	TimerInit( &SleepTimeoutTimer, UpTimerEventCallback );
 	TimerStop( &SleepTimeoutTimer );
-	gps.setup();
-	rtcInit();
+	gps.setup(&hrtc, &huart1);
+	rtcModuleInit();
 //	while(1)
 //	  loop_test();
 
@@ -201,14 +202,18 @@ void App::setup(void)
 	uint32_t flag;
 	do
 	{
-		gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
 		gps.loop();
-	}while(flag != GNSS_LOCK_FLAG);
+		gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
+	}while((flag != GNSS_LOCK_FLAG) || (!gps.gnssSignalThresholdExceeded));
+
+	gps.displayInfo();
+
+	Radio.Rx(RCV_TIMEOUT_VALUE);
 }
 
 void App::loop(void)
 {
-	gps.loop();
+	// gps.loop();		// no need to process GNSS data, valid coordinates have been acquired
 
 	uint32_t currentTime = HAL_GetTick();
 	uint8_t data[64];
