@@ -88,6 +88,12 @@ default.size.stdout \
 OBJDUMP_LIST += \
 TX-Board.list \
 
+OBJCOPY_HEX += \
+TX-Board.hex \
+
+OBJCOPY_BIN += \
+TX-Board.bin \
+
 
 # All Target
 all: main-build
@@ -111,12 +117,22 @@ TX-Board.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
+TX-Board.hex: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objcopy  -O ihex $(EXECUTABLES) "TX-Board.hex"
+	@echo 'Finished building: $@'
+	@echo ' '
+
+TX-Board.bin: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "TX-Board.bin"
+	@echo 'Finished building: $@'
+	@echo ' '
+
 # Other Targets
 clean:
-	-$(RM) TX-Board.elf TX-Board.list TX-Board.map default.size.stdout
+	-$(RM) TX-Board.bin TX-Board.elf TX-Board.hex TX-Board.list TX-Board.map default.size.stdout
 	-@echo ' '
 
-secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)
+secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST) $(OBJCOPY_HEX) $(OBJCOPY_BIN)
 
 fail-specified-linker-script-missing:
 	@echo 'Error: Cannot find the specified linker script. Check the linker settings in the build configuration.'

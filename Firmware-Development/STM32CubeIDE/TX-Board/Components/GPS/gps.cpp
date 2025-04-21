@@ -151,6 +151,7 @@ void GPS::processData(uint8_t *data, uint16_t len)
     {
         gnssSignalThresholdExceeded = true;
         getGnssData(&gnssData);
+        LOG_D("Valid gnss signal not received and threshold exceeded.\r\nUsing previous stored Coordinates.\r\n");
     }
 
     // RtcData_t readOut;
@@ -167,7 +168,7 @@ void GPS::processData(uint8_t *data, uint16_t len)
 void GPS::displayInfo(void)
 {
     LOG_D("Location: ");
-    if (gps.location.isValid())
+    if (gps.location.isValid() || gnssSignalThresholdExceeded)
     {
         LOG_D("%.6f,%.6f", gnssData.latitude, gnssData.longitude);
     }
@@ -177,7 +178,7 @@ void GPS::displayInfo(void)
     }
 
     LOG_D("  Date/Time: ");
-    if (gps.date.isValid())
+    if (gps.date.isValid() || gnssSignalThresholdExceeded)
     {
         LOG_D("%02d/%02d/%04d ", gnssData.month, gnssData.day, gnssData.year);
     }
@@ -186,7 +187,7 @@ void GPS::displayInfo(void)
         LOG_D("INVALID ");
     }
 
-    if (gps.time.isValid())
+    if (gps.time.isValid() || gnssSignalThresholdExceeded)
     {
         LOG_D("%02d:%02d:%02d.%02d\r\n",
                gnssData.hour,

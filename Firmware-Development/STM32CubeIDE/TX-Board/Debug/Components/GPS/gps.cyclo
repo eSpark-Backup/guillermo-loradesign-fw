@@ -9,8 +9,8 @@ D:/.Embedded/.GITHUB/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/T
 ../Components/GPS/gps.cpp:74:6:static void GPS::rtcOperation(RtcOperation, uint32_t, uint32_t*)	3
 ../Components/GPS/gps.cpp:92:6:static void GPS::processGpsStream()	4
 ../Components/GPS/gps.cpp:129:6:static void GPS::processData(uint8_t*, uint16_t)	11
-../Components/GPS/gps.cpp:167:6:void GPS::displayInfo()	4
-../Components/GPS/gps.cpp:203:6:void GPS::setup(RTC_HandleTypeDef*, UART_HandleTypeDef*)	3
-../Components/GPS/gps.cpp:223:6:void GPS::loop()	3
-../Components/GPS/gps.cpp:244:1:void __static_initialization_and_destruction_0(int, int)	3
-../Components/GPS/gps.cpp:244:1:cpp)	1
+../Components/GPS/gps.cpp:168:6:void GPS::displayInfo()	10
+../Components/GPS/gps.cpp:204:6:void GPS::setup(RTC_HandleTypeDef*, UART_HandleTypeDef*)	3
+../Components/GPS/gps.cpp:224:6:void GPS::loop()	3
+../Components/GPS/gps.cpp:245:1:void __static_initialization_and_destruction_0(int, int)	3
+../Components/GPS/gps.cpp:245:1:cpp)	1

@@ -1,6 +1,5 @@
-Core/Src/main.o: ../Core/Src/main.cpp \
- D:/.Embedded/.GITHUB/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Application/app.h \
- ../Core/Inc/main.h ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal.h \
+Core/Src/main.o: ../Core/Src/main.cpp ../Core/Inc/main.h \
+ ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal.h \
  ../Core/Inc/stm32wlxx_hal_conf.h \
  ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_dma.h \
  ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_def.h \
@@ -44,9 +43,9 @@ Core/Src/main.o: ../Core/Src/main.cpp \
  ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_system.h \
  ../Core/Inc/dma.h ../Core/Inc/main.h ../Core/Inc/i2c.h ../Core/Inc/rtc.h \
  ../SubGHz_Phy/App/app_subghz_phy.h ../Core/Inc/usart.h \
- ../Core/Inc/gpio.h ../Core/Inc/subghz.h ../Core/Inc/stm32_lpm_if.h \
- ../Utilities/lpm/tiny_lpm/stm32_lpm.h
-D:/.Embedded/.GITHUB/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Application/app.h:
+ ../Core/Inc/gpio.h ../Core/Inc/subghz.h \
+ D:/.Embedded/.GITHUB/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Application/app.h \
+ ../Core/Inc/stm32_lpm_if.h ../Utilities/lpm/tiny_lpm/stm32_lpm.h
 ../Core/Inc/main.h:
 ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal.h:
 ../Core/Inc/stm32wlxx_hal_conf.h:
@@ -98,5 +97,6 @@ D:/.Embedded/.GITHUB/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/T
 ../Core/Inc/usart.h:
 ../Core/Inc/gpio.h:
 ../Core/Inc/subghz.h:
+D:/.Embedded/.GITHUB/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Application/app.h:
 ../Core/Inc/stm32_lpm_if.h:
 ../Utilities/lpm/tiny_lpm/stm32_lpm.h:

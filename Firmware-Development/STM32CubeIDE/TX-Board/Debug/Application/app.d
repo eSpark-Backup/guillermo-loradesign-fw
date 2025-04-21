@@ -1,5 +1,4 @@
-Application/app.o: ../Application/app.cpp \
- D:/.Embedded/.GITHUB/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Application/app.h \
+Application/app.o: ../Application/app.cpp ../Application/app.h \
  ../Core/Inc/main.h ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal.h \
  ../Core/Inc/stm32wlxx_hal_conf.h \
  ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_dma.h \
@@ -60,7 +59,7 @@ Application/app.o: ../Application/app.cpp \
  ../Core/Inc/utilities_def.h \
  D:/.Embedded/.GITHUB/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Components/MCP7940/MCP7940.h \
  ../Core/Inc/i2c.h
-D:/.Embedded/.GITHUB/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Application/app.h:
+../Application/app.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal.h:
 ../Core/Inc/stm32wlxx_hal_conf.h:
