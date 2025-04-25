@@ -43,7 +43,8 @@ Components/GPS/gps.o: ../Components/GPS/gps.cpp ../Components/GPS/gps.h \
  ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_uart_ex.h \
  ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_system.h \
  D:/.Embedded/.GITHUB/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Libraries/TinyGPSPlus/TinyGPS++.h \
- ../Core/Inc/main.h ../Core/Inc/rtc.h
+ ../Core/Inc/main.h ../Core/Inc/rtc.h \
+ D:/.Embedded/.GITHUB/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Application/app.h
 ../Components/GPS/gps.h:
 ../Core/Inc/usart.h:
 ../Core/Inc/main.h:
@@ -92,3 +93,4 @@ Components/GPS/gps.o: ../Components/GPS/gps.cpp ../Components/GPS/gps.h \
 D:/.Embedded/.GITHUB/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Libraries/TinyGPSPlus/TinyGPS++.h:
 ../Core/Inc/main.h:
 ../Core/Inc/rtc.h:
+D:/.Embedded/.GITHUB/guillermo-loradesign-fw/Firmware-Development/STM32CubeIDE/TX-Board/Application/app.h:

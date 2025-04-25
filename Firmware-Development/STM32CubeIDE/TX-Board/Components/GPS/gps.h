@@ -16,9 +16,6 @@
 		gnssStreamTimestamp = HAL_GetTick(); 		\
 		validGnssStreamTimestamp = HAL_GetTick(); 	\
 
-#define IS_UPDATED(parameter)   ( gps.parameter.isUpdated() ? ( ) : ( ) )
-
-
 #define UART_DMA_REINT_TIMEOUT		1000
 #define VALID_GNSS_SIGNAL_TIMEOUT	30000
 

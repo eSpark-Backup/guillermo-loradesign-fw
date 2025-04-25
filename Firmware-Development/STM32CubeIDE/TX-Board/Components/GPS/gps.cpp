@@ -1,5 +1,52 @@
 #include "gps.h"
 #include "rtc.h"
+#include "app.h"
+
+static inline void apply_timezone_offset(RtcData_t* data, int tz_hour, int tz_minute) {
+    int y = data->year;
+    int mo = data->month;
+    int d = data->day;
+    int h = data->hour;
+    int m = data->minute + tz_minute;
+    int s = data->second;
+
+    h += tz_hour + m / 60;
+    m %= 60;
+    if (m < 0) { m += 60; h -= 1; }
+
+    d += h / 24;
+    h %= 24;
+    if (h < 0) { h += 24; d -= 1; }
+
+    static const uint8_t daysInMonth[] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
+
+    while (1) {
+        if (d < 1) {
+            mo -= 1;
+            if (mo < 1) { mo = 12; y -= 1; }
+            bool leap = (y % 4 == 0 && (y % 100 != 0 || y % 400 == 0));
+            int max_day = daysInMonth[mo - 1];
+            if (leap && mo == 2) max_day = 29;
+            d += max_day;
+        } else {
+            bool leap = (y % 4 == 0 && (y % 100 != 0 || y % 400 == 0));
+            int max_day = daysInMonth[mo - 1];
+            if (leap && mo == 2) max_day = 29;
+            if (d > max_day) {
+                d -= max_day;
+                mo += 1;
+                if (mo > 12) { mo = 1; y += 1; }
+            } else break;
+        }
+    }
+
+    data->year = y;
+    data->month = mo;
+    data->day = d;
+    data->hour = h;
+    data->minute = m;
+    // data->second and centisecond are unchanged
+}
 
 
 #define IS_UPDATED_LOCATION() \
@@ -12,22 +59,31 @@
 
 #define IS_UPDATED_DATE() \
     ({ bool _updated = gps.date.isUpdated(); \
-       if (_updated) { \
-           gnssData.day = gps.date.day(); \
-           gnssData.month = gps.date.month(); \
-           gnssData.year = gps.date.year(); \
-       } \
-       _updated; })
+        if (_updated) { \
+            gnssData.day = gps.date.day(); \
+            gnssData.month = gps.date.month(); \
+            gnssData.year = gps.date.year(); \
+            gnssData.hour = gps.time.hour(); \
+            gnssData.minute = gps.time.minute(); \
+            gnssData.second = gps.time.second(); \
+            gnssData.centisecond = gps.time.centisecond(); \
+            apply_timezone_offset(&gnssData, TIMEZONE_HOUR_OFFSET, TIMEZONE_MINUTE_OFFSET); \
+        } \
+        _updated; })
 
-#define IS_UPDATED_TIME() \
-    ({ bool _updated = gps.time.isUpdated(); \
-       if (_updated) { \
-           gnssData.hour = gps.time.hour(); \
-           gnssData.minute = gps.time.minute(); \
-           gnssData.second = gps.time.second(); \
-           gnssData.centisecond = gps.time.centisecond(); \
-       } \
-       _updated; })
+// #define IS_UPDATED_TIME() \
+//     ({ bool _updated = gps.time.isUpdated(); \
+//         if (_updated) { \
+//             gnssData.hour = gps.time.hour(); \
+//             gnssData.minute = gps.time.minute(); \
+//             gnssData.second = gps.time.second(); \
+//             gnssData.centisecond = gps.time.centisecond(); \
+//             gnssData.day = gps.date.day(); \
+//             gnssData.month = gps.date.month(); \
+//             gnssData.year = gps.date.year(); \
+//             apply_timezone_offset(&gnssData, TIMEZONE_HOUR_OFFSET, TIMEZONE_MINUTE_OFFSET); \
+//         } \
+//         _updated; })
 
 
 UART_HandleTypeDef* GPS::port = NULL;
@@ -136,22 +192,33 @@ void GPS::processData(uint8_t *data, uint16_t len)
 
     bool locUpdated  = IS_UPDATED_LOCATION();
     bool dateUpdated = IS_UPDATED_DATE();
-    bool timeUpdated = IS_UPDATED_TIME();
+    // bool timeUpdated = IS_UPDATED_TIME();
 
     if( locUpdated &&
-        dateUpdated &&
-        timeUpdated )
+        dateUpdated)// &&
+        // timeUpdated )
     {
         setGnssData(&gnssData);
-        uint32_t val = GNSS_LOCK_FLAG;
-        rtcOperation(STORE, GNSS_LOCK_FLAG_ADDR, &val);
+        uint32_t val;
+        rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &val);
+        if(val != GNSS_LOCK_FLAG)
+        {
+            val = GNSS_LOCK_FLAG;
+            rtcOperation(STORE, GNSS_LOCK_FLAG_ADDR, &val);
+        }
         gnssSignalThresholdExceeded = true;
     }
     else if((HAL_GetTick() - validGnssStreamTimestamp > VALID_GNSS_SIGNAL_TIMEOUT) && !gnssSignalThresholdExceeded)
     {
+        LOG_D("Valid gnss signal not received and threshold exceeded.\r\n");
         gnssSignalThresholdExceeded = true;
-        getGnssData(&gnssData);
-        LOG_D("Valid gnss signal not received and threshold exceeded.\r\nUsing previous stored Coordinates.\r\n");
+        uint32_t val;
+        rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &val);
+        if(val == GNSS_LOCK_FLAG)
+        {
+            LOG_D("Using previous stored Coordinates.\r\n");
+            getGnssData(&gnssData);
+        }
     }
 
     // RtcData_t readOut;
@@ -168,7 +235,7 @@ void GPS::processData(uint8_t *data, uint16_t len)
 void GPS::displayInfo(void)
 {
     LOG_D("Location: ");
-    if (gps.location.isValid() || gnssSignalThresholdExceeded)
+    if (gps.location.isValid())
     {
         LOG_D("%.6f,%.6f", gnssData.latitude, gnssData.longitude);
     }
@@ -178,7 +245,7 @@ void GPS::displayInfo(void)
     }
 
     LOG_D("  Date/Time: ");
-    if (gps.date.isValid() || gnssSignalThresholdExceeded)
+    if (gps.date.isValid())
     {
         LOG_D("%02d/%02d/%04d ", gnssData.month, gnssData.day, gnssData.year);
     }
@@ -187,7 +254,7 @@ void GPS::displayInfo(void)
         LOG_D("INVALID ");
     }
 
-    if (gps.time.isValid() || gnssSignalThresholdExceeded)
+    if (gps.time.isValid())
     {
         LOG_D("%02d:%02d:%02d.%02d\r\n",
                gnssData.hour,
