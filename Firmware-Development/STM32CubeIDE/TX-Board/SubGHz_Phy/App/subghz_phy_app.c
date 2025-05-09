@@ -47,7 +47,7 @@ uint8_t current_mode = TEST_MODE;
 #define MAX_APP_BUFFER_SIZE 64
 /* Configurations */
 /*Timeout*/
-#define RX_TIMEOUT_VALUE              8000
+#define RX_TIMEOUT_VALUE              5000
 #define TX_TIMEOUT_VALUE              3000
 
 #if (( USE_MODEM_LORA == 1 ) && ( USE_MODEM_FSK == 0 ))
@@ -276,7 +276,7 @@ void SubghzApp_Init(void)
 		#endif /* USE_MODEM_LORA | USE_MODEM_FSK */
 
 		#if (APP_LONG_PACKET==0)
-		  Radio.Rx(RX_TIMEOUT_VALUE);
+		//   Radio.Rx(RX_TIMEOUT_VALUE);
 		#else
 		  (void) Radio.ReceiveLongPacket(0, RX_TIMEOUT_VALUE, RxLongPacketChunk);
 		#endif /* APP_LONG_PACKET */

@@ -88,6 +88,12 @@ default.size.stdout \
 OBJDUMP_LIST += \
 TX-Board.list \
 
+OBJCOPY_HEX += \
+TX-Board.hex \
+
+OBJCOPY_BIN += \
+TX-Board.bin \
+
 
 # All Target
 all: main-build
@@ -96,8 +102,8 @@ all: main-build
 main-build: TX-Board.elf secondary-outputs
 
 # Tool invocations
-TX-Board.elf TX-Board.map: $(OBJS) $(USER_OBJS) D:\GitHub\guillermo-loradesign-fw\Firmware-Development\STM32CubeIDE\TX-Board\STM32WLE5CBUX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-g++ -o "TX-Board.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\GitHub\guillermo-loradesign-fw\Firmware-Development\STM32CubeIDE\TX-Board\STM32WLE5CBUX_FLASH.ld" -Wl,-Map="TX-Board.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -u _printf_float -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+TX-Board.elf TX-Board.map: $(OBJS) $(USER_OBJS) D:\.Embedded\.GITHUB\guillermo-loradesign-fw\Firmware-Development\STM32CubeIDE\TX-Board\STM32WLE5CBUX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-g++ -o "TX-Board.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\.Embedded\.GITHUB\guillermo-loradesign-fw\Firmware-Development\STM32CubeIDE\TX-Board\STM32WLE5CBUX_FLASH.ld" -Wl,-Map="TX-Board.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -u _printf_float -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -111,12 +117,22 @@ TX-Board.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
+TX-Board.hex: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objcopy  -O ihex $(EXECUTABLES) "TX-Board.hex"
+	@echo 'Finished building: $@'
+	@echo ' '
+
+TX-Board.bin: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "TX-Board.bin"
+	@echo 'Finished building: $@'
+	@echo ' '
+
 # Other Targets
 clean:
-	-$(RM) TX-Board.elf TX-Board.list TX-Board.map default.size.stdout
+	-$(RM) TX-Board.bin TX-Board.elf TX-Board.hex TX-Board.list TX-Board.map default.size.stdout
 	-@echo ' '
 
-secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)
+secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST) $(OBJCOPY_HEX) $(OBJCOPY_BIN)
 
 fail-specified-linker-script-missing:
 	@echo 'Error: Cannot find the specified linker script. Check the linker settings in the build configuration.'

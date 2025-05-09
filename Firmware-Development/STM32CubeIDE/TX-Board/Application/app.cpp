@@ -32,11 +32,13 @@ void generatePayload(uint8_t* buffer, uint32_t size)
 	uint32_t boardIds[] = {HAL_GetUIDw0(), HAL_GetUIDw1(), HAL_GetUIDw2()};
 	memcpy(packet.ids, boardIds, sizeof(packet.ids));
 #endif
-	packet.timestamp.hour = gps.gps.time.hour();
-	packet.timestamp.minute = gps.gps.time.minute();
-	packet.timestamp.second = gps.gps.time.second();
-	packet.geoCoordinates.lattitude = gps.gps.location.lat();
-	packet.geoCoordinates.longitude = gps.gps.location.lng();
+	// RtcData_t rtcStoredData;
+	// GPS::getGnssData(&rtcStoredData);
+	packet.timestamp.hour = gps.gnssData.hour;
+	packet.timestamp.minute = gps.gnssData.minute;
+	packet.timestamp.second = gps.gnssData.second;
+	packet.geoCoordinates.lattitude = gps.gnssData.latitude;
+	packet.geoCoordinates.longitude = gps.gnssData.longitude;
 	memcpy(payload + strlen(MY_IDENTIFIER), &packet, sizeof(packet));
 }
 
@@ -87,7 +89,20 @@ extern "C" void receiveTimeout(void)
 	{
 	case BOOTUP_STATE:
 		LOG_D("No Signal Received\r\n");
-		sleep(SLEEP_TIMEOUT);
+		// RtcData_t rtcStoredData;
+		// GPS::getGnssData(&rtcStoredData);
+		// gps.gnssData.hour;
+
+		if(gps.gnssData.hour >= HOUR_THRESHOLD)
+		{
+			LOG_D("Hour threshold exceeded. ");
+			LOG_D("Sleeping for a day\r\n");
+			sleep(DAY_TIMEOUT);
+		}
+		else
+		{
+			sleep(SLEEP_TIMEOUT);
+		}
 		break;
 
 	default:
@@ -126,12 +141,12 @@ extern "C" void dataReceived(char* buffer, uint32_t size)
 	}
 }
 
-void setup_test() {
+void rtcModuleInit() {
     /*!
         @brief  STM32 HAL setup function
     */
 
-    // Initialize I2C communication with RTC
+    // Initialize I2C communication with RTC module
     while (!MCP7940.begin()) {
         HAL_Delay(3000);
     }
@@ -144,7 +159,7 @@ void setup_test() {
         }
     }
 
-    // Set the RTC to the compile time
+    // Set the RTC module to the compile time
     DateTime compileTime(__DATE__, __TIME__);
     MCP7940.adjust(compileTime);
     LOG_D("RTC time set to: %04d-%02d-%02d %02d:%02d:%02d\r\n",
@@ -178,15 +193,27 @@ void App::setup(void)
 
 	TimerInit( &SleepTimeoutTimer, UpTimerEventCallback );
 	TimerStop( &SleepTimeoutTimer );
-	gps.setup();
-	setup_test();
+	gps.setup(&hrtc, &huart1);
+	rtcModuleInit();
 //	while(1)
 //	  loop_test();
+
+	// dont execute app state machine unless we get gnss lock
+	uint32_t flag;
+	do
+	{
+		gps.loop();
+		gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
+	}while((flag != GNSS_LOCK_FLAG) || (!gps.gnssSignalThresholdExceeded));
+
+	gps.displayInfo();
+
+	Radio.Rx(RCV_TIMEOUT_VALUE);
 }
 
 void App::loop(void)
 {
-	gps.loop();
+	// gps.loop();		// no need to process GNSS data, valid coordinates have been acquired
 
 	uint32_t currentTime = HAL_GetTick();
 	uint8_t data[64];

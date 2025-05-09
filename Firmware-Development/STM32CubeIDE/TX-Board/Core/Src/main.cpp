@@ -27,7 +27,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include  <stdio.h>
+#include <stdio.h>
 #include <stdarg.h>
 #include "subghz.h"
 #include "app.h"
@@ -64,7 +64,7 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void itm_printf(const char* format, ...) {
+void itm_printf(uint32_t port, const char* format, ...) {
     char buffer[256]; // Temporary buffer for formatted string
     va_list args;
     va_start(args, format);
@@ -72,9 +72,15 @@ void itm_printf(const char* format, ...) {
     va_end(args);
 
     for (int i = 0; i < length; ++i) {
-        ITM_SendChar((uint8_t)buffer[i]);
+        ITM_SendChar(port, (uint8_t)buffer[i]);
     }
 }
+
+int putchar(int c)
+{
+    return ITM_SendChar( DEBUG_PORT, (uint8_t)c );
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -91,9 +97,11 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+
   HAL_Init();
 
   /* USER CODE BEGIN Init */
+  INIT_ITM_DEBUG(DEBUG_PORT, GNSS_STREAM_PORT);
 
   /* USER CODE END Init */
 
@@ -106,12 +114,14 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-//  MX_DMA_Init();
+  MX_DMA_Init();
   MX_USART1_UART_Init();
-//  MX_RTC_Init();
+  MX_RTC_Init();
   MX_SubGHz_Phy_Init();
   MX_I2C3_Init();
   /* USER CODE BEGIN 2 */
+  // Enable access to the backup domain
+//  HAL_PWR_EnableBkUpAccess();
   app.setup();
   /* USER CODE END 2 */
 
@@ -120,6 +130,7 @@ int main(void)
   while (1)
   {
 	app.loop();
+    
     /* USER CODE END WHILE */
     MX_SubGHz_Phy_Process();
 
