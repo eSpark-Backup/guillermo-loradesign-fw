@@ -199,27 +199,27 @@ void GPS::processData(uint8_t *data, uint16_t len)
         // timeUpdated )
     {
         setGnssData(&gnssData);
-        uint32_t val;
-        rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &val);
-        if(val != GNSS_LOCK_FLAG)
-        {
-            val = GNSS_LOCK_FLAG;
-            rtcOperation(STORE, GNSS_LOCK_FLAG_ADDR, &val);
-        }
+        // uint32_t val;
+        // rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &val);
+        // if(val != GNSS_LOCK_FLAG)
+        // {
+        //     val = GNSS_LOCK_FLAG;
+        //     rtcOperation(STORE, GNSS_LOCK_FLAG_ADDR, &val);
+        // }
         gnssSignalThresholdExceeded = true;
     }
-    else if((HAL_GetTick() - validGnssStreamTimestamp > VALID_GNSS_SIGNAL_TIMEOUT) && !gnssSignalThresholdExceeded)
-    {
-        LOG_D("Valid gnss signal not received and threshold exceeded.\r\n");
-        gnssSignalThresholdExceeded = true;
-        uint32_t val;
-        rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &val);
-        if(val == GNSS_LOCK_FLAG)
-        {
-            LOG_D("Using previous stored Coordinates.\r\n");
-            getGnssData(&gnssData);
-        }
-    }
+    // else if((HAL_GetTick() - validGnssStreamTimestamp > VALID_GNSS_SIGNAL_TIMEOUT) && !gnssSignalThresholdExceeded)
+    // {
+    //     LOG_D("Valid gnss signal not received and threshold exceeded.\r\n");
+    //     gnssSignalThresholdExceeded = true;
+    //     uint32_t val;
+    //     rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &val);
+    //     if(val == GNSS_LOCK_FLAG)
+    //     {
+    //         LOG_D("Using previous stored Coordinates.\r\n");
+    //         getGnssData(&gnssData);
+    //     }
+    // }
 
     // RtcData_t readOut;
     // getGnssData(&readOut);

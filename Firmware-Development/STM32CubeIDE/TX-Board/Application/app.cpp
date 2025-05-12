@@ -142,10 +142,6 @@ extern "C" void dataReceived(char* buffer, uint32_t size)
 }
 
 void rtcModuleInit() {
-    /*!
-        @brief  STM32 HAL setup function
-    */
-
     // Initialize I2C communication with RTC module
     while (!MCP7940.begin()) {
         HAL_Delay(3000);
@@ -159,7 +155,7 @@ void rtcModuleInit() {
         }
     }
 
-    // Set the RTC module to the compile time
+    // Set the RTC module to the compile time					// This should be changed according to the time received from GNSS module
     DateTime compileTime(__DATE__, __TIME__);
     MCP7940.adjust(compileTime);
     LOG_D("RTC time set to: %04d-%02d-%02d %02d:%02d:%02d\r\n",
@@ -170,9 +166,6 @@ void rtcModuleInit() {
 }
 
 void loop_test() {
-    /*!
-        @brief  STM32 HAL main loop function
-    */
     static uint8_t secs = 0;
     DateTime now = MCP7940.now();  // Get the current time
 
@@ -203,8 +196,8 @@ void App::setup(void)
 	do
 	{
 		gps.loop();
-		gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
-	}while((flag != GNSS_LOCK_FLAG) || (!gps.gnssSignalThresholdExceeded));
+		// gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
+	}while((!gps.gnssSignalThresholdExceeded));
 
 	gps.displayInfo();
 
