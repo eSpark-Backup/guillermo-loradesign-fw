@@ -1,7 +1,0 @@
-../Application/app.cpp:21:6:void DurationElapsedCallback(void*)	1
-../Application/app.cpp:28:6:void processData(UART_HandleTypeDef*)	1
-../Application/app.cpp:35:6:void sleep(uint32_t)	1
-../Application/app.cpp:49:17:void RX_Done_Process(char*, uint32_t)	2
-../Application/app.cpp:62:17:void RX_Timeout_Process()	1
-../Application/app.cpp:69:6:void App::setup()	2
-../Application/app.cpp:86:6:void App::loop()	6

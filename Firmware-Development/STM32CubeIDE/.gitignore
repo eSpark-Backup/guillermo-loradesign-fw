@@ -38,6 +38,11 @@
 # metadata directory
 .metadata/
 
+# build directory
+BaseStation-Board/Debug/
+Relay-Board/Debug/
+TX-Board/Debug/
+
 # Include makefiles
 !Makefile
 *~
