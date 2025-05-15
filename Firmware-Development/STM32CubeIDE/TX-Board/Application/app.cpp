@@ -20,6 +20,19 @@ static uint32_t shutoffCount = 0;
 uint32_t shutOffStartTime = 0;
 MCP7940_Class  MCP7940;
 
+// Returns the time difference in seconds between ref_time and rtc_time, wrapping if needed
+uint32_t get_wrapped_seconds_diff(const RtcData_t* rtc, uint8_t ref_hour, uint8_t ref_minute, uint8_t ref_second)
+{
+    uint32_t rtc_seconds = rtc->hour * 3600 + rtc->minute * 60 + rtc->second;
+    uint32_t ref_seconds = ref_hour * 3600 + ref_minute * 60 + ref_second;
+
+    if (ref_seconds >= rtc_seconds) {
+        return ref_seconds - rtc_seconds;
+    } else {
+        return (24 * 3600 - rtc_seconds) + ref_seconds;
+    }
+}
+
 void generatePayload(uint8_t* buffer, uint32_t size)
 {
 	char* payload = (char*) buffer;
@@ -141,6 +154,15 @@ extern "C" void dataReceived(char* buffer, uint32_t size)
 	}
 }
 
+void setRtcTime()
+{
+    DateTime currentTime(gps.gnssData.year, gps.gnssData.month, gps.gnssData.day, gps.gnssData.hour, gps.gnssData.minute, gps.gnssData.second);
+    MCP7940.adjust(currentTime);
+    LOG_D("RTC time set to: %04d-%02d-%02d %02d:%02d:%02d\r\n",
+               currentTime.year(), currentTime.month(), currentTime.day(),
+               currentTime.hour(), currentTime.minute(), currentTime.second());
+}
+
 void rtcModuleInit() {
     // Initialize I2C communication with RTC module
     while (!MCP7940.begin()) {
@@ -156,11 +178,11 @@ void rtcModuleInit() {
     }
 
     // Set the RTC module to the compile time					// This should be changed according to the time received from GNSS module
-    DateTime compileTime(__DATE__, __TIME__);
-    MCP7940.adjust(compileTime);
-    LOG_D("RTC time set to: %04d-%02d-%02d %02d:%02d:%02d\r\n",
-               compileTime.year(), compileTime.month(), compileTime.day(),
-               compileTime.hour(), compileTime.minute(), compileTime.second());
+    // DateTime compileTime(__DATE__, __TIME__);
+    // MCP7940.adjust(compileTime);
+    // LOG_D("RTC time set to: %04d-%02d-%02d %02d:%02d:%02d\r\n",
+    //            compileTime.year(), compileTime.month(), compileTime.day(),
+    //            compileTime.hour(), compileTime.minute(), compileTime.second());
 
     MCP7940.setAlarmPolarity(false);
 }
@@ -192,7 +214,7 @@ void App::setup(void)
 //	  loop_test();
 
 	// dont execute app state machine unless we get gnss lock
-	uint32_t flag;
+	// uint32_t flag;
 	do
 	{
 		gps.loop();
@@ -200,6 +222,7 @@ void App::setup(void)
 	}while((!gps.gnssSignalThresholdExceeded));
 
 	gps.displayInfo();
+	setRtcTime();
 
 	Radio.Rx(RCV_TIMEOUT_VALUE);
 }
