@@ -21,10 +21,13 @@ uint32_t shutOffStartTime = 0;
 MCP7940_Class  MCP7940;
 
 // Returns the time difference in seconds between ref_time and rtc_time, wrapping if needed
-uint32_t get_wrapped_seconds_diff(const RtcData_t* rtc, uint8_t ref_hour, uint8_t ref_minute, uint8_t ref_second)
+uint32_t get_wrapped_seconds_diff(uint8_t ref_hour, uint8_t ref_minute, uint8_t ref_second)
 {
-    uint32_t rtc_seconds = rtc->hour * 3600 + rtc->minute * 60 + rtc->second;
-    uint32_t ref_seconds = ref_hour * 3600 + ref_minute * 60 + ref_second;
+	DateTime now = MCP7940.now();
+    uint32_t rtc_seconds = (now.hour() * 3600) + (now.minute() * 60) + now.second();
+    uint32_t ref_seconds = (ref_hour * 3600) + (ref_minute * 60) + ref_second;
+    // uint32_t rtc_seconds = rtc->hour * 3600 + rtc->minute * 60 + rtc->second;
+    // uint32_t ref_seconds = ref_hour * 3600 + ref_minute * 60 + ref_second;
 
     if (ref_seconds >= rtc_seconds) {
         return ref_seconds - rtc_seconds;
@@ -101,22 +104,27 @@ extern "C" void receiveTimeout(void)
 	switch(state)
 	{
 	case BOOTUP_STATE:
-		LOG_D("No Signal Received\r\n");
-		// RtcData_t rtcStoredData;
-		// GPS::getGnssData(&rtcStoredData);
-		// gps.gnssData.hour;
+		{
+			LOG_D("No Signal Received\r\n");
+			// RtcData_t rtcStoredData;
+			// GPS::getGnssData(&rtcStoredData);
+			// gps.gnssData.hour;
 
-		if(gps.gnssData.hour >= HOUR_THRESHOLD)
-		{
-			LOG_D("Hour threshold exceeded. ");
-			LOG_D("Sleeping for a day\r\n");
-			sleep(DAY_TIMEOUT);
+			DateTime now = MCP7940.now();
+
+			if(now.hour() >= HOUR_THRESHOLD)
+			{
+				LOG_D("Hour threshold exceeded. ");
+				LOG_D("Sleeping for a day\r\n");
+				sleep(DAY_TIMEOUT);
+			}
+			else
+			{
+				// sleep(SLEEP_TIMEOUT);
+				Radio.Rx(RCV_TIMEOUT_VALUE);
+			}
+			break;
 		}
-		else
-		{
-			sleep(SLEEP_TIMEOUT);
-		}
-		break;
 
 	default:
 		break;
@@ -213,8 +221,13 @@ void App::setup(void)
 //	while(1)
 //	  loop_test();
 
+
+	// if its first boot than go to sleep as soon as GNSS is locked
+	// if its boot from rtc wakeup signal than proceed to listen for HELLO signal
+	uint32_t flag;
+	gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
+
 	// dont execute app state machine unless we get gnss lock
-	// uint32_t flag;
 	do
 	{
 		gps.loop();
@@ -224,7 +237,16 @@ void App::setup(void)
 	gps.displayInfo();
 	setRtcTime();
 
-	Radio.Rx(RCV_TIMEOUT_VALUE);
+	HAL_GPIO_WritePin(GNSS_PWR_GPIO_Port, GNSS_PWR_Pin, GPIO_PIN_RESET);	// turn of GNSS at this point
+
+	if(GNSS_LOCK_FLAG == flag)
+	{
+		Radio.Rx(RCV_TIMEOUT_VALUE);
+	}
+	else
+	{
+		sleep(DAY_TIMEOUT);
+	}
 }
 
 void App::loop(void)
