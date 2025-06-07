@@ -101,7 +101,7 @@ uint32_t GPS::lastStreamProcess = 0;
 uint64_t GPS::gnssStreamTimestamp = 0;
 uint64_t GPS::validGnssStreamTimestamp = 0;
 
-bool GPS::gnssSignalThresholdExceeded = false;
+bool GPS::gnssSignalReceived = false;
 
 void GPS::getGnssData(RtcData_t* data)
 {
@@ -206,7 +206,7 @@ void GPS::processData(uint8_t *data, uint16_t len)
             val = GNSS_LOCK_FLAG;
             rtcOperation(STORE, GNSS_LOCK_FLAG_ADDR, &val);
         }
-        gnssSignalThresholdExceeded = true;
+        gnssSignalReceived = true;
     }
     // else if((HAL_GetTick() - validGnssStreamTimestamp > VALID_GNSS_SIGNAL_TIMEOUT) && !gnssSignalThresholdExceeded)
     // {
@@ -277,6 +277,9 @@ void GPS::setup(RTC_HandleTypeDef* rtc, UART_HandleTypeDef* uart)
     }
     else
         return;
+
+    HAL_GPIO_WritePin(GNSS_PWR_GPIO_Port, GNSS_PWR_Pin, GPIO_PIN_SET);
+	HAL_Delay(10);
 
 	HAL_GPIO_WritePin(GNSS_RESET_GPIO_Port, GNSS_RESET_Pin, GPIO_PIN_RESET);
 	HAL_Delay(400);

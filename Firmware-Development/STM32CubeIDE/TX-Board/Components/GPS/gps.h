@@ -69,6 +69,6 @@ public:
 	static uint64_t gnssStreamTimestamp;
 	static uint64_t validGnssStreamTimestamp;
 
-	static bool gnssSignalThresholdExceeded;
+	static bool gnssSignalReceived;
 };
 #endif // GPS_H

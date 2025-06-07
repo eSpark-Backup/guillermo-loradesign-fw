@@ -104,27 +104,30 @@ extern "C" void receiveTimeout(void)
 	switch(state)
 	{
 	case BOOTUP_STATE:
+	{
+		LOG_D("No Signal Received\r\n");
+		// RtcData_t rtcStoredData;
+		// GPS::getGnssData(&rtcStoredData);
+		// gps.gnssData.hour;
+
+		DateTime now = MCP7940.now();
+
+		if(now.hour() >= HOUR_THRESHOLD)
 		{
-			LOG_D("No Signal Received\r\n");
-			// RtcData_t rtcStoredData;
-			// GPS::getGnssData(&rtcStoredData);
-			// gps.gnssData.hour;
-
-			DateTime now = MCP7940.now();
-
-			if(now.hour() >= HOUR_THRESHOLD)
-			{
-				LOG_D("Hour threshold exceeded. ");
-				LOG_D("Sleeping for a day\r\n");
-				sleep(DAY_TIMEOUT);
-			}
-			else
-			{
-				// sleep(SLEEP_TIMEOUT);
-				Radio.Rx(RCV_TIMEOUT_VALUE);
-			}
-			break;
+			LOG_D("Hour threshold exceeded. ");
+			LOG_D("Sleeping for a day\r\n");
+			uint32_t val = SLEEP_STATE_DAY;
+			gps.rtcOperation(STORE, BOARD_SLEEP_STATE_ADDR, &val);
+			sleep(DAY_TIMEOUT);
 		}
+		else
+		{
+			uint32_t val = SLEEP_STATE_25S;
+			gps.rtcOperation(STORE, BOARD_SLEEP_STATE_ADDR, &val);
+			sleep(SLEEP_TIMEOUT);
+		}
+		break;
+	}
 
 	default:
 		break;
@@ -150,6 +153,8 @@ extern "C" void dataReceived(char* buffer, uint32_t size)
 	{
 		LOG_D("Sleeping for a day\r\n");
 		state = BOOTUP_STATE;
+		uint32_t val = SLEEP_STATE_DAY;
+		gps.rtcOperation(STORE, BOARD_SLEEP_STATE_ADDR, &val);
 		sleep(DAY_TIMEOUT);
 	}
 	else if(strcmp(buffer, PING_MESSAGE) == 0)
@@ -213,39 +218,43 @@ void loop_test() {
 }
 void App::setup(void)
 {
-
 	TimerInit( &SleepTimeoutTimer, UpTimerEventCallback );
 	TimerStop( &SleepTimeoutTimer );
-	gps.setup(&hrtc, &huart1);
 	rtcModuleInit();
-//	while(1)
-//	  loop_test();
-
-
+	//	while(1)
+	//	  loop_test();
+	
+	
 	// if its first boot than go to sleep as soon as GNSS is locked
 	// if its boot from rtc wakeup signal than proceed to listen for HELLO signal
 	uint32_t flag;
-	gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
+	gps.rtcOperation(RETRIEVE, BOARD_SLEEP_STATE_ADDR, &flag);
 
-	// dont execute app state machine unless we get gnss lock
-	do
+	bool firstBoot = ((SLEEP_STATE_25S != flag) && (SLEEP_STATE_DAY != flag)) ? true : false;
+	bool wakeFromDaySleep = (SLEEP_STATE_DAY == flag) ? true : false;
+	
+	if(firstBoot || wakeFromDaySleep)
 	{
-		gps.loop();
-		// gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
-	}while((!gps.gnssSignalThresholdExceeded));
+		gps.setup(&hrtc, &huart1);
+		do
+		{
+			gps.loop();
+			// gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
+		}while((!gps.gnssSignalReceived));
+		gps.displayInfo();
+		setRtcTime();
+		HAL_GPIO_WritePin(GNSS_PWR_GPIO_Port, GNSS_PWR_Pin, GPIO_PIN_RESET);	// turn of GNSS at this point
+	}
 
-	gps.displayInfo();
-	setRtcTime();
-
-	HAL_GPIO_WritePin(GNSS_PWR_GPIO_Port, GNSS_PWR_Pin, GPIO_PIN_RESET);	// turn of GNSS at this point
-
-	if(GNSS_LOCK_FLAG == flag)
+	if(firstBoot)
 	{
-		Radio.Rx(RCV_TIMEOUT_VALUE);
+		uint32_t val = SLEEP_STATE_DAY;
+		gps.rtcOperation(STORE, BOARD_SLEEP_STATE_ADDR, &val);
+		sleep(DAY_TIMEOUT);
 	}
 	else
 	{
-		sleep(DAY_TIMEOUT);
+		Radio.Rx(RCV_TIMEOUT_VALUE);
 	}
 }
 
@@ -262,6 +271,8 @@ void App::loop(void)
 		{
 			LOG_D("Sleeping for a day\r\n");
 			state = BOOTUP_STATE;
+			uint32_t val = SLEEP_STATE_DAY;
+			gps.rtcOperation(STORE, BOARD_SLEEP_STATE_ADDR, &val);
 			sleep(DAY_TIMEOUT);
 		}
 		else if( ( (currentTime - shutOffStartTime) / 5000U ) > shutoffCount)

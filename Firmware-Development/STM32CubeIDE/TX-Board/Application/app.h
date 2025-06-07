@@ -19,6 +19,10 @@
 
 #define RCV_TIMEOUT_VALUE	5000	// should be synced with "RX_TIMEOUT_VALUE" value in "subghz_phy_app.c" file
 
+#define BOARD_SLEEP_STATE_ADDR		RTC_BKP_DR1
+#define SLEEP_STATE_DAY				0xABCD
+#define SLEEP_STATE_25S				0xDCBA
+
 enum BoardState
 {
 	BOOTUP_STATE,
