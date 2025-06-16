@@ -43,7 +43,9 @@ void generatePayload(uint8_t* buffer, uint32_t size)
 	CommPacket packet;
 	memcpy(payload, MY_IDENTIFIER, strlen(MY_IDENTIFIER));
 #if CUSTOM_BOARD_ID
-	packet.ids[0] = BOARD_ID;
+	packet.ids[0] = BOARD_ID_1;
+	packet.ids[1] = BOARD_ID_2;
+	packet.ids[2] = BOARD_ID_2;
 #else
 	uint32_t boardIds[] = {HAL_GetUIDw0(), HAL_GetUIDw1(), HAL_GetUIDw2()};
 	memcpy(packet.ids, boardIds, sizeof(packet.ids));

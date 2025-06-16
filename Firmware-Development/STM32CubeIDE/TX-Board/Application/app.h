@@ -2,8 +2,10 @@
 #define APPLICATION_H
 
 #include <stdint.h>
-//#define CUSTOM_BOARD_ID 1
-#define BOARD_ID 0x1234
+#define CUSTOM_BOARD_ID 1
+#define BOARD_ID_1 0x1337C0DE
+#define BOARD_ID_2 0x1337C0DE
+#define BOARD_ID_3 0x1337C0DE
 #define WAKEUP_TIME_HOUR		8	 // 24 hour format		// 8 AM
 #define WAKEUP_TIME_MINS		0
 #define DAY_TIMEOUT (get_wrapped_seconds_diff(WAKEUP_TIME_HOUR, WAKEUP_TIME_MINS, 0)*1000)
