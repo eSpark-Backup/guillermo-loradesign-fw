@@ -98,7 +98,7 @@ void sleep(uint32_t timeout)
 	PWR_ExitOffMode();
 
 	LOG_D("Starts Receiving Data\r\n");
-	Radio.Rx(5000);
+	Radio.Rx(RCV_TIMEOUT_VALUE);
 }
 
 extern "C" void receiveTimeout(void)

@@ -47,8 +47,8 @@ uint8_t current_mode = TEST_MODE;
 #define MAX_APP_BUFFER_SIZE 64
 /* Configurations */
 /*Timeout*/
-#define RX_TIMEOUT_VALUE              8000
-#define TX_TIMEOUT_VALUE              3000
+#define RX_TIMEOUT_VALUE              5000
+#define TX_TIMEOUT_VALUE              5000
 
 #if (( USE_MODEM_LORA == 1 ) && ( USE_MODEM_FSK == 0 ))
 /* 0: Tx Long packet shall be disable when USE_MODEM_LORA*/
