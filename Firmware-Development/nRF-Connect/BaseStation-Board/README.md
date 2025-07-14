@@ -72,4 +72,17 @@ If MCU fails to start due to bad wiring, flashing will fail
 
 If flashed successfully you can view the logs on the RTT Viewer which comes in the J-Link Tools.
 
+## Flashing the MCU using nrfjprog utility.
 
+After successfully building the project with the nRF Connect extension, you can manually flash the nRF5340 MCU using the **nrfjprog** utility.
+
+> Ensure **nrfjprog** and **mergehex** are installed and added to your system's PATH environment variable.
+
+The compiled binaries are located in the /build directory<br>**merged.hex** – application core binary<br>**merged_CPUNET.hex**  – network core binary.<br>These two files should be merged before flashing.
+
+>1) Open cmd in the directory where binaries are present.
+>2) Merge the binaries into a single HEX file.  
+>mergehex -m **merged.hex** **merged_CPUNET.hex** -o **<combined.hex>**
+>3) nrfjprog -f NRF53 --program **<combined.hex>** --recover --verify
+
+After this process, your nRF5340 MCU should be successfully flashed with the combined application and network core firmware.

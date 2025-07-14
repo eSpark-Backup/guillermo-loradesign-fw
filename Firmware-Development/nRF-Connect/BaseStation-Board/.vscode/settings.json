@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "nrfx.h": "c",
+        "settings.h": "c"
+    }
+}

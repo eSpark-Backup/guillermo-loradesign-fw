@@ -32,6 +32,8 @@
 
 #include <zephyr/logging/log.h>
 
+#include <nrfx.h>  // or <nrf.h>
+
 #define LOG_MODULE_NAME peripheral_uart
 LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 
@@ -46,6 +48,9 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 #define UART_BUF_SIZE 32 // CONFIG_BT_NUS_UART_BUFFER_SIZE
 #define UART_WAIT_FOR_BUF_DELAY K_MSEC(50)
 #define UART_WAIT_FOR_RX CONFIG_BT_NUS_UART_RX_WAIT_TIME
+
+#define FRAME_HEADER 0xAA  // Example header byte
+#define FRAME_FOOTER 0x55  // Example footer byte
 
 static K_SEM_DEFINE(ble_init_ok, 0, 1);
 
@@ -88,6 +93,9 @@ static void uart_cb(const struct device *dev, struct uart_event *evt, void *user
 	static uint8_t *aborted_buf;
 	static bool disable_req;
 
+	static bool frame_in_progress = false;
+	static struct uart_data_t *frame_buf = NULL;
+
 	switch (evt->type) {
 	case UART_TX_DONE:
 		LOG_DBG("UART_TX_DONE");
@@ -121,8 +129,45 @@ static void uart_cb(const struct device *dev, struct uart_event *evt, void *user
 
 	case UART_RX_RDY:
 		LOG_DBG("UART_RX_RDY");
-		buf = CONTAINER_OF(evt->data.rx.buf, struct uart_data_t, data[0]);
-		buf->len += evt->data.rx.len;
+		// buf = CONTAINER_OF(evt->data.rx.buf, struct uart_data_t, data[0]);
+		// buf->len += evt->data.rx.len;
+
+		for (int i = 0; i < evt->data.rx.len; i++) {
+			uint8_t byte = evt->data.rx.buf[evt->data.rx.offset + i];
+
+			if (!frame_in_progress) {
+				if (byte == FRAME_HEADER) {
+					frame_buf = k_malloc(sizeof(struct uart_data_t));
+					if (frame_buf) {
+						frame_buf->len = 0;
+						frame_in_progress = true;
+					} else {
+						LOG_WRN("Could not allocate frame buffer");
+					}
+				}
+			} else {
+				// Frame in progress
+				if (byte == FRAME_FOOTER) {
+					// End of frame
+					if (frame_buf->len > 0) {
+						k_fifo_put(&fifo_uart_rx_data, frame_buf);
+					} else {
+						k_free(frame_buf);  // Empty frame
+					}
+					frame_buf = NULL;
+					frame_in_progress = false;
+				} else {
+					if (frame_buf->len < sizeof(frame_buf->data)) {
+						frame_buf->data[frame_buf->len++] = byte;
+					} else {
+						LOG_WRN("Frame buffer overflow, discarding");
+						k_free(frame_buf);
+						frame_buf = NULL;
+						frame_in_progress = false;
+					}
+				}
+			}
+		}
 
 		if (disable_req) {
 			return;
@@ -520,8 +565,6 @@ int main(void)
 {
 	int blink_status = 0;
 	int err = 0;
-
-	// configure_gpio();
 
 	err = uart_init();
 	if (err) {
