@@ -1,12 +1,6 @@
 {
     "files.associations": {
-        "uart_async_adapter.h": "c",
-        "bluetooth.h": "c",
-        "uuid.h": "c",
-        "gatt.h": "c",
-        "hci.h": "c",
-        "array": "c",
-        "string": "c",
-        "string_view": "c"
+        "nrfx.h": "c",
+        "settings.h": "c"
     }
 }
