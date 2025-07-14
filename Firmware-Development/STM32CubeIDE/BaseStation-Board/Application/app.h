@@ -12,6 +12,14 @@
 #define MY_PACKET_IDENTIFIER RELAY_BOARD_IDENTIFIER PACKET_IDENTIFIER
 #define MY_IDENTIFIER "BASESTATION:"
 
+#define COMM_PAYLOAD_SIZE 32
+#define UART_PACKET_SIZE  (COMM_PAYLOAD_SIZE + 2)  // 1 byte header + 32 byte payload + 1 byte footer
+
+#define UART_PACKET_HEADER 0xAA
+#define UART_PACKET_FOOTER 0x55
+
+#define IS_TEST_MODE	0
+
 enum BoardState
 {
 	BOOTUP_STATE,
@@ -31,12 +39,12 @@ struct GeoCoordinates
 	double longitude;
 };
 
-struct CommPacket
+typedef struct __attribute__((__packed__))
 {
 	uint32_t ids[3];
 	Timestamp timestamp;
 	GeoCoordinates geoCoordinates;
-};
+}CommPacket;
 
 class App
 {

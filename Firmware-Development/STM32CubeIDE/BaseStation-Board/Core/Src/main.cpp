@@ -117,10 +117,12 @@ int main(void)
   while (1)
   {
 	app.loop();
+#if !IS_TEST_MODE
     /* USER CODE END WHILE */
     MX_SubGHz_Phy_Process();
 
     /* USER CODE BEGIN 3 */
+#endif
   }
   /* USER CODE END 3 */
 }

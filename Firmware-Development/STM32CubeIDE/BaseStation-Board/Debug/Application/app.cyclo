@@ -1,4 +1,0 @@
-../Application/app.cpp:14:6:void sleep(uint32_t)	1
-../Application/app.cpp:28:17:void RX_Done_Process(char*, uint32_t)	2
-../Application/app.cpp:40:6:void App::setup()	1
-../Application/app.cpp:46:6:void App::loop()	1
