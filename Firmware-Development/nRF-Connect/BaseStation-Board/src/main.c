@@ -618,35 +618,16 @@ int main(void)
 
 void ble_write_thread(void)
 {
-	/* Don't go any further until BLE is initialized */
 	k_sem_take(&ble_init_ok, K_FOREVER);
-	struct uart_data_t nus_data = {
-		.len = 0,
-	};
 
 	for (;;) {
-		/* Wait indefinitely for data to be sent over bluetooth */
-		struct uart_data_t *buf = k_fifo_get(&fifo_uart_rx_data,
-						     K_FOREVER);
+		struct uart_data_t *buf = k_fifo_get(&fifo_uart_rx_data, K_FOREVER);
 
-		int plen = MIN(sizeof(nus_data.data) - nus_data.len, buf->len);
-		int loc = 0;
-
-		while (plen > 0) {
-			memcpy(&nus_data.data[nus_data.len], &buf->data[loc], plen);
-			nus_data.len += plen;
-			loc += plen;
-
-			if (nus_data.len >= sizeof(nus_data.data) ||
-			   (nus_data.data[nus_data.len - 1] == '\n') ||
-			   (nus_data.data[nus_data.len - 1] == '\r')) {
-				if (bt_nus_send(NULL, nus_data.data, nus_data.len)) {
-					LOG_WRN("Failed to send data over BLE connection");
-				}
-				nus_data.len = 0;
+		if (buf->len > 0) {
+			// Send the entire frame as-is
+			if (bt_nus_send(NULL, buf->data, buf->len)) {
+				LOG_WRN("Failed to send data over BLE");
 			}
-
-			plen = MIN(sizeof(nus_data.data), buf->len - loc);
 		}
 
 		k_free(buf);
