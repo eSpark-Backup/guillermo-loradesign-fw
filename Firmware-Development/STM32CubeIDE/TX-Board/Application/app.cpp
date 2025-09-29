@@ -241,7 +241,7 @@ void App::setup(void)
 		do
 		{
 			gps.loop();
-			// gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
+			//gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
 		}while((!gps.gnssSignalReceived));
 		gps.displayInfo();
 		setRtcTime();

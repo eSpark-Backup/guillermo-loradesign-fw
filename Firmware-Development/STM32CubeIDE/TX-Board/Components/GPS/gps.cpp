@@ -57,6 +57,12 @@ static inline void apply_timezone_offset(RtcData_t* data, int tz_hour, int tz_mi
        } \
        _updated; })
 
+#define IS_UPDATED_ALTITUDE() \
+    ({ bool _updated = gps.altitude.isUpdated(); \
+       if (_updated) { \
+    	   gnssData.altitude = gps.altitude.meters(); \
+       } \
+       _updated; })
 #define IS_UPDATED_DATE() \
     ({ bool _updated = gps.date.isUpdated(); \
         if (_updated) { \
@@ -243,6 +249,16 @@ void GPS::displayInfo(void)
     {
         LOG_D("INVALID");
     }
+
+    LOG_D("Altitude: ");
+        if (gps.altitude.isValid())
+        {
+        	LOG_D(" Altitude: %.2f m", gnssData.altitude);
+        }
+        else
+        {
+            LOG_D("INVALID");
+        }
 
     LOG_D("  Date/Time: ");
     if (gps.date.isValid())
