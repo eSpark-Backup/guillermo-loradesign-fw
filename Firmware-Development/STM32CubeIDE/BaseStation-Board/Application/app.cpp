@@ -82,7 +82,12 @@ void App::loop(void)
 	CommPacket pkt = {
 		.ids = {++cnt, 0x00, 0x00},
 		.timestamp = {12, 30, 45},
-		.geoCoordinates = {33.6844, 73.0479}
+		.geoCoordinates = {
+			// Latitude oscillates between -90 and +90
+			-90.0 + fmod(cnt * 1.3, 180.0),
+			// Longitude wraps around within -180 to +180
+			fmod((cnt * 2.7) + 180.0, 360.0) - 180.0
+		}
 	};
 
 	// Serialize: identifier + binary data of CommPacket
@@ -98,6 +103,6 @@ void App::loop(void)
 	// Call the function (simulating a received packet)
 	RX_Done_Process((char*)buffer, total_size);
 
-	HAL_Delay(100);
+	HAL_Delay(1000);
 #endif
 }
