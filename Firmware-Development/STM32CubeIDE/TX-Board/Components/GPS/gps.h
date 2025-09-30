@@ -49,6 +49,7 @@ public:
 	void setup(RTC_HandleTypeDef* rtc, UART_HandleTypeDef* uart);
 	void loop(void);
 	void displayInfo();
+	static bool has3DFix();
 
 	static void processGpsStream(void);
 

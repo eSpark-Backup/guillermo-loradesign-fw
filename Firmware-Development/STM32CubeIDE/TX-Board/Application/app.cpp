@@ -242,7 +242,7 @@ void App::setup(void)
 		{
 			gps.loop();
 			//gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
-		}while((!gps.gnssSignalReceived));
+		} while ((!gps.gnssSignalReceived) || (!gps.has3DFix()));
 		gps.displayInfo();
 		setRtcTime();
 		HAL_GPIO_WritePin(GNSS_PWR_GPIO_Port, GNSS_PWR_Pin, GPIO_PIN_RESET);	// turn of GNSS at this point

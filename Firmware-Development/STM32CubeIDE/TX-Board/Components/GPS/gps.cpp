@@ -63,6 +63,7 @@ static inline void apply_timezone_offset(RtcData_t* data, int tz_hour, int tz_mi
     	   gnssData.altitude = gps.altitude.meters(); \
        } \
        _updated; })
+
 #define IS_UPDATED_DATE() \
     ({ bool _updated = gps.date.isUpdated(); \
         if (_updated) { \
@@ -188,32 +189,83 @@ void GPS::processGpsStream(void)
     }
 }
 
+bool GPS::has3DFix()
+{
+    // Require valid location, altitude, and HDOP
+    if (gps.location.isValid() &&
+        gps.altitude.isValid() &&
+        gps.satellites.value() >= 4 &&     // minimum for 3D
+        gps.hdop.isValid() &&
+        gps.hdop.hdop() <= 5.0)            // only trust if HDOP good
+    {
+        LOG_D("Strong 3D Fix acquired: sats=%d hdop=%.2f alt=%.2f m",
+              gps.satellites.value(),
+              gps.hdop.hdop(),
+              gps.altitude.meters());
+        return true;
+    }
+
+    return false;
+}
+
+
 void GPS::processData(uint8_t *data, uint16_t len)
 {
-	for (uint16_t i = 0; i < len; i++)
-    {
-		gps.encode(data[i]);
-		LOG_GNSS_STREAM("%c", data[i]);
+
+    for (uint16_t i = 0; i < len; i++) {
+        gps.encode(data[i]);
+        LOG_GNSS_STREAM("%c", data[i]);
     }
 
     bool locUpdated  = IS_UPDATED_LOCATION();
     bool dateUpdated = IS_UPDATED_DATE();
-    // bool timeUpdated = IS_UPDATED_TIME();
+   // bool altUpdated  = IS_UPDATED_ALTITUDE();
 
-    if( locUpdated &&
-        dateUpdated)// &&
-        // timeUpdated )
-    {
+    if (locUpdated && dateUpdated && has3DFix()) {
         setGnssData(&gnssData);
+
         uint32_t val;
         rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &val);
-        if(val != GNSS_LOCK_FLAG)
+        if (val != GNSS_LOCK_FLAG) {
+            val = GNSS_LOCK_FLAG;
+            rtcOperation(STORE, GNSS_LOCK_FLAG_ADDR, &val);
+        }
+
+        gnssSignalReceived = true;
+        LOG_D("3D Fix acquired: sats=%d hdop=%.2f",
+              gps.satellites.isValid() ? gps.satellites.value() : -1,
+              gps.hdop.isValid() ? gps.hdop.value() : -1.0f);
+    }
+
+
+//	previous logic with altitude
+	/*    for (uint16_t i = 0; i < len; i++)
+    {
+        gps.encode(data[i]);
+        LOG_GNSS_STREAM("%c", data[i]);
+    }
+
+    bool locUpdated  = IS_UPDATED_LOCATION();
+    bool dateUpdated = IS_UPDATED_DATE();
+    bool altUpdated  = IS_UPDATED_ALTITUDE();   // <--- NEW
+    // bool timeUpdated = IS_UPDATED_TIME();
+
+    if (locUpdated && dateUpdated && altUpdated)
+    {
+        setGnssData(&gnssData);
+
+        uint32_t val;
+        rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &val);
+        if (val != GNSS_LOCK_FLAG)
         {
             val = GNSS_LOCK_FLAG;
             rtcOperation(STORE, GNSS_LOCK_FLAG_ADDR, &val);
         }
+
         gnssSignalReceived = true;
-    }
+    }*/
+
+
     // else if((HAL_GetTick() - validGnssStreamTimestamp > VALID_GNSS_SIGNAL_TIMEOUT) && !gnssSignalThresholdExceeded)
     // {
     //     LOG_D("Valid gnss signal not received and threshold exceeded.\r\n");
