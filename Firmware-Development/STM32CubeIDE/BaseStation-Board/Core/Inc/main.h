@@ -48,6 +48,7 @@ extern "C" {
 /* USER CODE BEGIN EM */
 extern void itm_printf(const char* format, ...);
 #define LOG_D itm_printf
+
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
