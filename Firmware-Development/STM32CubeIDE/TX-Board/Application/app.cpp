@@ -57,6 +57,7 @@ void generatePayload(uint8_t* buffer, uint32_t size)
 	packet.timestamp.second = gps.gnssData.second;
 	packet.geoCoordinates.lattitude = gps.gnssData.latitude;
 	packet.geoCoordinates.longitude = gps.gnssData.longitude;
+	packet.geoCoordinates.altitude = gps.gnssData.altitude;
 	memcpy(payload + strlen(MY_IDENTIFIER), &packet, sizeof(packet));
 }
 

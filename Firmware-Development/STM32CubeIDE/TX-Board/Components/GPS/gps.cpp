@@ -196,7 +196,7 @@ bool GPS::has3DFix()
         gps.altitude.isValid() &&
         gps.satellites.value() >= 4 &&     // minimum for 3D
         gps.hdop.isValid() &&
-        gps.hdop.hdop() <= 5.0)            // only trust if HDOP good
+        gps.hdop.hdop() <= 5.0)
     {
         LOG_D("Strong 3D Fix acquired: sats=%d hdop=%.2f alt=%.2f m",
               gps.satellites.value(),
@@ -219,7 +219,7 @@ void GPS::processData(uint8_t *data, uint16_t len)
 
     bool locUpdated  = IS_UPDATED_LOCATION();
     bool dateUpdated = IS_UPDATED_DATE();
-   // bool altUpdated  = IS_UPDATED_ALTITUDE();
+    bool altUpdated  = IS_UPDATED_ALTITUDE();
 
     if (locUpdated && dateUpdated && has3DFix()) {
         setGnssData(&gnssData);
@@ -232,9 +232,7 @@ void GPS::processData(uint8_t *data, uint16_t len)
         }
 
         gnssSignalReceived = true;
-        LOG_D("3D Fix acquired: sats=%d hdop=%.2f",
-              gps.satellites.isValid() ? gps.satellites.value() : -1,
-              gps.hdop.isValid() ? gps.hdop.value() : -1.0f);
+
     }
 
 
@@ -305,7 +303,7 @@ void GPS::displayInfo(void)
     LOG_D("Altitude: ");
         if (gps.altitude.isValid())
         {
-        	LOG_D(" Altitude: %.2f m", gnssData.altitude);
+        	LOG_D("%.2f m", gnssData.altitude);
         }
         else
         {

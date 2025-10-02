@@ -22,7 +22,7 @@
 #define GNSS_LOCK_FLAG		  0x9669
 #define GNSS_LOCK_FLAG_ADDR   RTC_BKP_DR0
 #define RTC_BKP_BASE_ADDR     RTC_BKP_DR14   // Starting from DR14
-#define RTC_BKP_WORD_COUNT    7              // 6 x 4-byte backup registers
+#define RTC_BKP_WORD_COUNT    8              // 8 x 4-byte backup registers
 
 enum RtcOperation
 {
