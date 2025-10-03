@@ -47,13 +47,9 @@ void Print_CommPacket_From_Buffer(char* buffer)
     int32_t lon_int = (int32_t)(pkt->geoCoordinates.longitude);
     int32_t lon_frac = (int32_t)((pkt->geoCoordinates.longitude - lon_int) * 1000000);
 
-    int32_t alt_int = (int32_t)(pkt->geoCoordinates.altitude);
-    int32_t alt_frac = (int32_t)((pkt->geoCoordinates.altitude - alt_int) * 1000000);
-
     LOG_D("  GeoCoordinates:\n");
     LOG_D("    Latitude : %ld.%06ld\n", lat_int, abs(lat_frac));
     LOG_D("    Longitude: %ld.%06ld\n", lon_int, abs(lon_frac));
-    LOG_D("    Altitude : %.2f m\n", lon_int, abs(lon_frac));
 }
 
 extern "C" void RX_Done_Process(char* buffer, uint32_t size)
