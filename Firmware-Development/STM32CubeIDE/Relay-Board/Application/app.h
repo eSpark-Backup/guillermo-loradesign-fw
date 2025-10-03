@@ -35,7 +35,6 @@ struct GeoCoordinates
 {
 	double lattitude;
 	double longitude;
-	double altitude;
 };
 
 struct CommPacket
