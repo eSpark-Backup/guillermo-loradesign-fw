@@ -26,6 +26,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+
 #include  <stdio.h>
 #include <stdarg.h>
 #include "subghz.h"
@@ -73,6 +74,8 @@ void itm_printf(const char* format, ...) {
         ITM_SendChar((uint8_t)buffer[i]);
     }
 }
+
+
 /* USER CODE END 0 */
 
 /**
