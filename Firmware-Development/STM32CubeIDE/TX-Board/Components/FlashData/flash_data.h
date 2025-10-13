@@ -3,11 +3,13 @@
 
 #include <stdint.h>
 #include "stm32wlxx_hal.h"
+#include "gps.h"
 
+#define SLEEP_ADDR 0x0801F800UL // Start of last 2KB flash page
 
-#define SLEEP_ADDR  0x0801F800UL // Start of last 2KB flash page
+#define GNSS_LOCK_FLAG_ADDR 0x0801E800UL
 
-#define secondsstart_page_ADDR  0x0801F000UL // Start of second last 4KBflash page
+#define secondsstart_page_ADDR  0x0801F000UL // Start of second last 2KB flash page
 
 #define longitude_ADDR       0x0801F008UL  // double (8 bytes)
 #define latitude_ADDR        0x0801F010UL  // double (8 bytes)
@@ -22,7 +24,8 @@
 #define second_ADDR          0x0801F026UL  // uint8_t (1 byte)
 #define centisecond_ADDR     0x0801F027UL  // uint8_t (1 byte)
 
-void Flash_Write(FlashData_t* data);
+void Flash_Write(uint32_t address, uint32_t data);
+void Flash_Multiple_Write(FlashData_t* data);
 
 uint32_t Flash_Read(uint32_t address);
 uint16_t Flash_Read(uint16_t address);

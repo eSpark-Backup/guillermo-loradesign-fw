@@ -20,7 +20,7 @@
 #define VALID_GNSS_SIGNAL_TIMEOUT	30000
 
 #define GNSS_LOCK_FLAG		  0x9669
-#define GNSS_LOCK_FLAG_ADDR   RTC_BKP_DR0
+//#define GNSS_LOCK_FLAG_ADDR   RTC_BKP_DR0
 #define RTC_BKP_BASE_ADDR     RTC_BKP_DR14   // Starting from DR14
 //#define RTC_BKP_WORD_COUNT    8              // 8 x 4-byte backup registers
 #define FLASH_BKP_WORD_COUNT    8              // 8 x 4-byte backup registers
@@ -81,7 +81,8 @@ public:
 	static UART_HandleTypeDef* port;
 	static RTC_HandleTypeDef* rtcMemory;
 	static TinyGPSPlus gps;
-	static RtcData_t gnssData;
+//	static RtcData_t gnssData;
+	static FlashData_t gnssData;
 
 	static uint32_t lastGnssDisplay;
 	static uint32_t lastStreamProcess;

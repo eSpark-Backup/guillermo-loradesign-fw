@@ -1,8 +1,9 @@
 #include "gps.h"
 #include "rtc.h"
 #include "app.h"
+#include "flash_data.h"
 
-static inline void apply_timezone_offset(RtcData_t* data, int tz_hour, int tz_minute) {
+static inline void apply_timezone_offset(FlashData_t* data, int tz_hour, int tz_minute) {
     int y = data->year;
     int mo = data->month;
     int d = data->day;
@@ -148,12 +149,12 @@ void GPS::getGnssData(FlashData_t* data)
 ////        rtcOperation(RETRIEVE, addr, &flash_words[i]);
 //    }
 
-    Flash_Read_Multiple(&data);
+    Flash_Read_Multiple(data);
 }
 
 void GPS::setGnssData(FlashData_t* data)
 {
-	Flash_Multiple_Write(&data);
+	Flash_Multiple_Write(data);
 }
 
 
@@ -249,10 +250,18 @@ void GPS::processData(uint8_t *data, uint16_t len)
         setGnssData(&gnssData);
 
         uint32_t val;
-        rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &val);
+
+
+        uint32_t gnss_lock_flag;
+        //	gps.rtcOperation(RETRIEVE, SLEEP_ADDR, &flag);
+        gnss_lock_flag = Flash_Read(GNSS_LOCK_FLAG_ADDR);
+
+//        rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &val);
+
         if (val != GNSS_LOCK_FLAG) {
             val = GNSS_LOCK_FLAG;
-            rtcOperation(STORE, GNSS_LOCK_FLAG_ADDR, &val);
+            Flash_Write(GNSS_LOCK_FLAG_ADDR, val);
+//            rtcOperation(STORE, GNSS_LOCK_FLAG_ADDR, &val);
         }
 
         gnssSignalReceived = true;
