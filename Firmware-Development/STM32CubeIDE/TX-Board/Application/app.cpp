@@ -11,6 +11,7 @@
 #include "timer.h"
 #include "MCP7940.h"
 #include <cstdio>
+#include "flash_data.h"
 
 BoardState state = BOOTUP_STATE;
 
@@ -27,7 +28,7 @@ uint32_t get_wrapped_seconds_diff(uint8_t ref_hour, uint8_t ref_minute, uint8_t 
     uint32_t rtc_seconds = (now.hour() * 3600) + (now.minute() * 60) + now.second();
     uint32_t ref_seconds = (ref_hour * 3600) + (ref_minute * 60) + ref_second;
     // uint32_t rtc_seconds = rtc->hour * 3600 + rtc->minute * 60 + rtc->second;
-    // uint32_t ref_seconds = ref_hour * 3600 + ref_minute * 60 + ref_second;
+    // uint32_t ref_seconds = ref_hour * 3600 + ref_minute * 60 + 0;
 
     if (ref_seconds >= rtc_seconds) {
         return ref_seconds - rtc_seconds;
@@ -50,8 +51,13 @@ void generatePayload(uint8_t* buffer, uint32_t size)
 	uint32_t boardIds[] = {HAL_GetUIDw0(), HAL_GetUIDw1(), HAL_GetUIDw2()};
 	memcpy(packet.ids, boardIds, sizeof(packet.ids));
 #endif
-	// RtcData_t rtcStoredData;
-	// GPS::getGnssData(&rtcStoredData);
+//	 RtcData_t rtcStoredData;
+//	 GPS::getGnssData(&rtcStoredData);
+
+
+	 FlashData_t flashStoredData;
+	 GPS::getGnssData(&flashStoredData);
+
 	packet.timestamp.hour = gps.gnssData.hour;
 	packet.timestamp.minute = gps.gnssData.minute;
 	packet.timestamp.second = gps.gnssData.second;
@@ -95,8 +101,8 @@ void sleep(uint32_t timeout)
 		   alarmTime.year(), alarmTime.month(), alarmTime.day(),
 		   alarmTime.hour(), alarmTime.minute(), alarmTime.second());
 
-	PWR_EnterOffMode();
-	PWR_ExitOffMode();
+//	PWR_EnterOffMode();
+//	PWR_ExitOffMode();
 
 	LOG_D("Starts Receiving Data\r\n");
 	Radio.Rx(RCV_TIMEOUT_VALUE);
@@ -109,9 +115,14 @@ extern "C" void receiveTimeout(void)
 	case BOOTUP_STATE:
 	{
 		LOG_D("No Signal Received\r\n");
-		// RtcData_t rtcStoredData;
-		// GPS::getGnssData(&rtcStoredData);
-		// gps.gnssData.hour;
+//		 RtcData_t rtcStoredData;
+//		 GPS::getGnssData(&rtcStoredData);
+//		 gps.gnssData.hour;
+
+
+		FlashData_t flashStoredData;
+		GPS::getGnssData(&flashStoredData);
+		gps.gnssData.hour;
 
 		DateTime now = MCP7940.now();
 
@@ -120,13 +131,17 @@ extern "C" void receiveTimeout(void)
 			LOG_D("Hour threshold exceeded. ");
 			LOG_D("Sleeping for a day\r\n");
 			uint32_t val = SLEEP_STATE_DAY;
-			gps.rtcOperation(STORE, BOARD_SLEEP_STATE_ADDR, &val);
+//			gps.rtcOperation(STORE, SLEEP_ADDR, &val);
+			Flash_Write(SLEEP_ADDR, val);
+			LOG_D("Value stored in Flash: %lu \n", val);
 			sleep(DAY_TIMEOUT);
 		}
 		else
 		{
 			uint32_t val = SLEEP_STATE_25S;
-			gps.rtcOperation(STORE, BOARD_SLEEP_STATE_ADDR, &val);
+//			gps.rtcOperation(STORE, SLEEP_ADDR, &val);
+			Flash_Write(SLEEP_ADDR, val);
+			LOG_D("Value stored in Flash: %lu \n", val);
 			sleep(SLEEP_TIMEOUT);
 		}
 		break;
@@ -157,7 +172,9 @@ extern "C" void dataReceived(char* buffer, uint32_t size)
 		LOG_D("Sleeping for a day\r\n");
 		state = BOOTUP_STATE;
 		uint32_t val = SLEEP_STATE_DAY;
-		gps.rtcOperation(STORE, BOARD_SLEEP_STATE_ADDR, &val);
+//		gps.rtcOperation(STORE, SLEEP_ADDR, &val);
+		Flash_Write(SLEEP_ADDR, val);
+		LOG_D("Value stored in Flash: %lu \n", val);
 		sleep(DAY_TIMEOUT);
 	}
 	else if(strcmp(buffer, PING_MESSAGE) == 0)
@@ -219,11 +236,14 @@ void loop_test() {
             MCP7940.clearAlarm(0);
         }
 }
+
+
+
 void App::setup(void)
 {
 	TimerInit( &SleepTimeoutTimer, UpTimerEventCallback );
 	TimerStop( &SleepTimeoutTimer );
-	rtcModuleInit();
+//	rtcModuleInit();
 	//	while(1)
 	//	  loop_test();
 	
@@ -231,20 +251,31 @@ void App::setup(void)
 	// if its first boot than go to sleep as soon as GNSS is locked
 	// if its boot from rtc wakeup signal than proceed to listen for HELLO signal
 	uint32_t flag;
-	gps.rtcOperation(RETRIEVE, BOARD_SLEEP_STATE_ADDR, &flag);
+//	gps.rtcOperation(RETRIEVE, SLEEP_ADDR, &flag);
+	flag = Flash_Read(SLEEP_ADDR);
+
+	LOG_D("Value Read from Flash: %lu \n", flag);
+
+//	Flash Read: 4294967295 RTC time set to: 2000-00-00 00:00:00
+
+
+
+//	  uint32_t readData;
+
+
 
 	bool firstBoot = ((SLEEP_STATE_25S != flag) && (SLEEP_STATE_DAY != flag)) ? true : false;
 	bool wakeFromDaySleep = (SLEEP_STATE_DAY == flag) ? true : false;
 	
 	if(firstBoot || wakeFromDaySleep)
 	{
-		gps.setup(&hrtc, &huart1);
-		do
-		{
-			gps.loop();
-			//gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
-		} while ((!gps.gnssSignalReceived) || (!gps.has3DFix()));
-		gps.displayInfo();
+//		gps.setup(&hrtc, &huart1);
+//		do
+//		{
+//			gps.loop();
+//			//gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
+//		} while ((!gps.gnssSignalReceived) || (!gps.has3DFix()));
+//		gps.displayInfo();
 		setRtcTime();
 		HAL_GPIO_WritePin(GNSS_PWR_GPIO_Port, GNSS_PWR_Pin, GPIO_PIN_RESET);	// turn of GNSS at this point
 	}
@@ -252,7 +283,9 @@ void App::setup(void)
 	if(firstBoot)
 	{
 		uint32_t val = SLEEP_STATE_DAY;
-		gps.rtcOperation(STORE, BOARD_SLEEP_STATE_ADDR, &val);
+//		gps.rtcOperation(STORE, SLEEP_ADDR, &val);
+		Flash_Write(SLEEP_ADDR, val);
+		LOG_D("Value stored in Flash: %lu \n", val);
 		sleep(DAY_TIMEOUT);
 	}
 	else
@@ -275,7 +308,9 @@ void App::loop(void)
 			LOG_D("Sleeping for a day\r\n");
 			state = BOOTUP_STATE;
 			uint32_t val = SLEEP_STATE_DAY;
-			gps.rtcOperation(STORE, BOARD_SLEEP_STATE_ADDR, &val);
+//			gps.rtcOperation(STORE, SLEEP_ADDR, &val);
+			Flash_Write(SLEEP_ADDR, val);
+			LOG_D("Value stored in Flash: %lu \n", val);
 			sleep(DAY_TIMEOUT);
 		}
 		else if( ( (currentTime - shutOffStartTime) / 5000U ) > shutoffCount)

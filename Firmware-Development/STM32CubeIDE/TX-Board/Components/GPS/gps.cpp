@@ -96,7 +96,8 @@ static inline void apply_timezone_offset(RtcData_t* data, int tz_hour, int tz_mi
 UART_HandleTypeDef* GPS::port = NULL;
 RTC_HandleTypeDef* GPS::rtcMemory = NULL;
 TinyGPSPlus GPS::gps;
-RtcData_t GPS::gnssData;
+//RtcData_t GPS::gnssData;
+FlashData_t GPS::gnssData;
 
 #define GPS_RX_BUFFER_SIZE 1024
 
@@ -110,47 +111,70 @@ uint64_t GPS::validGnssStreamTimestamp = 0;
 
 bool GPS::gnssSignalReceived = false;
 
-void GPS::getGnssData(RtcData_t* data)
+//void GPS::getGnssData(RtcData_t* data)
+//{
+//    uint32_t* rtc_words = reinterpret_cast<uint32_t*>(data);
+//
+//    // Loop to retrieve data from the RTC registers
+//    for (int i = 0; i < RTC_BKP_WORD_COUNT; i++)
+//    {
+//        uint32_t addr = RTC_BKP_BASE_ADDR + i;
+//        rtcOperation(RETRIEVE, addr, &rtc_words[i]);
+//    }
+//}
+//
+//void GPS::setGnssData(RtcData_t* data)
+//{
+//    uint32_t* rtc_words = reinterpret_cast<uint32_t*>(data);
+//
+//    // Loop to store data to the RTC registers
+//    for (int i = 0; i < RTC_BKP_WORD_COUNT; i++)
+//    {
+//        uint32_t addr = RTC_BKP_BASE_ADDR + i;
+//        rtcOperation(STORE, addr, &rtc_words[i]);
+//    }
+//}
+
+
+
+void GPS::getGnssData(FlashData_t* data)
 {
-    uint32_t* rtc_words = reinterpret_cast<uint32_t*>(data);
-    
-    // Loop to retrieve data from the RTC registers
-    for (int i = 0; i < RTC_BKP_WORD_COUNT; i++)
-    {
-        uint32_t addr = RTC_BKP_BASE_ADDR + i;
-        rtcOperation(RETRIEVE, addr, &rtc_words[i]);
-    }
+//    uint32_t* flash_words = reinterpret_cast<uint32_t*>(data);
+//
+//    // Loop to retrieve data from the RTC registers
+//    for (int i = 0; i < FLASH_BKP_WORD_COUNT; i++)
+//    {
+////        uint32_t addr = RTC_BKP_BASE_ADDR + i;
+////        rtcOperation(RETRIEVE, addr, &flash_words[i]);
+//    }
+
+    Flash_Read_Multiple(&data);
 }
 
-void GPS::setGnssData(RtcData_t* data)
+void GPS::setGnssData(FlashData_t* data)
 {
-    uint32_t* rtc_words = reinterpret_cast<uint32_t*>(data);
-    
-    // Loop to store data to the RTC registers
-    for (int i = 0; i < RTC_BKP_WORD_COUNT; i++)
-    {
-        uint32_t addr = RTC_BKP_BASE_ADDR + i;
-        rtcOperation(STORE, addr, &rtc_words[i]);
-    }
+	Flash_Multiple_Write(&data);
 }
 
-void GPS::rtcOperation(RtcOperation opr, uint32_t adr, uint32_t* data)
-{
-    if (opr == STORE)
-    {
-        // LOG_D("Storing data in RTC bank: Addr: %X, Data: %X\r\n", adr, *data);
-        HAL_RTCEx_BKUPWrite(rtcMemory, adr, *data);  // Store single value at the given address
-    }
-    else if (opr == RETRIEVE)
-    {
-        *data = HAL_RTCEx_BKUPRead(rtcMemory, adr);  // Retrieve value from the given address
-        // LOG_D("Retrieving data From RTC bank: Addr: %X, Data: %X\r\n", adr, *data);
-    }
-    else
-    {
-        LOG_D("Invalid RTC operation.\r\n");
-    }
-}
+
+
+//void GPS::rtcOperation(RtcOperation opr, uint32_t adr, uint32_t* data)
+//{
+//    if (opr == STORE)
+//    {
+//        // LOG_D("Storing data in RTC bank: Addr: %X, Data: %X\r\n", adr, *data);
+//        HAL_RTCEx_BKUPWrite(rtcMemory, adr, *data);  // Store single value at the given address
+//    }
+//    else if (opr == RETRIEVE)
+//    {
+//        *data = HAL_RTCEx_BKUPRead(rtcMemory, adr);  // Retrieve value from the given address
+//        // LOG_D("Retrieving data From RTC bank: Addr: %X, Data: %X\r\n", adr, *data);
+//    }
+//    else
+//    {
+//        LOG_D("Invalid RTC operation.\r\n");
+//    }
+//}
 
 void GPS::processGpsStream(void)
 {

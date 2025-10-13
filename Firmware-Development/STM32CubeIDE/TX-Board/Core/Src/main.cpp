@@ -32,6 +32,7 @@
 #include "subghz.h"
 #include "app.h"
 #include "stm32_lpm_if.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -41,6 +42,12 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
+
+//#define FLASH_USER_START_ADDR  0x0803F800UL  // last page (example for 256KB flash)
+//#define FLASH_USER_START_ADDR  0x0801F800  // Start of last 2 KB page
+//
+//#define DATA_32                 12345  // Example data
 
 /* USER CODE END PD */
 
@@ -116,7 +123,8 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_USART1_UART_Init();
-  MX_RTC_Init();
+
+//  MX_RTC_Init();
   MX_SubGHz_Phy_Init();
   MX_I2C3_Init();
   /* USER CODE BEGIN 2 */

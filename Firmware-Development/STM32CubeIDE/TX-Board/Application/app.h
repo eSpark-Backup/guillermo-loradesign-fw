@@ -8,7 +8,7 @@
 #define BOARD_ID_3 0x00000020
 #define WAKEUP_TIME_HOUR		8	 // 24 hour format		// 8 AM
 #define WAKEUP_TIME_MINS		0
-#define DAY_TIMEOUT (get_wrapped_seconds_diff(WAKEUP_TIME_HOUR, WAKEUP_TIME_MINS, 0)*1000)
+#define DAY_TIMEOUT (get_wrapped_seconds_diff(WAKEUP_TIME_HOUR, WAKEUP_TIME_MINS, 30)*1000)
 // #define DAY_TIMEOUT 86400000UL // (1000U * 60U * 60U * 24U) // 1 Day Timeout
 #define SLEEP_TIMEOUT 55000
 #define HOUR_THRESHOLD 10		// 24-hour format // device should sleep if current hour is more than threshold and no signal is received from relay board
@@ -21,7 +21,10 @@
 
 #define RCV_TIMEOUT_VALUE	5000	// should be synced with "RX_TIMEOUT_VALUE" value in "subghz_phy_app.c" file
 
-#define BOARD_SLEEP_STATE_ADDR		RTC_BKP_DR1
+//#define SLEEP_ADDR		RTC_BKP_DR1
+//#define SLEEP_ADDR  0x0803F800  // Last page of 128KB Flash (STM32L4 series or similar)
+//#define SLEEP_ADDR  0x0801F000  // Start of last 4KB page (page 31 of 32)
+
 #define SLEEP_STATE_DAY				0xABCD
 #define SLEEP_STATE_25S				0xDCBA
 
@@ -60,3 +63,4 @@ public:
 	void loop(void);
 };
 #endif // APPLICATION_H
+
