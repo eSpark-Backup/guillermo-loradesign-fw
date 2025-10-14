@@ -223,7 +223,7 @@ bool GPS::has3DFix()
         gps.hdop.isValid() &&
         gps.hdop.hdop() <= 5.0)
     {
-        LOG_D("Strong 3D Fix acquired: sats=%d hdop=%.2f alt=%.2f m",
+        LOG_D("Strong 3D Fix acquired: sats=%d hdop=%.2f alt=%.2f m\n",
               gps.satellites.value(),
               gps.hdop.hdop(),
               gps.altitude.meters());
@@ -255,12 +255,15 @@ void GPS::processData(uint8_t *data, uint16_t len)
         uint32_t gnss_lock_flag;
         //	gps.rtcOperation(RETRIEVE, SLEEP_ADDR, &flag);
         gnss_lock_flag = Flash_Read(GNSS_LOCK_FLAG_ADDR);
+        LOG_D("%lu read from Flash of GNSS_LOCK_FLAG_ADDR\n", gnss_lock_flag);
+
 
 //        rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &val);
 
         if (val != GNSS_LOCK_FLAG) {
             val = GNSS_LOCK_FLAG;
             Flash_Write(GNSS_LOCK_FLAG_ADDR, val);
+            LOG_D("%lu Stored in Flash in GNSS_LOCK_FLAG_ADDR\n", val);
 //            rtcOperation(STORE, GNSS_LOCK_FLAG_ADDR, &val);
         }
 
@@ -326,21 +329,21 @@ void GPS::displayInfo(void)
     LOG_D("Location: ");
     if (gps.location.isValid())
     {
-        LOG_D("%.6f,%.6f", gnssData.latitude, gnssData.longitude);
+        LOG_D("%.6f, %.6f ", gnssData.latitude, gnssData.longitude);
     }
     else
     {
-        LOG_D("INVALID");
+        LOG_D("INVALID ");
     }
 
     LOG_D("Altitude: ");
         if (gps.altitude.isValid())
         {
-        	LOG_D("%.2f m", gnssData.altitude);
+        	LOG_D("%.2f m ", gnssData.altitude);
         }
         else
         {
-            LOG_D("INVALID");
+            LOG_D("INVALID ");
         }
 
     LOG_D("  Date/Time: ");

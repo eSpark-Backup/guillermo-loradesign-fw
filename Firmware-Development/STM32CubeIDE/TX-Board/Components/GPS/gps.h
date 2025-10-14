@@ -45,7 +45,7 @@
 //} RtcData_t;
 
 
-typedef struct __attribute__((packed, aligned(1))) {
+typedef struct __attribute__((packed, aligned(8))) {
     double longitude;      // 8 bytes
     double latitude;       // 8 bytes
     double altitude;

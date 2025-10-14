@@ -101,8 +101,8 @@ void sleep(uint32_t timeout)
 		   alarmTime.year(), alarmTime.month(), alarmTime.day(),
 		   alarmTime.hour(), alarmTime.minute(), alarmTime.second());
 
-//	PWR_EnterOffMode();
-//	PWR_ExitOffMode();
+	PWR_EnterOffMode();
+	PWR_ExitOffMode();
 
 	LOG_D("Starts Receiving Data\r\n");
 	Radio.Rx(RCV_TIMEOUT_VALUE);
@@ -115,7 +115,7 @@ extern "C" void receiveTimeout(void)
 	case BOOTUP_STATE:
 	{
 		LOG_D("No Signal Received\r\n");
-//		 RtcData_t rtcStoredData;
+//		 sData_t rtcStoredData;
 //		 GPS::getGnssData(&rtcStoredData);
 //		 gps.gnssData.hour;
 
@@ -133,7 +133,9 @@ extern "C" void receiveTimeout(void)
 			uint32_t val = SLEEP_STATE_DAY;
 //			gps.rtcOperation(STORE, SLEEP_ADDR, &val);
 			Flash_Write(SLEEP_ADDR, val);
-			LOG_D("Value stored in Flash: %lu \n", val);
+	        LOG_D("%lu Stored in Flash in SLEEP_ADDR\n", val);
+//
+//			LOG_D("Value stored in Flash: %lu \n", val);
 			sleep(DAY_TIMEOUT);
 		}
 		else
@@ -141,7 +143,9 @@ extern "C" void receiveTimeout(void)
 			uint32_t val = SLEEP_STATE_25S;
 //			gps.rtcOperation(STORE, SLEEP_ADDR, &val);
 			Flash_Write(SLEEP_ADDR, val);
-			LOG_D("Value stored in Flash: %lu \n", val);
+	        LOG_D("%lu Stored in Flash in SLEEP_ADDR\n", val);
+
+//			LOG_D("Value stored in Flash: %lu \n", val);
 			sleep(SLEEP_TIMEOUT);
 		}
 		break;
@@ -174,7 +178,8 @@ extern "C" void dataReceived(char* buffer, uint32_t size)
 		uint32_t val = SLEEP_STATE_DAY;
 //		gps.rtcOperation(STORE, SLEEP_ADDR, &val);
 		Flash_Write(SLEEP_ADDR, val);
-		LOG_D("Value stored in Flash: %lu \n", val);
+        LOG_D("%lu Stored in Flash in SLEEP_ADDR\n", val);
+//		LOG_D("Value stored in Flash: %lu \n", val);
 		sleep(DAY_TIMEOUT);
 	}
 	else if(strcmp(buffer, PING_MESSAGE) == 0)
@@ -251,31 +256,47 @@ void App::setup(void)
 	// if its first boot than go to sleep as soon as GNSS is locked
 	// if its boot from rtc wakeup signal than proceed to listen for HELLO signal
 	uint32_t flag;
-//	gps.rtcOperation(RETRIEVE, SLEEP_ADDR, &flag);
+//	uint32_t valuee = SLEEP_STATE_DAY;
+////	gps.rtcOperation(RETRIEVE, SLEEP_ADDR, &flag);
+
+
+//	Flash_Write(SLEEP_ADDR, 0);
+
+
+
 	flag = Flash_Read(SLEEP_ADDR);
 
-	LOG_D("Value Read from Flash: %lu \n", flag);
+	LOG_D("\nValue Read from Flash: %lu \n", flag);
 
-//	Flash Read: 4294967295 RTC time set to: 2000-00-00 00:00:00
+//	FlashData_t data;
+//	data.altitude = 32.2;
+//	data.latitude = 24.4;
+//	data.longitude = 15.2;
+//	data.day = 2;           // 1 byte
+//	data.month = 1;         // 1 byte
+//	data.year = 2026;         // 2 bytes
+//	data.hour = 8;          // 1 byte
+//	data.minute = 10;       // 1 byte
+//	data.second = 12;       // 1 byte
+//	data.centisecond = 14;  // 1 byte
+//	Flash_Multiple_Write(&data);
 
 
-
-//	  uint32_t readData;
-
-
+	FlashData_t data_b;
+	Flash_Read_Multiple(&data_b);
 
 	bool firstBoot = ((SLEEP_STATE_25S != flag) && (SLEEP_STATE_DAY != flag)) ? true : false;
 	bool wakeFromDaySleep = (SLEEP_STATE_DAY == flag) ? true : false;
 	
 	if(firstBoot || wakeFromDaySleep)
 	{
-//		gps.setup(&hrtc, &huart1);
-//		do
-//		{
-//			gps.loop();
-//			//gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
-//		} while ((!gps.gnssSignalReceived) || (!gps.has3DFix()));
-//		gps.displayInfo();
+		gps.setup(&hrtc, &huart1);
+		do
+		{
+			gps.loop();
+			//gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
+		} while ((!gps.gnssSignalReceived) || (!gps.has3DFix()));
+		gps.displayInfo();
 		setRtcTime();
 		HAL_GPIO_WritePin(GNSS_PWR_GPIO_Port, GNSS_PWR_Pin, GPIO_PIN_RESET);	// turn of GNSS at this point
 	}
@@ -285,7 +306,8 @@ void App::setup(void)
 		uint32_t val = SLEEP_STATE_DAY;
 //		gps.rtcOperation(STORE, SLEEP_ADDR, &val);
 		Flash_Write(SLEEP_ADDR, val);
-		LOG_D("Value stored in Flash: %lu \n", val);
+        LOG_D("%lu Stored in Flash in SLEEP_ADDR\n", val);
+//		LOG_D("Value stored in Flash: %lu \n", val);
 		sleep(DAY_TIMEOUT);
 	}
 	else
@@ -310,7 +332,8 @@ void App::loop(void)
 			uint32_t val = SLEEP_STATE_DAY;
 //			gps.rtcOperation(STORE, SLEEP_ADDR, &val);
 			Flash_Write(SLEEP_ADDR, val);
-			LOG_D("Value stored in Flash: %lu \n", val);
+	        LOG_D("%lu Stored in Flash in SLEEP_ADDR\n", val);
+//			LOG_D("Value stored in Flash: %lu \n", val);
 			sleep(DAY_TIMEOUT);
 		}
 		else if( ( (currentTime - shutOffStartTime) / 5000U ) > shutoffCount)
