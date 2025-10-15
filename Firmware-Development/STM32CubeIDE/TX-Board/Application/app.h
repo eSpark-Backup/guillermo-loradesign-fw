@@ -19,7 +19,7 @@
 #define TIMEZONE_HOUR_OFFSET   -7    // For UTC-7
 #define TIMEZONE_MINUTE_OFFSET  0    // For UTC-7:00
 
-#define RCV_TIMEOUT_VALUE	5000	// should be synced with "RX_TIMEOUT_VALUE" value in "subghz_phy_app.c" file
+#define RCV_TIMEOUT_VALUE	10000	// should be synced with "RX_TIMEOUT_VALUE" value in "subghz_phy_app.c" file
 
 //#define SLEEP_ADDR		RTC_BKP_DR1
 //#define SLEEP_ADDR  0x0803F800  // Last page of 128KB Flash (STM32L4 series or similar)

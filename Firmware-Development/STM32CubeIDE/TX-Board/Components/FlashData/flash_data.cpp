@@ -50,8 +50,8 @@ void Flash_Write(uint32_t address, uint32_t data)
 //			((uint64_t)data->month << 8) |
 //			((uint64_t)data->day);
 //
-//	HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, CALENDAR_ADDR, calendar_data);
-//	LOG_D("%lx Stored in Flash at 0x%lx\n", (uint64_t)calendar_data, (unsigned long)CALENDAR_ADDR);
+//	HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, TIMESTAMP_ADDR, calendar_data);
+//	LOG_D("%lx Stored in Flash at 0x%lx\n", (uint64_t)calendar_data, (unsigned long)TIMESTAMP_ADDR);
 //
 //	HAL_FLASH_Lock();
 //}
@@ -71,7 +71,7 @@ void Flash_Multiple_Write(FlashData_t* data)
 	Flash_Write(LATITUDE_ADDR, *(double*)&data->latitude);
 	Flash_Write(LONGITUDE_ADDR, *(double*)&data->longitude);
 	Flash_Write(ALTITUDE_ADDR, *(double*)&data->altitude);
-	Flash_Write(CALENDAR_ADDR, calendar_data);
+	Flash_Write(TIMESTAMP_ADDR, calendar_data);
 
 //		HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, LATITUDE_ADDR, *(double*)&data->latitude);
 		LOG_D("%lf Stored in Flash at 0x%lx\n", data->latitude, (unsigned long)LATITUDE_ADDR);
@@ -84,8 +84,8 @@ void Flash_Multiple_Write(FlashData_t* data)
 
 
 
-//		HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, CALENDAR_ADDR, calendar_data);
-		LOG_D("%lx Stored in Flash at 0x%lx\n", (uint64_t)calendar_data, (unsigned long)CALENDAR_ADDR);
+//		HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, TIMESTAMP_ADDR, calendar_data);
+		LOG_D("%lx Stored in Flash at 0x%lx\n", (uint64_t)calendar_data, (unsigned long)TIMESTAMP_ADDR);
 
 //		HAL_FLASH_Lock();
 
@@ -122,8 +122,8 @@ void Flash_Read_Multiple(FlashData_t* data){
 	data->altitude = (double)Flash_Read(ALTITUDE_ADDR);
 	LOG_D("%lf Retrieved from Flash of Register Address: 0x%lx\n", data->altitude, (unsigned long)ALTITUDE_ADDR);
 
-//	uint64_t calendar_data = (uint64_t)Flash_Read(CALENDAR_ADDR);
-//	uint64_t calendar_data = ((uint64_t)Flash_Read(CALENDAR_ADDR + 4) << 32) | ((uint64_t)Flash_Read(CALENDAR_ADDR));
+//	uint64_t calendar_data = (uint64_t)Flash_Read(TIMESTAMP_ADDR);
+//	uint64_t calendar_data = ((uint64_t)Flash_Read(TIMESTAMP_ADDR + 4) << 32) | ((uint64_t)Flash_Read(TIMESTAMP_ADDR));
 //	LOG_D("Retrieved Calendar data from Flash: %lx\n",calendar_data);
 //	data->day   = calendar_data & 0xFF;
 //	data->month = (calendar_data >> 8) & 0xFF;
@@ -137,17 +137,17 @@ void Flash_Read_Multiple(FlashData_t* data){
 //	LOG_D("Retrieved Calendar from Flash: %d:%d:%d:%d:%d:%d:%d\n",data->day, data->month, data->year, data->hour, data->minute, data->second, data->centisecond);
 
 
-	uint64_t calendar_data = ((uint64_t)Flash_Read(CALENDAR_ADDR + 4) << 32) | Flash_Read(CALENDAR_ADDR);
+	uint64_t timestamp_data = ((uint64_t)Flash_Read(TIMESTAMP_ADDR + 4) << 32) | Flash_Read(TIMESTAMP_ADDR);
 
-	data->day         = calendar_data & 0xFF;
-	data->month       = (calendar_data >> 8) & 0xFF;
-	data->year        = (calendar_data >> 16) & 0xFFFF;
-	data->hour        = (calendar_data >> 32) & 0xFF;
-	data->minute      = (calendar_data >> 40) & 0xFF;
-	data->second      = (calendar_data >> 48) & 0xFF;
-	data->centisecond = (calendar_data >> 56) & 0xFF;
+	data->day         = timestamp_data & 0xFF;
+	data->month       = (timestamp_data >> 8) & 0xFF;
+	data->year        = (timestamp_data >> 16) & 0xFFFF;
+	data->hour        = (timestamp_data>> 32) & 0xFF;
+	data->minute      = (timestamp_data >> 40) & 0xFF;
+	data->second      = (timestamp_data >> 48) & 0xFF;
+	data->centisecond = (timestamp_data >> 56) & 0xFF;
 
-	LOG_D("Retrieved Calendar from Flash: %d:%d:%d:%d:%d:%d:%d\n",data->day, data->month, data->year, data->hour, data->minute, data->second, data->centisecond);
+	LOG_D("Retrieved Timestamp from Flash: %d:%d:%d:%d:%d:%d:%d\n",data->day, data->month, data->year, data->hour, data->minute, data->second, data->centisecond);
 
 
 	//

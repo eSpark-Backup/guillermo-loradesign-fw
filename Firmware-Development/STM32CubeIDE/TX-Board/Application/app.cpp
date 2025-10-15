@@ -20,6 +20,7 @@ TimerEvent_t SleepTimeoutTimer;
 static uint32_t shutoffCount = 0;
 uint32_t shutOffStartTime = 0;
 MCP7940_Class  MCP7940;
+int Received_Data = 0;
 
 // Returns the time difference in seconds between ref_time and rtc_time, wrapping if needed
 uint32_t get_wrapped_seconds_diff(uint8_t ref_hour, uint8_t ref_minute, uint8_t ref_second)
@@ -101,8 +102,8 @@ void sleep(uint32_t timeout)
 		   alarmTime.year(), alarmTime.month(), alarmTime.day(),
 		   alarmTime.hour(), alarmTime.minute(), alarmTime.second());
 
-	PWR_EnterOffMode();
-	PWR_ExitOffMode();
+//	PWR_EnterOffMode();
+//	PWR_ExitOffMode();
 
 	LOG_D("Starts Receiving Data\r\n");
 	Radio.Rx(RCV_TIMEOUT_VALUE);
@@ -159,7 +160,8 @@ extern "C" void receiveTimeout(void)
 
 extern "C" void dataReceived(char* buffer, uint32_t size)
 {
-	LOG_D("Received ");
+//	HAL_Delay(500);
+	LOG_D("------------------------Received ");
 	for (uint32_t i = 0; i < size; i++) {
 	    LOG_D("%02X ", (unsigned char)buffer[i]);
 	}
@@ -188,6 +190,7 @@ extern "C" void dataReceived(char* buffer, uint32_t size)
 		{
 			state = TRANSMIT_STATE;
 			LOG_D("Entering transmit state\r\n");
+			Received_Data = 1;
 		}
 	}
 }
@@ -265,7 +268,7 @@ void App::setup(void)
 
 
 	flag = Flash_Read(SLEEP_ADDR);
-
+//	flag = 0;
 	LOG_D("\nValue Read from Flash: %lu \n", flag);
 
 //	FlashData_t data;
@@ -291,15 +294,16 @@ void App::setup(void)
 	if(firstBoot || wakeFromDaySleep)
 	{
 		gps.setup(&hrtc, &huart1);
-		do
-		{
-			gps.loop();
-			//gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
-		} while ((!gps.gnssSignalReceived) || (!gps.has3DFix()));
+//		do
+//		{
+//			gps.loop();
+//			//gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
+//		} while ((!gps.gnssSignalReceived) || (!gps.has3DFix()));
 		gps.displayInfo();
 		setRtcTime();
 		HAL_GPIO_WritePin(GNSS_PWR_GPIO_Port, GNSS_PWR_Pin, GPIO_PIN_RESET);	// turn of GNSS at this point
 	}
+
 
 	if(firstBoot)
 	{
@@ -319,6 +323,7 @@ void App::setup(void)
 void App::loop(void)
 {
 	// gps.loop();		// no need to process GNSS data, valid coordinates have been acquired
+//	LOG_D("Data Received: %d",Received_Data);
 
 	uint32_t currentTime = HAL_GetTick();
 	uint8_t data[64];
