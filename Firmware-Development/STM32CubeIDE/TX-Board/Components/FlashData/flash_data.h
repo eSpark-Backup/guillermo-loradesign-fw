@@ -60,7 +60,7 @@ struct DAY{
 //#define second_ADDR          0x0801F026UL  // uint8_t (1 byte)
 //#define centisecond_ADDR     0x0801F027UL  // uint8_t (1 byte)
 
-void Flash_Write(uint32_t address, uint32_t data);
+void Flash_Write(uint32_t address, uint64_t data);
 void Flash_Multiple_Write(FlashData_t* data);
 
 uint32_t Flash_Read(uint32_t address);

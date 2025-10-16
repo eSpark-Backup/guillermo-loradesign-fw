@@ -102,8 +102,8 @@ void sleep(uint32_t timeout)
 		   alarmTime.year(), alarmTime.month(), alarmTime.day(),
 		   alarmTime.hour(), alarmTime.minute(), alarmTime.second());
 
-//	PWR_EnterOffMode();
-//	PWR_ExitOffMode();
+	PWR_EnterOffMode();
+	PWR_ExitOffMode();
 
 	LOG_D("Starts Receiving Data\r\n");
 	Radio.Rx(RCV_TIMEOUT_VALUE);
@@ -271,6 +271,9 @@ void App::setup(void)
 //	flag = 0;
 	LOG_D("\nValue Read from Flash: %lu \n", flag);
 
+
+	/* For Testing*/
+/*----------------------------------------*/
 //	FlashData_t data;
 //	data.altitude = 32.2;
 //	data.latitude = 24.4;
@@ -283,7 +286,7 @@ void App::setup(void)
 //	data.second = 12;       // 1 byte
 //	data.centisecond = 14;  // 1 byte
 //	Flash_Multiple_Write(&data);
-
+/*----------------------------------------*/
 
 	FlashData_t data_b;
 	Flash_Read_Multiple(&data_b);
@@ -294,11 +297,11 @@ void App::setup(void)
 	if(firstBoot || wakeFromDaySleep)
 	{
 		gps.setup(&hrtc, &huart1);
-//		do
-//		{
-//			gps.loop();
-//			//gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
-//		} while ((!gps.gnssSignalReceived) || (!gps.has3DFix()));
+		do
+		{
+			gps.loop();
+			//gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
+		} while ((!gps.gnssSignalReceived) || (!gps.has3DFix()));
 		gps.displayInfo();
 		setRtcTime();
 		HAL_GPIO_WritePin(GNSS_PWR_GPIO_Port, GNSS_PWR_Pin, GPIO_PIN_RESET);	// turn of GNSS at this point
