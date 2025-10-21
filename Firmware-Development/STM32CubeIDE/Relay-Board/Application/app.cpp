@@ -17,6 +17,8 @@ TimerEvent_t WaitTimer;
 
 uint8_t data[64];
 CommPacket lastMessage;
+DAY days[15];
+unsigned long wait_time;
 
 void DurationElapsedCallback( void *context )
 {
@@ -27,9 +29,21 @@ void DurationElapsedCallback( void *context )
 
 void processData(UART_HandleTypeDef *huart)
 {
-	Radio.Send(data, sizeof(data));
+	LOG_D("processData\n");
+	if((Radio.Send((uint8_t*)days, sizeof(days)) == RADIO_STATUS_OK)){
+		LOG_D("Radio Calendar Data Sent Successfully\n");
+	}
+	else{
+		LOG_D("Radio Calendar Data Not Sent Successfully!!\n");
+	}
+
+	 for(int i = 0; i < 15; i++){
+	    LOG_D("Data Received: %d %d %c\n", days[i].Month, days[i].Day, days[i].Schedule);
+	 }
+
 	MX_USART1_UART_Init();
-	HAL_UART_Receive_DMA(&huart1, data, sizeof(data));
+	HAL_UART_Receive_DMA(&huart1, (uint8_t*)days, sizeof(days));
+	//LOG_D("Data Received: %d", data);
 }
 
 void sleep(uint32_t timeout)
@@ -75,13 +89,17 @@ void App::setup(void)
 	TimerStop( &WaitTimer );
 	Radio.Send(HelloCommand, sizeof(HelloCommand));
 	while(!isTXDone());
+	LOG_D("Radio Send Hello Successfully\n");
 	MX_SubGHz_Phy_Process();
 	SwitchToRxMode();
+	HAL_UART_RegisterCallback(&huart1, HAL_UART_RX_COMPLETE_CB_ID, processData);
+	HAL_UART_Receive_DMA(&huart1, (uint8_t*)days, sizeof(days));
 #elif (RELAYBOARD == MCU_2)
 	HAL_UART_RegisterCallback(&huart1, HAL_UART_RX_COMPLETE_CB_ID, processData);
 	HAL_UART_Receive_DMA(&huart1, data, sizeof(data));
 #endif
 }
+
 
 void App::loop(void)
 {
@@ -112,4 +130,15 @@ void App::loop(void)
 	default:
 		break;
 	}
+#if (RELAYBOARD == MCU2)
+	if(HAL_GetTick() - wait_time >= 5000){
+		char data[] = "Hello\r\n";
+		if((HAL_UART_Transmit(&huart1, (uint8_t*)days, sizeof(days),1000)) == HAL_OK){
+			LOG_D("Calendar Data Transmitted Successfully\n");
+		}
+		else{
+			LOG_D("Calendar Data Not Transmitted Successfully\n");
+		}
+	}
+#endif
 }

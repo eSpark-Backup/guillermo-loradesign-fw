@@ -30,6 +30,8 @@
 #include "utilities_def.h"
 #include "app_version.h"
 #include "subghz_phy_version.h"
+#include "main.h"
+
 /* USER CODE END Includes */
 
 /* External variables ---------------------------------------------------------*/
@@ -371,6 +373,7 @@ void SwitchToRxMode(void)
 {
 	current_mode = RADIO_RX;
     APP_LOG(TS_OFF, VLEVEL_M, "Switching to RX Mode\r\n");
+    LOG_D("Switching to RX mode\r\n");
 
     // Configure radio for RX
     Radio.SetRxConfig(MODEM_LORA,  // Modem type: LORA or FSK
@@ -492,6 +495,9 @@ static void Per_Process(void)
 		APP_TPRINTF("OnRxDone\r\n");
 		APP_TPRINTF("RssiValue=%d dBm, cfo=%d kHz\r\n", rssi, cfo);
 		APP_TPRINTF("payloadLen=%d bytes\r\n", payloadLen);
+		LOG_D("OnRxDone\r\n");
+		LOG_D("RssiValue=%d dBm, cfo=%d kHz\r\n", rssi, cfo);
+		LOG_D("payloadLen=%d bytes\r\n", payloadLen);
 		RX_Done_Process(data_buffer, payloadLen);
 	#if 0
 		/* warning, delay between 2 consecutive Tx may be increased to allow DMA to empty printf queue*/
@@ -515,12 +521,14 @@ static void Per_Process(void)
 	  if (RadioRxTimeout_flag == 1)
 	  {
 		APP_TPRINTF("OnRxTimeout\r\n");
+		LOG_D("OnRxTimeout\r\n");
 		RX_Timeout_Process();
 	  }
 
 	  if (RadioError_flag == 1)
 	  {
 		APP_TPRINTF("OnRxError\r\n");
+		LOG_D("OnRxError\r\n");
 	  }
 
 	  /*check flag*/
@@ -540,6 +548,7 @@ static void Per_Process(void)
 	  /* Compute PER */
 	  PER = (100 * (count_RxKo)) / (count_RxKo + count_RxOk);
 	  APP_TPRINTF("Rx %d>>> PER= %d %%\r\n", packetCnt, PER);
+	  LOG_D("Rx %d>>> PER= %d %%\r\n", packetCnt, PER);
 	#if (APP_LONG_PACKET==0)
 //	  Radio.Rx(RX_TIMEOUT_VALUE);
 	#else
@@ -555,16 +564,19 @@ static void Per_Process(void)
 	  if (RadioTxDone_flag == 1)
 	  {
 		APP_TPRINTF("OnTxDone\r\n");
+		LOG_D("OnTxDone\r\n");
 	  }
 
 	  if (RadioTxTimeout_flag == 1)
 	  {
 		APP_TPRINTF("OnTxTimeout\r\n");
+		LOG_D("OnTxTimeout\r\n");
 	  }
 
 	  if (RadioError_flag == 1)
 	  {
 		APP_TPRINTF("OnRxError\r\n");
+		LOG_D("OnRxError\r\n");
 	  }
 	  /* This delay is only to give enough time to allow DMA to empty printf queue*/
 	  HAL_Delay(500);
@@ -583,7 +595,9 @@ static void Per_Process(void)
 	  }
 	#endif /* APP_LONG_PACKET */
 	  APP_TPRINTF("Tx %d \r\n", packetCnt);
+	  LOG_D("Tx %d\r\n",packetCnt);
 	  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET); /* LED_BLUE */
+	  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET); /* LED_BLUE */
 	}
 }
 

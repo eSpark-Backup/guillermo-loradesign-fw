@@ -45,6 +45,12 @@ struct CommPacket
 	GeoCoordinates geoCoordinates;
 };
 
+struct DAY {
+	unsigned short Month;
+	unsigned short Day;
+	char Schedule;
+};
+
 class App
 {
 public:

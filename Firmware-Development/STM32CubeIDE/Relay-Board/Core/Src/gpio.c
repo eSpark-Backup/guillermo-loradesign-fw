@@ -68,6 +68,8 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+//  HAL_GPIO_WritePin(GPIOA, GNSS_RESET_Pin|LED1_Pin|LED2_Pin|RF_CRYSTAL_EN_Pin, GPIO_PIN_RESET);
+
 }
 
 /* USER CODE BEGIN 2 */
