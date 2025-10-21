@@ -149,12 +149,12 @@ void GPS::getGnssData(FlashData_t* data)
 ////        rtcOperation(RETRIEVE, addr, &flash_words[i]);
 //    }
 
-    Flash_Read_Multiple(data);
+    Flash_Read_Multiple(data,days);
 }
 
 void GPS::setGnssData(FlashData_t* data)
 {
-	Flash_Multiple_Write(data);
+	Flash_Multiple_Write(data,days);
 }
 
 

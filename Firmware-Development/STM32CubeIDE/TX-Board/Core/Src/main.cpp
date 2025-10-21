@@ -32,6 +32,7 @@
 #include "subghz.h"
 #include "app.h"
 #include "stm32_lpm_if.h"
+#include "radio.h"
 
 /* USER CODE END Includes */
 
@@ -131,13 +132,15 @@ int main(void)
   // Enable access to the backup domain
 //  HAL_PWR_EnableBkUpAccess();
   app.setup();
+  Radio.Rx(0xFFFFFFFF);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	app.loop();
+
+	  app.loop();
     
     /* USER CODE END WHILE */
     MX_SubGHz_Phy_Process();

@@ -483,6 +483,7 @@ void TxLongPacketGetNextChunk(uint8_t **buffer, uint8_t chunk_size)
 uint8_t buffer_error = 0;
 static void Per_Process(void)
 {
+	LOG_D("Per Process");
   packetCnt++;
   data_offset = 0;
   if (current_mode == RADIO_RX)

@@ -56,6 +56,22 @@ struct CommPacket
 	GeoCoordinates geoCoordinates;
 };
 
+struct DAY{
+	unsigned short Month; // 2 bytes
+	unsigned short Day; // 2 bytes
+	char Schedule; // 1 byte
+};
+extern DAY days[15];
+
+#define SCHEDULE_TIME_RANGE_A_1 	6	 // 06-08
+#define SCHEDULE_TIME_RANGE_A_2 	8	 // 06-08
+#define SCHEDULE_TIME_RANGE_B_1 	7	 // 07-09
+#define SCHEDULE_TIME_RANGE_B_2 	9	 // 07-09
+#define SCHEDULE_TIME_RANGE_C_1 	8	 // 08-10
+#define SCHEDULE_TIME_RANGE_C_2 	10	 // 08-10
+#define SCHEDULE_TIME_RANGE_D_1 	16	 // 16-18
+#define SCHEDULE_TIME_RANGE_D_2 	18	 // 16-18
+
 class App
 {
 public:
