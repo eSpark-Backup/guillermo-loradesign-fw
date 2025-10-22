@@ -135,7 +135,7 @@ bool GPS::gnssSignalReceived = false;
 //        rtcOperation(STORE, addr, &rtc_words[i]);
 //    }
 //}
-
+//
 
 
 void GPS::getGnssData(FlashData_t* data)

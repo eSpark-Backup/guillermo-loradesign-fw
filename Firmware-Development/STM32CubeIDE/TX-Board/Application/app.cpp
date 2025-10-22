@@ -22,7 +22,7 @@ uint32_t shutOffStartTime = 0;
 MCP7940_Class  MCP7940;
 int Received_Data = 0;
 
-DAY days[15] = {{1,1,'A'},{1,1,'B'},{1,3,'A'},{1,4,'A'},{1,5,'A'},{1,6,'A'},{1,7,'A'},{1,8,'A'},{1,9,'A'},{1,10,'A'},{1,11,'A'},{1,12,'A'},{1,13,'A'},{1,14,'A'},{1,15,'A'}};
+DAY days[15] = {{10,22,'A'},{1,1,'B'},{1,3,'A'},{1,4,'A'},{1,5,'A'},{1,6,'A'},{1,7,'A'},{1,8,'A'},{1,9,'A'},{1,10,'A'},{1,11,'A'},{1,12,'A'},{1,13,'A'},{1,14,'A'},{1,15,'A'}};
 //DAY days[15];
 
 
@@ -150,36 +150,73 @@ uint32_t get_next_schedule_sleep_seconds()
 	return min_diff; // seconds until the next schedule
 }
 
-
 void generatePayload(uint8_t* buffer, uint32_t size)
 {
-	char* payload = (char*) buffer;
+    char* payload = (char*) buffer;
 
-	CommPacket packet;
-	memcpy(payload, MY_IDENTIFIER, strlen(MY_IDENTIFIER));
+    // Compose header
+    memcpy(payload, MY_IDENTIFIER, strlen(MY_IDENTIFIER));
+
+    // Build CommPacket
+    CommPacket packet;
 #if CUSTOM_BOARD_ID
-	packet.ids[0] = BOARD_ID_1;
-	packet.ids[1] = BOARD_ID_2;
-	packet.ids[2] = BOARD_ID_2;
+    packet.ids[0] = BOARD_ID_1;
+    packet.ids[1] = BOARD_ID_2;
+    packet.ids[2] = BOARD_ID_2;
 #else
-	uint32_t boardIds[] = {HAL_GetUIDw0(), HAL_GetUIDw1(), HAL_GetUIDw2()};
-	memcpy(packet.ids, boardIds, sizeof(packet.ids));
+    uint32_t boardIds[] = {HAL_GetUIDw0(), HAL_GetUIDw1(), HAL_GetUIDw2()};
+    memcpy(packet.ids, boardIds, sizeof(packet.ids));
 #endif
-//	 RtcData_t rtcStoredData;
-//	 GPS::getGnssData(&rtcStoredData);
 
+    // Read GNSS snapshot from flash (Flash_Read_Multiple fills both FlashData_t and days[])
+    FlashData_t flashStoredData;
+    DAY tmpDays[15]; // temporary, not used here
+    Flash_Read_Multiple(&flashStoredData, tmpDays);
 
-	 FlashData_t flashStoredData;
-	 GPS::getGnssData(&flashStoredData);
+    // Populate timestamp & coordinates from flash snapshot
+    packet.timestamp.hour = flashStoredData.hour;
+    packet.timestamp.minute = flashStoredData.minute;
+    packet.timestamp.second = flashStoredData.second;
 
-	packet.timestamp.hour = gps.gnssData.hour;
-	packet.timestamp.minute = gps.gnssData.minute;
-	packet.timestamp.second = gps.gnssData.second;
-	packet.geoCoordinates.lattitude = gps.gnssData.latitude;
-	packet.geoCoordinates.longitude = gps.gnssData.longitude;
-	packet.geoCoordinates.altitude = gps.gnssData.altitude;
-	memcpy(payload + strlen(MY_IDENTIFIER), &packet, sizeof(packet));
+    packet.geoCoordinates.lattitude = flashStoredData.latitude;
+    packet.geoCoordinates.longitude  = flashStoredData.longitude;
+    packet.geoCoordinates.altitude   = flashStoredData.altitude;
+
+    // Copy packet after identifier
+    memcpy(payload + strlen(MY_IDENTIFIER), &packet, sizeof(packet));
 }
+
+
+
+//void generatePayload(uint8_t* buffer, uint32_t size)
+//{
+//	char* payload = (char*) buffer;
+//
+//	CommPacket packet;
+//	memcpy(payload, MY_IDENTIFIER, strlen(MY_IDENTIFIER));
+//#if CUSTOM_BOARD_ID
+//	packet.ids[0] = BOARD_ID_1;
+//	packet.ids[1] = BOARD_ID_2;
+//	packet.ids[2] = BOARD_ID_2;
+//#else
+//	uint32_t boardIds[] = {HAL_GetUIDw0(), HAL_GetUIDw1(), HAL_GetUIDw2()};
+//	memcpy(packet.ids, boardIds, sizeof(packet.ids));
+//#endif
+////	 RtcData_t rtcStoredData;
+////	 GPS::getGnssData(&rtcStoredData);
+//
+//
+//	 FlashData_t flashStoredData;
+//	 GPS::getGnssData(&flashStoredData);
+//
+//	packet.timestamp.hour = gps.gnssData.hour;
+//	packet.timestamp.minute = gps.gnssData.minute;
+//	packet.timestamp.second = gps.gnssData.second;
+//	packet.geoCoordinates.lattitude = gps.gnssData.latitude;
+//	packet.geoCoordinates.longitude = gps.gnssData.longitude;
+//	packet.geoCoordinates.altitude = gps.gnssData.altitude;
+//	memcpy(payload + strlen(MY_IDENTIFIER), &packet, sizeof(packet));
+//}
 
 void UpTimerEventCallback( void *context )
 {
@@ -191,7 +228,7 @@ void sleep(uint32_t timeout)
 {
 //	uint32_t seconds = timeout/1000;
 	uint32_t seconds = timeout;
-	seconds = 20;
+	//seconds = 20;
 	LOG_D("Going to sleep for %d seconds\r\n", seconds);
 	HAL_GPIO_WritePin(GNSS_RESET_GPIO_Port, GNSS_RESET_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(GNSS_PWR_GPIO_Port, GNSS_PWR_Pin, GPIO_PIN_RESET);
@@ -278,40 +315,34 @@ extern "C" void receiveTimeout(void)
 
 extern "C" void dataReceived(char* buffer, uint32_t size)
 {
-//	HAL_Delay(500);
-	LOG_D("------------------------Received ");
-	for (uint32_t i = 0; i < size; i++) {
-	    LOG_D("%02X ", (unsigned char)buffer[i]);
-	}
-	LOG_D("\r\n");
+    LOG_D("Data received, size=%lu\n", size);
 
+    if (size == sizeof(days)) {
+        // Assume binary calendar update from relay
+        memcpy(days, buffer, sizeof(days));
+        FlashData_t snapshot;
+        DAY oldCalendar[15];
+        Flash_Read_Multiple(&snapshot, oldCalendar);
+        Flash_Multiple_Write(&snapshot, days);
+        LOG_D("Calendar updated from relay\n");
+        sleep(get_next_schedule_sleep_seconds());
+        return;
+    }
 
-	uint32_t boardIds[] = {HAL_GetUIDw0(), HAL_GetUIDw1(), HAL_GetUIDw2()};
-	char mergedData[sizeof(boardIds) + 7];  // 3 * uint32_t (12 bytes) + "SHUTOFF" (7 bytes) = 19 bytes
-	memcpy(mergedData, boardIds, sizeof(boardIds));
-	memcpy(mergedData + sizeof(boardIds), "SHUTOFF", 7);  // Append "SHUTOFF"
+    if (strcmp(buffer, "HELLO") == 0) {
+        LOG_D("HELLO received — replying with HERE+ID\n");
+        char reply[32];
+        snprintf(reply, sizeof(reply), "%sHERE", MY_IDENTIFIER);
+        Radio.Send((uint8_t*)reply, strlen(reply));
+        while (!isTXDone());
+        MX_SubGHz_Phy_Process();
+        SwitchToRxMode();
+        return;
+    }
 
-	if(memcmp(buffer, mergedData, sizeof(mergedData)) == 0)
-	{
-		LOG_D("Sleeping for a day\r\n");
-		state = BOOTUP_STATE;
-		uint32_t val = SLEEP_STATE_DAY;
-//		gps.rtcOperation(STORE, SLEEP_ADDR, &val);
-		Flash_Write(SLEEP_ADDR, val);
-        LOG_D("%lu Stored in Flash in SLEEP_ADDR\n", val);
-//		LOG_D("Value stored in Flash: %lu \n", val);
-		sleep(DAY_TIMEOUT);
-	}
-	else if(strcmp(buffer, PING_MESSAGE) == 0)
-	{
-		if (state != SHUTOFF_STATE)
-		{
-			state = TRANSMIT_STATE;
-			LOG_D("Entering transmit state\r\n");
-			Received_Data = 1;
-		}
-	}
+    LOG_D("Unhandled message: %s\n", buffer);
 }
+
 
 void setRtcTime()
 {
@@ -337,11 +368,11 @@ void rtcModuleInit() {
     }
 
     // Set the RTC module to the compile time					// This should be changed according to the time received from GNSS module
-    // DateTime compileTime(__DATE__, __TIME__);
-    // MCP7940.adjust(compileTime);
-    // LOG_D("RTC time set to: %04d-%02d-%02d %02d:%02d:%02d\r\n",
-    //            compileTime.year(), compileTime.month(), compileTime.day(),
-    //            compileTime.hour(), compileTime.minute(), compileTime.second());
+//     DateTime compileTime(__DATE__, __TIME__);
+//     MCP7940.adjust(compileTime);
+//     LOG_D("RTC time set to: %04d-%02d-%02d %02d:%02d:%02d\r\n",
+//                compileTime.year(), compileTime.month(), compileTime.day(),
+//                compileTime.hour(), compileTime.minute(), compileTime.second());
 
     MCP7940.setAlarmPolarity(false);
 }
@@ -369,14 +400,17 @@ void App::setup(void)
 {
 	TimerInit( &SleepTimeoutTimer, UpTimerEventCallback );
 	TimerStop( &SleepTimeoutTimer );
-//	rtcModuleInit();
+	rtcModuleInit();
+
 	//	while(1)
 	//	  loop_test();
 	
 	
 	// if its first boot than go to sleep as soon as GNSS is locked
 	// if its boot from rtc wakeup signal than proceed to listen for HELLO signal
+
 	uint32_t flag;
+
 //	uint32_t valuee = SLEEP_STATE_DAY;
 ////	gps.rtcOperation(RETRIEVE, SLEEP_ADDR, &flag);
 
@@ -385,30 +419,39 @@ void App::setup(void)
 
 
 
-	flag = Flash_Read(SLEEP_ADDR);
-//	flag = 0;
-	LOG_D("\nValue Read from Flash: %lu \n", flag);
+    // Read sleep flag (existing)
+//    flag = Flash_Read(SLEEP_ADDR);
+	flag = 0;
+    LOG_D("\nValue Read from Flash: %lu \n", flag);
+
 
 
 	/* For Testing*/
 /*----------------------------------------*/
-	FlashData_t data;
-	data.altitude = 32.2;
-	data.latitude = 24.4;
-	data.longitude = 15.2;
-	data.day = 1;           // 1 byte
-	data.month = 2;         // 1 byte
-	data.year = 2026;         // 2 bytes
-	data.hour = 4;          // 1 byte
-	data.minute = 00;       // 1 byte
-	data.second = 00;       // 1 byte
-	data.centisecond = 00;  // 1 byte
-	Flash_Multiple_Write(&data, days);
+//	DateTime compileTime(__DATE__, __TIME__);  //instead of rtc date time taking compile time date time.
+//	FlashData_t data;
+//	data.altitude = 32.2;
+//	data.latitude = 24.4;
+//	data.longitude = 15.2;
+//	data.day = compileTime.day();//1;           // 1 byte
+//	data.month = compileTime.month();//2;         // 1 byte
+//	data.year = compileTime.year();         // 2 bytes
+//	data.hour = compileTime.hour();          // 1 byte
+//	data.minute = compileTime.minute() ;       // 1 byte
+//	data.second = compileTime.second();       // 1 byte
+//	data.centisecond = 00;  // 1 byte
+//	Flash_Multiple_Write(&data, days);
+//	FlashData_t data_2;
+//	Flash_Read_Multiple(&data_2, days);
 /*----------------------------------------*/
 
-	FlashData_t data_2;
-	Flash_Read_Multiple(&data_2, days);
+    // Read flash GNSS and calendar into temporary structures
+    FlashData_t flashSnapshot;
+    DAY flashCalendar[15]; // keep same size as your default array for simplicity
+    Flash_Read_Multiple(&flashSnapshot, flashCalendar);
 
+
+    // Detect first boot
 	bool firstBoot = ((SLEEP_STATE_25S != flag) && (SLEEP_STATE_DAY != flag)) ? true : false;
 	bool wakeFromDaySleep = (SLEEP_STATE_DAY == flag) ? true : false;
 	
@@ -418,24 +461,37 @@ void App::setup(void)
 		do
 		{
 			gps.loop();
-			//gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
 		} while ((!gps.gnssSignalReceived) || (!gps.has3DFix()));
 		gps.displayInfo();
+
+		// Prepare FlashData_t from current gps.gnssData
+		        FlashData_t snapshot;
+		        snapshot.latitude  = gps.gnssData.latitude;
+		        snapshot.longitude = gps.gnssData.longitude;
+		        snapshot.altitude  = gps.gnssData.altitude;
+		        snapshot.day       = gps.gnssData.day;
+		        snapshot.month     = gps.gnssData.month;
+		        snapshot.year      = gps.gnssData.year;
+		        snapshot.hour      = gps.gnssData.hour;
+		        snapshot.minute    = gps.gnssData.minute;
+		        snapshot.second    = gps.gnssData.second;
+		        snapshot.centisecond = gps.gnssData.centisecond;
+
 		setRtcTime();
 		HAL_GPIO_WritePin(GNSS_PWR_GPIO_Port, GNSS_PWR_Pin, GPIO_PIN_RESET);	// turn of GNSS at this point
 	}
 
-	sleep(get_next_schedule_sleep_seconds());
+	uint32_t next_sleep_seconds = get_next_schedule_sleep_seconds();
+	sleep(next_sleep_seconds);
 
 	if(firstBoot)
 	{
 		uint32_t val = SLEEP_STATE_DAY;
-//		gps.rtcOperation(STORE, SLEEP_ADDR, &val);
 		Flash_Write(SLEEP_ADDR, val);
         LOG_D("%lu Stored in Flash in SLEEP_ADDR\n", val);
-//		LOG_D("Value stored in Flash: %lu \n", val);
-//		sleep(DAY_TIMEOUT);
+
 		sleep(get_next_schedule_sleep_seconds());
+		LOG_D("First boot complete — data saved, entering sleep\n");
 	}
 	else
 	{

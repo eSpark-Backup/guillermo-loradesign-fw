@@ -132,7 +132,7 @@ int main(void)
   // Enable access to the backup domain
 //  HAL_PWR_EnableBkUpAccess();
   app.setup();
-  Radio.Rx(0xFFFFFFFF);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
