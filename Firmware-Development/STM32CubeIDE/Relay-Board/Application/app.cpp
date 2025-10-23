@@ -17,9 +17,12 @@
  #error "RELAYBOARD must be MCU_1 or MCU_2"
 #endif
 
-// If MCU_1 needs to persist calendar:
 #if (RELAYBOARD == MCU_1)
-#include "flash_data.h"   // Flash_Multiple_Write / Flash_Read_Multiple
+#include "flash_data.h"
+#endif
+
+#if (RELAYBOARD == MCU_2)
+bool calendarUpdated = false;
 #endif
 
 BoardState state = BOOTUP_STATE;
@@ -28,59 +31,44 @@ TimerEvent_t WaitTimer;
 
 uint8_t data[64];
 CommPacket lastMessage;
-DAY days[15];                // calendar buffer
+DAY days[15];
 unsigned long wait_time = 0;
 
-void DurationElapsedCallback( void *context )
+const DAY defaultDays[15] = {
+    {1,1,'A'},{1,2,'B'},{1,3,'A'},{1,4,'A'},{1,5,'A'},
+    {1,6,'A'},{1,7,'A'},{1,8,'A'},{1,9,'A'},{1,10,'A'},
+    {1,11,'A'},{1,12,'A'},{1,13,'A'},{1,14,'A'},{1,15,'A'}
+};
+
+void DurationElapsedCallback(void *context)
 {
-    // This callback is executed when the RTC wakeup timer expires
     LOG_D("Woke up from STOP mode via RTC Wakeup Timer\r\n");
     state = SEQUENCE_END_STATE;
 }
 
-/**
- * processData - called on UART RX complete
- *
- * Behaviour:
- *  - MCU_1: receives calendar array from MCU_2 via UART -> store in flash and send calendar over LoRa to TX board
- *  - MCU_2: this callback would be used if MCU_2 receives something from MCU_1; keep minimal behavior
- */
 void processData(UART_HandleTypeDef *huart)
 {
     LOG_D("processData - UART RX complete\n");
 
 #if (RELAYBOARD == MCU_1)
-    // We assume 'days' buffer has been filled by HAL UART DMA receive into (uint8_t*)days.
-    // Save to flash and transmit calendar to TX board.
-    LOG_D("MCU_1: Calendar received from MCU_2 via UART. Storing & forwarding...\n");
-
-    // Debug print received calendar
-    for (int i = 0; i < 15; i++) {
-        LOG_D("  rcvd day[%d] = %02d-%02d %c\n", i, days[i].Month, days[i].Day, days[i].Schedule);
-    }
-
-    // Persist calendar to Flash (minimal & synchronous)
-    FlashData_t dummy; // we don't need to modify GNSS snapshot here; flash function expects both args
-    memset(&dummy, 0, sizeof(dummy));
-    Flash_Multiple_Write(&dummy, days);
+    LOG_D("MCU_1: Calendar received from MCU_2, storing in flash...\n");
+    Flash_Multiple_Write_Calendar(days);
     LOG_D("Calendar written to flash\n");
 
-    // Try to send calendar to TX board over radio
-    if (Radio.Send((uint8_t*)days, sizeof(days)) == RADIO_STATUS_OK) {
-        LOG_D("Radio Calendar Data Sent Successfully\n");
-    } else {
-        LOG_D("Radio Calendar Data Not Sent Successfully!!\n");
-    }
+    if (Radio.Send((uint8_t*)days, sizeof(days)) == RADIO_STATUS_OK)
+        LOG_D("MCU_1: Calendar sent to Base successfully\n");
+    else
+        LOG_D("MCU_1: Calendar send failed\n");
 
-    // Re-arm UART DMA for next calendar reception
-    MX_USART1_UART_Init();
     HAL_UART_Receive_DMA(&huart1, (uint8_t*)days, sizeof(days));
 
 #elif (RELAYBOARD == MCU_2)
-    // MCU_2 minimal behavior: we treat incoming UART on MCU_2 as something else (keep existing)
-    LOG_D("MCU_2: UART RX complete - forwarding or processing as required\n");
-    // In your earlier code MCU_2 used 'data' buffer; preserve that behavior if needed.
-    MX_USART1_UART_Init();
+    LOG_D("MCU_2: GNSS data received from MCU_1, forwarding to Base Station...\n");
+    if (Radio.Send((uint8_t*)data, sizeof(data)) == RADIO_STATUS_OK)
+        LOG_D("MCU_2: GNSS coordinates sent successfully\n");
+    else
+        LOG_D("MCU_2: GNSS send failed\n");
+
     HAL_UART_Receive_DMA(&huart1, data, sizeof(data));
 #endif
 }
@@ -103,6 +91,24 @@ extern "C" void RX_Done_Process(char* buffer, uint32_t size)
 {
     LOG_D("Received %s \r\n", buffer);
     uint8_t identifier_length = strlen(TX_BOARD_IDENTIFIER);
+
+#if (RELAYBOARD == MCU_2)
+    // MCU₂ receives calendar from Base
+    if (strncmp(buffer, BASE_IDENTIFIER, strlen(BASE_IDENTIFIER)) == 0) {
+        LOG_D("MCU_2: Calendar received from Base Station\n");
+
+        // Copy received calendar to days[]
+        memcpy(days, buffer + strlen(BASE_IDENTIFIER), sizeof(days));
+
+        // Optional: store in flash
+        Flash_Multiple_Write_Calendar(days);
+
+        // Mark flag to trigger UART send
+        calendarUpdated = true;
+    }
+#endif
+
+#if (RELAYBOARD == MCU_1)
     if (strncmp(buffer, TX_BOARD_IDENTIFIER, identifier_length) == 0)
     {
         memcpy(&lastMessage, buffer + identifier_length, sizeof(lastMessage));
@@ -110,13 +116,15 @@ extern "C" void RX_Done_Process(char* buffer, uint32_t size)
         HAL_UART_Transmit(&huart1, (uint8_t*)(buffer + identifier_length), size, 1000);
         state = SEND_SHUTOFF_STATE;
     }
+#endif
 }
+
 
 extern "C" void RX_Timeout_Process(void)
 {
     Radio.Sleep();
-    TimerSetValue( &WaitTimer, 2000 );
-    TimerStart( &WaitTimer );
+    TimerSetValue(&WaitTimer, 2000);
+    TimerStart(&WaitTimer);
 }
 
 void App::setup(void)
@@ -125,31 +133,42 @@ void App::setup(void)
     HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
 
 #if (RELAYBOARD == MCU_1)
-    // MCU_1: send first HELLO & prepare to receive calendar from MCU_2 via UART
-    TimerInit( &WaitTimer, DurationElapsedCallback );
-    TimerStop( &WaitTimer );
+    TimerInit(&WaitTimer, DurationElapsedCallback);
+    TimerStop(&WaitTimer);
 
-    // Start by sending an initial HELLO (will also be sent periodically in loop)
     Radio.Send(HelloCommand, sizeof(HelloCommand));
     while(!isTXDone());
     LOG_D("Initial HELLO sent (MCU_1)\n");
+
     MX_SubGHz_Phy_Process();
     SwitchToRxMode();
 
-    // Register UART callback to accept calendar from MCU_2
     HAL_UART_RegisterCallback(&huart1, HAL_UART_RX_COMPLETE_CB_ID, processData);
-    MX_USART1_UART_Init();
     HAL_UART_Receive_DMA(&huart1, (uint8_t*)days, sizeof(days));
 
-    // If you have a default calendar, ensure flash contains something
-    // (optional: check if flash empty and write default)
-    // Flash_Read or your flash-check can be added here if needed.
+    // --- Flash Initialization ---
+    DAY flashDays[15];
+    Flash_Read_Multiple_Calendar(flashDays);
+
+    bool empty = true;
+    for (int i = 0; i < 15; i++) {
+        if (flashDays[i].Month != 0 && flashDays[i].Day != 0) {
+            empty = false;
+            break;
+        }
+    }
+
+    if (empty) {
+        LOG_D("No calendar in flash, writing default...\n");
+        Flash_Multiple_Write_Calendar((DAY*)defaultDays);
+    } else {
+        LOG_D("Calendar already present in flash.\n");
+    }
 
 #elif (RELAYBOARD == MCU_2)
-    // MCU_2: register UART callback for GNSS/commands from MCU_1, prepare DMA
     HAL_UART_RegisterCallback(&huart1, HAL_UART_RX_COMPLETE_CB_ID, processData);
-    MX_USART1_UART_Init();
     HAL_UART_Receive_DMA(&huart1, data, sizeof(data));
+    LOG_D("MCU_2: Ready to receive GNSS from MCU_1\n");
 #endif
 }
 
@@ -157,7 +176,6 @@ void App::loop(void)
 {
     static unsigned long lastHello = 0;
 
-    // Minimal state machine handling (unchanged)
     switch(state)
     {
     case SEQUENCE_END_STATE:
@@ -167,9 +185,10 @@ void App::loop(void)
         SwitchToRxMode();
         state = BOOTUP_STATE;
         break;
+
     case SEND_SHUTOFF_STATE:
     {
-        uint8_t mergedData[sizeof(lastMessage.ids) + 7];  // 3 * uint32_t (12 bytes) + "SHUTOFF" (7 bytes) = 19 bytes
+        uint8_t mergedData[sizeof(lastMessage.ids) + 7];
         memcpy(mergedData, lastMessage.ids, sizeof(lastMessage.ids));
         memcpy(mergedData + sizeof(lastMessage.ids), "SHUTOFF", 7);
         SwitchToTxMode(mergedData, sizeof(mergedData));
@@ -189,7 +208,6 @@ void App::loop(void)
     }
 
 #if (RELAYBOARD == MCU_1)
-    // MCU_1: send HELLO every 3 seconds
     if (HAL_GetTick() - lastHello >= 3000) {
         lastHello = HAL_GetTick();
         LOG_D("MCU_1: periodic HELLO\n");
@@ -201,20 +219,15 @@ void App::loop(void)
 #endif
 
 #if (RELAYBOARD == MCU_2)
-    // MCU_2: when it needs to send calendar to MCU_1, wait a short time (3s) to avoid collisions
-    // This block triggers a periodic send of local calendar to MCU_1 every 5 seconds (example)
-    if (HAL_GetTick() - wait_time >= 5000) {
-        wait_time = HAL_GetTick();
-
-        // small protection: delay slightly so MCU_1 initial HELLOs are not collided
-        HAL_Delay(3000);
-
-        // Send calendar via UART to MCU_1
-        if ((HAL_UART_Transmit(&huart1, (uint8_t*)days, sizeof(days), 1000)) == HAL_OK) {
-            LOG_D("MCU_2: Calendar Data Transmitted to MCU_1 Successfully\n");
+    if (calendarUpdated) {
+        LOG_D("MCU_2: New calendar detected — sending to MCU_1...\n");
+        if (HAL_UART_Transmit(&huart1, (uint8_t*)days, sizeof(days), 1000) == HAL_OK) {
+            LOG_D("MCU_2: Calendar transmitted successfully to MCU_1\n");
+            calendarUpdated = false; // clear flag after successful send
         } else {
-            LOG_D("MCU_2: Calendar Data NOT Transmitted Successfully\n");
+            LOG_D("MCU_2: Calendar transmit failed, will retry\n");
         }
     }
+
 #endif
 }

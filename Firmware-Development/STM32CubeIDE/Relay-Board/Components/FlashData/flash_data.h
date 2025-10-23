@@ -72,5 +72,8 @@ uint8_t Flash_Read(uint8_t address);
 double Flash_Read(double address);
 void Flash_Read_Multiple(FlashData_t* data, DAY* data_2);
 
+// Lightweight calendar-only functions
+void Flash_Multiple_Write_Calendar(DAY *data_2);
+void Flash_Read_Multiple_Calendar(DAY *data_2);
 
 #endif
