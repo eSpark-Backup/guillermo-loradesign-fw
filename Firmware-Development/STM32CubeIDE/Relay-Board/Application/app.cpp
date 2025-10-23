@@ -11,6 +11,11 @@
 #include "timer.h"
 #include <cstdio>
 
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+#pragma message ("Building firmware for RELAYBOARD = " STR(RELAYBOARD))
+
+
 #if (RELAYBOARD == MCU_1) || (RELAYBOARD == MCU_2)
  // OK
 #else
@@ -22,7 +27,8 @@
 #endif
 
 #if (RELAYBOARD == MCU_2)
-bool calendarUpdated = false;
+static DAY newCalendar[15];
+static bool calendarUpdated = false;
 #endif
 
 BoardState state = BOOTUP_STATE;
@@ -93,18 +99,19 @@ extern "C" void RX_Done_Process(char* buffer, uint32_t size)
     uint8_t identifier_length = strlen(TX_BOARD_IDENTIFIER);
 
 #if (RELAYBOARD == MCU_2)
-    // MCU₂ receives calendar from Base
-    if (strncmp(buffer, BASE_IDENTIFIER, strlen(BASE_IDENTIFIER)) == 0) {
-        LOG_D("MCU_2: Calendar received from Base Station\n");
-
-        // Copy received calendar to days[]
-        memcpy(days, buffer + strlen(BASE_IDENTIFIER), sizeof(days));
-
-        // Optional: store in flash
-        Flash_Multiple_Write_Calendar(days);
-
-        // Mark flag to trigger UART send
-        calendarUpdated = true;
+    if (strncmp(buffer, BASE_BOARD_IDENTIFIER, strlen(BASE_BOARD_IDENTIFIER)) == 0)
+    {
+        // Calendar packet from Base Station
+        if (size >= sizeof(DAY) * 15)
+        {
+            memcpy(newCalendar, buffer + strlen(BASE_BOARD_IDENTIFIER), sizeof(newCalendar));
+            calendarUpdated = true;
+            LOG_D("MCU_2: New calendar received from Base Station\n");
+        }
+    }
+    else if (strncmp(buffer, TX_BOARD_IDENTIFIER, strlen(TX_BOARD_IDENTIFIER)) == 0)
+    {
+        LOG_D("MCU_2: GNSS data received (unexpected on MCU_2)\n");
     }
 #endif
 
