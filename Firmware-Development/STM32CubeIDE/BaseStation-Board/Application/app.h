@@ -18,6 +18,13 @@
 #define UART_PACKET_HEADER 0xAA
 #define UART_PACKET_FOOTER 0x55
 
+typedef struct {
+    uint8_t Day;
+    uint8_t Month;
+    char Schedule;
+} DAY;
+
+
 #define IS_TEST_MODE	0
 
 enum BoardState
