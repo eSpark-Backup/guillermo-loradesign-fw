@@ -12,17 +12,18 @@
 #define MY_PACKET_IDENTIFIER RELAY_BOARD_IDENTIFIER PACKET_IDENTIFIER
 #define MY_IDENTIFIER "BASESTATION:"
 
-#define COMM_PAYLOAD_SIZE 48
-#define UART_PACKET_SIZE  (COMM_PAYLOAD_SIZE + 2)  // 1 byte header + 32 byte payload + 1 byte footer
-
+#define COMM_PAYLOAD_SIZE 40
+#define UART_TX_PACKET_SIZE  (COMM_PAYLOAD_SIZE + 2)  // 1 byte header + 32 byte payload + 1 byte footer
+#define UART_RX_PACKET_SIZE  47
 #define UART_PACKET_HEADER 0xAA
 #define UART_PACKET_FOOTER 0x55
 
-typedef struct {
+ struct DAY {
     uint8_t Day;
     uint8_t Month;
     char Schedule;
-} DAY;
+};
+
 
 
 #define IS_TEST_MODE	0
@@ -45,7 +46,6 @@ struct GeoCoordinates
 	double lattitude;
 	double longitude;
 	double altitude;
-
 };
 
 typedef struct __attribute__((__packed__))

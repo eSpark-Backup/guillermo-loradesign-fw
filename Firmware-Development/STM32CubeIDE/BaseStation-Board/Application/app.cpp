@@ -1,16 +1,34 @@
+
 #include "app.h"
 #include "main.h"
 #include "usart.h"
+#include "gps.h"
+#include "rtc.h"
 #include "subghz_phy_app.h"
 #include "app_subghz_phy.h"
+#include <string.h>
+#include "stm32_lpm_if.h"
 #include "radio.h"
 #include "timer.h"
 #include "stm32_lpm_if.h"
 #include <string.h>
 #include <cstdio>
 
+void sleep(uint32_t timeout)
+{
+	LOG_D("Going to sleep for %d seconds\r\n", timeout);
+	HAL_GPIO_WritePin(GNSS_RESET_GPIO_Port, GNSS_RESET_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GNSS_PWR_GPIO_Port, GNSS_PWR_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
+	Radio.Sleep();
+	PWR_EnterStopMode();
+	PWR_ExitStopMode();
+	LOG_D("Starts Receiving Data\r\n");
+	Radio.Rx(5000);
+}
 // -------------------- Buffers & Flags --------------------
-uint8_t uart_rx_buffer[sizeof(DAY) * 15];
+uint8_t uart_rx_buffer[UART_RX_PACKET_SIZE];
 DAY calendar[15];
 bool newCalendarFromNRF = false;
 
@@ -20,40 +38,50 @@ void Print_CommPacket_From_Buffer(char* buffer)
     const uint8_t identifier_length = strlen(MY_PACKET_IDENTIFIER);
     CommPacket* pkt = (CommPacket*)(buffer + identifier_length);
 
-    LOG_D("CommPacket: IDs=%08X %08X %08X\n", pkt->ids[0], pkt->ids[1], pkt->ids[2]);
-    LOG_D("  Time: %02u:%02u:%02u\n", pkt->timestamp.hour, pkt->timestamp.minute, pkt->timestamp.second);
-    LOG_D("  Lat: %.6f, Lon: %.6f, Alt: %.2f\n",
-          pkt->geoCoordinates.lattitude,
-          pkt->geoCoordinates.longitude,
-          pkt->geoCoordinates.altitude);
-}
+    LOG_D("CommPacket contents:\n");
+    LOG_D("  ids[0]: 0x%08X\n", pkt->ids[0]);
+    LOG_D("  ids[1]: 0x%08X\n", pkt->ids[1]);
+    LOG_D("  ids[2]: 0x%08X\n", pkt->ids[2]);
 
+    LOG_D("  Timestamp:\n");
+    LOG_D("    Hour  : %u\n", pkt->timestamp.hour);
+    LOG_D("    Minute: %u\n", pkt->timestamp.minute);
+    LOG_D("    Second: %u\n", pkt->timestamp.second);
+
+    // Print doubles manually
+    int32_t lat_int = (int32_t)(pkt->geoCoordinates.lattitude);
+    int32_t lat_frac = (int32_t)((pkt->geoCoordinates.lattitude - lat_int) * 1000000);
+
+    int32_t lon_int = (int32_t)(pkt->geoCoordinates.longitude);
+    int32_t lon_frac = (int32_t)((pkt->geoCoordinates.longitude - lon_int) * 1000000);
+
+    int32_t alt_int = (int32_t)(pkt->geoCoordinates.altitude);
+    int32_t alt_frac = (int32_t)((pkt->geoCoordinates.altitude - alt_int) * 1000000);
+
+    LOG_D("  GeoCoordinates:\n");
+    LOG_D("    Latitude : %ld.%06ld\n", lat_int, abs(lat_frac));
+    LOG_D("    Longitude: %ld.%06ld\n", lon_int, abs(lon_frac));
+    LOG_D("    Altitude : %ld.%06ld\n", alt_int, abs(alt_frac));
+
+}
 // -------------------- LoRa RX (from Relay Board MCU2) --------------------
 extern "C" void RX_Done_Process(char* buffer, uint32_t size)
 {
-    if (strncmp(buffer, MY_PACKET_IDENTIFIER, strlen(MY_PACKET_IDENTIFIER)) == 0)
-    {
-        LOG_D("GNSS data received from MCU2\n");
-        Print_CommPacket_From_Buffer(buffer);
+	LOG_D("Received %s \r\n", buffer);
+	Print_CommPacket_From_Buffer(buffer);
+	uint8_t identifier_length = strlen(MY_PACKET_IDENTIFIER);
 
-        // Forward to NRF MCU over UART
-        uint8_t packet[UART_PACKET_SIZE];
-        packet[0] = UART_PACKET_HEADER;
-        memcpy(&packet[1], buffer + strlen(MY_PACKET_IDENTIFIER), COMM_PAYLOAD_SIZE);
-        packet[UART_PACKET_SIZE - 1] = UART_PACKET_FOOTER;
+	if (strncmp(buffer, MY_PACKET_IDENTIFIER, identifier_length) == 0)
+	{
+		uint8_t packet[UART_TX_PACKET_SIZE];
+		packet[0] = UART_PACKET_HEADER;
+		memcpy(&packet[1], (uint8_t*)buffer + identifier_length, COMM_PAYLOAD_SIZE);
+		packet[UART_TX_PACKET_SIZE - 1] = UART_PACKET_FOOTER;
+		HAL_UART_Transmit(&huart1, packet, UART_TX_PACKET_SIZE, 1000);
+		LOG_D("Data send");
 
-        if (HAL_UART_Transmit(&huart1, packet, UART_PACKET_SIZE, 1000) == HAL_OK)
-            LOG_D("GNSS data forwarded to NRF MCU\n");
-        else
-            LOG_D("UART TX to NRF failed\n");
-    }
-    else
-    {
-        LOG_D("Unknown LoRa message received: %s\n", buffer);
-    }
+	}
 
-    // Re-enable RX mode
-    Radio.Rx(0);
 }
 
 // -------------------- UART RX Callback (from NRF) --------------------
@@ -61,18 +89,29 @@ void Base_UART_RxCallback(UART_HandleTypeDef *huart)
 {
     if (huart == &huart1)
     {
-        memcpy(calendar, uart_rx_buffer, sizeof(calendar));
-        newCalendarFromNRF = true;
-        LOG_D("BaseStation: New calendar received from NRF MCU");
+        // Validate header and footer
+        if (uart_rx_buffer[0] == UART_PACKET_HEADER)
+        {
+            // Copy only the payload between header and footer
+            memcpy(calendar, &uart_rx_buffer[1], sizeof(calendar));
+
+            newCalendarFromNRF = true;
+            LOG_D("BaseStation: New calendar received from NRF MCU");
+        }
+        else
+        {
+            LOG_D("BaseStation: Invalid frame header/footer");
+        }
 
         // Re-arm UART RX
-        HAL_UART_Receive_IT(&huart1, uart_rx_buffer, sizeof(calendar));
+        HAL_UART_Receive_IT(&huart1, uart_rx_buffer, UART_RX_PACKET_SIZE);
     }
 }
 
 // -------------------- Setup --------------------
 void App::setup(void)
 {
+
     LOG_D("Base Station STM started\n");
 
     HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
@@ -82,7 +121,7 @@ void App::setup(void)
     HAL_UART_RegisterCallback(&huart1, HAL_UART_RX_COMPLETE_CB_ID, Base_UART_RxCallback);
 
     // Start UART receive for NRF calendar data
-    HAL_UART_Receive_IT(&huart1, uart_rx_buffer, sizeof(calendar));
+    HAL_UART_Receive_IT(&huart1, uart_rx_buffer, UART_RX_PACKET_SIZE);
 
     // Start continuous LoRa listening
     Radio.Rx(0);
@@ -91,6 +130,33 @@ void App::setup(void)
 // -------------------- Loop --------------------
 void App::loop(void)
 {
+#if IS_TEST_MODE
+	static uint32_t cnt = 0;
+
+	CommPacket pkt = {
+		.ids = {++cnt, 0x00, 0x00},
+		.timestamp = {12, 30, 45},
+		.geoCoordinates = {33.6844, 73.0479, 15.00}
+	};
+
+
+
+	// Serialize: identifier + binary data of CommPacket
+	const char* identifier = MY_PACKET_IDENTIFIER;
+	const uint8_t id_len = strlen(identifier);
+	const uint32_t total_size = id_len + (sizeof(DAY)*15);
+
+	// Create full buffer
+	uint8_t buffer[total_size];  // large enough
+	memcpy(buffer, identifier, id_len);
+	memcpy(buffer + id_len, &pkt, total_size);
+
+
+	// Call the function (simulating a received packet)
+	RX_Done_Process((char*)buffer, total_size);
+
+	HAL_Delay(100);
+#endif
     // If new calendar was received from NRF MCU
     if (newCalendarFromNRF)
     {
