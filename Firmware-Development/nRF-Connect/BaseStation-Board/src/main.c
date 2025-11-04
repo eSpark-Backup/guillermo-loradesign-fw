@@ -45,7 +45,7 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 
 #define RUN_LED_BLINK_INTERVAL 1000
 
-#define UART_BUF_SIZE 32 // CONFIG_BT_NUS_UART_BUFFER_SIZE
+ #define UART_BUF_SIZE 47 //CONFIG_BT_NUS_UART_BUFFER_SIZE
 #define UART_WAIT_FOR_BUF_DELAY K_MSEC(50)
 #define UART_WAIT_FOR_RX CONFIG_BT_NUS_UART_RX_WAIT_TIME
 
@@ -97,35 +97,53 @@ static void uart_cb(const struct device *dev, struct uart_event *evt, void *user
 	static struct uart_data_t *frame_buf = NULL;
 
 	switch (evt->type) {
-	case UART_TX_DONE:
-		LOG_DBG("UART_TX_DONE");
-		if ((evt->data.tx.len == 0) ||
-		    (!evt->data.tx.buf)) {
-			return;
-		}
 
+	case UART_TX_DONE:
 		if (aborted_buf) {
-			buf = CONTAINER_OF(aborted_buf, struct uart_data_t,
-					   data[0]);
+			buf = CONTAINER_OF(aborted_buf, struct uart_data_t, data[0]);
 			aborted_buf = NULL;
 			aborted_len = 0;
 		} else {
-			buf = CONTAINER_OF(evt->data.tx.buf, struct uart_data_t,
-					   data[0]);
+			buf = CONTAINER_OF(evt->data.tx.buf, struct uart_data_t, data[0]);
 		}
 
-		k_free(buf);
+		k_free(buf);  //  free after TX complete
 
 		buf = k_fifo_get(&fifo_uart_tx_data, K_NO_WAIT);
-		if (!buf) {
-			return;
+		if (buf) {
+			uart_tx(uart, buf->data, buf->len, SYS_FOREVER_MS);
 		}
-
-		if (uart_tx(uart, buf->data, buf->len, SYS_FOREVER_MS)) {
-			LOG_WRN("Failed to send data over UART");
-		}
-
 		break;
+	
+	// case UART_TX_DONE:
+	// 	LOG_DBG("UART_TX_DONE");
+	// 	if ((evt->data.tx.len == 0) ||
+	// 	    (!evt->data.tx.buf)) {
+	// 		return;
+	// 	}
+
+	// 	if (aborted_buf) {
+	// 		buf = CONTAINER_OF(aborted_buf, struct uart_data_t,
+	// 				   data[0]);
+	// 		aborted_buf = NULL;
+	// 		aborted_len = 0;
+	// 	} else {
+	// 		buf = CONTAINER_OF(evt->data.tx.buf, struct uart_data_t,
+	// 				   data[0]);
+	// 	}
+
+	// 	k_free(buf);
+
+	// 	buf = k_fifo_get(&fifo_uart_tx_data, K_NO_WAIT);
+	// 	if (!buf) {
+	// 		return;
+	// 	}
+
+	// 	if (uart_tx(uart, buf->data, buf->len, SYS_FOREVER_MS)) {
+	// 		LOG_WRN("Failed to send data over UART");
+	// 	}
+
+	// 	break;
 
 	case UART_RX_RDY:
 		LOG_DBG("UART_RX_RDY");
@@ -503,51 +521,48 @@ static struct bt_conn_auth_cb conn_auth_callbacks;
 static struct bt_conn_auth_info_cb conn_auth_info_callbacks;
 #endif
 
-static void bt_receive_cb(struct bt_conn *conn, const uint8_t *const data,
-			  uint16_t len)
+static void bt_receive_cb(struct bt_conn *conn, const uint8_t *const data, uint16_t len)
 {
-	int err;
-	char addr[BT_ADDR_LE_STR_LEN] = {0};
+    int err;
+    char addr[BT_ADDR_LE_STR_LEN] = {0};
 
-	bt_addr_le_to_str(bt_conn_get_dst(conn), addr, ARRAY_SIZE(addr));
+    bt_addr_le_to_str(bt_conn_get_dst(conn), addr, ARRAY_SIZE(addr));
+    LOG_INF("Received %d bytes from: %s", len, addr);
 
-	LOG_INF("Received data from: %s", addr);
+    for (uint16_t pos = 0; pos < len;)
+    {
+        size_t chunk = MIN(len - pos, UART_BUF_SIZE - 3);  // -3 = header+footer+null safety
 
-	for (uint16_t pos = 0; pos != len;) {
-		struct uart_data_t *tx = k_malloc(sizeof(*tx));
+        // Allocate one buffer for TX
+        struct uart_data_t *tx = k_malloc(sizeof(*tx));
+        if (!tx)
+        {
+            LOG_WRN("UART TX buffer alloc failed");
+            return;
+        }
 
-		if (!tx) {
-			LOG_WRN("Not able to allocate UART send data buffer");
-			return;
-		}
+        // Add header/footer
+        tx->data[0] = FRAME_HEADER;
+        memcpy(&tx->data[1], &data[pos], chunk);
+        tx->data[chunk + 1] = FRAME_FOOTER;
+        tx->len = chunk + 2; // total frame size
 
-		/* Keep the last byte of TX buffer for potential LF char. */
-		size_t tx_data_size = sizeof(tx->data) - 1;
+        pos += chunk;
 
-		if ((len - pos) > tx_data_size) {
-			tx->len = tx_data_size;
-		} else {
-			tx->len = (len - pos);
-		}
-
-		memcpy(tx->data, &data[pos], tx->len);
-
-		pos += tx->len;
-
-		/* Append the LF character when the CR character triggered
-		 * transmission from the peer.
-		 */
-		if ((pos == len) && (data[len - 1] == '\r')) {
-			tx->data[tx->len] = '\n';
-			tx->len++;
-		}
-
-		err = uart_tx(uart, tx->data, tx->len, SYS_FOREVER_MS);
-		if (err) {
-			k_fifo_put(&fifo_uart_tx_data, tx);
-		}
-	}
+        err = uart_tx(uart, tx->data, tx->len, SYS_FOREVER_MS);
+        if (err)
+        {
+            LOG_WRN("UART busy, queuing frame (err=%d)", err);
+            k_fifo_put(&fifo_uart_tx_data, tx);
+        }
+        else
+        {
+            // UART driver will free tx in UART_TX_DONE
+        }
+    }
 }
+
+
 
 static struct bt_nus_cb nus_cb = {
 	.received = bt_receive_cb,
@@ -562,8 +577,8 @@ void error(void)
 }
 
 int main(void)
-{
-	int blink_status = 0;
+    {
+//	int blink_status = 0;
 	int err = 0;
 
 	err = uart_init();
@@ -618,40 +633,25 @@ int main(void)
 
 void ble_write_thread(void)
 {
-	/* Don't go any further until BLE is initialized */
-	k_sem_take(&ble_init_ok, K_FOREVER);
-	struct uart_data_t nus_data = {
-		.len = 0,
-	};
+    k_sem_take(&ble_init_ok, K_FOREVER);
 
-	for (;;) {
-		/* Wait indefinitely for data to be sent over bluetooth */
-		struct uart_data_t *buf = k_fifo_get(&fifo_uart_rx_data,
-						     K_FOREVER);
+    for (;;) {
+        struct uart_data_t *buf = k_fifo_get(&fifo_uart_rx_data, K_FOREVER);
 
-		int plen = MIN(sizeof(nus_data.data) - nus_data.len, buf->len);
-		int loc = 0;
+        /* Send entire frame payload (already stripped of header/footer in uart_cb) */
+        if (buf && buf->len > 0) {
+              if (bt_nus_send(NULL, buf->data, buf->len)) {
+                LOG_WRN("Failed to send %d bytes over BLE", buf->len);
+            } else {
+                LOG_INF("UART→BLE %d bytes sent", buf->len);
+            }
+        }
 
-		while (plen > 0) {
-			memcpy(&nus_data.data[nus_data.len], &buf->data[loc], plen);
-			nus_data.len += plen;
-			loc += plen;
-
-			if (nus_data.len >= sizeof(nus_data.data) ||
-			   (nus_data.data[nus_data.len - 1] == '\n') ||
-			   (nus_data.data[nus_data.len - 1] == '\r')) {
-				if (bt_nus_send(NULL, nus_data.data, nus_data.len)) {
-					LOG_WRN("Failed to send data over BLE connection");
-				}
-				nus_data.len = 0;
-			}
-
-			plen = MIN(sizeof(nus_data.data), buf->len - loc);
-		}
-
-		k_free(buf);
-	}
+        if (buf) k_free(buf);
+    }
 }
+
 
 K_THREAD_DEFINE(ble_write_thread_id, STACKSIZE, ble_write_thread, NULL, NULL,
 		NULL, PRIORITY, 0, 0);
+
