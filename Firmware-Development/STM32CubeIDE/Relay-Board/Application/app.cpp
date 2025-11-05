@@ -109,10 +109,7 @@ extern "C" void RX_Done_Process(char* buffer, uint32_t size)
             LOG_D("MCU_2: New calendar received from Base Station\n");
         }
     }
-    else if (strncmp(buffer, TX_BOARD_IDENTIFIER, strlen(TX_BOARD_IDENTIFIER)) == 0)
-    {
-        LOG_D("MCU_2: GNSS data received (unexpected on MCU_2)\n");
-    }
+
 #endif
 
 #if (RELAYBOARD == MCU_1)
@@ -228,11 +225,11 @@ void App::loop(void)
 #if (RELAYBOARD == MCU_2)
     if (calendarUpdated) {
         LOG_D("MCU_2: New calendar detected — sending to MCU_1...\n");
-        if (HAL_UART_Transmit(&huart1, (uint8_t*)days, sizeof(days), 1000) == HAL_OK) {
+        if (HAL_UART_Transmit(&huart1, (uint8_t*)newCalendar, sizeof(days), 1000) == HAL_OK) {
             LOG_D("MCU_2: Calendar transmitted successfully to MCU_1\n");
             calendarUpdated = false; // clear flag after successful send
         } else {
-            LOG_D("MCU_2: Calendar transmit failed, will retry\n");
+            LOG_D("MCU_2: Calendar transmit failed\n");
         }
     }
 

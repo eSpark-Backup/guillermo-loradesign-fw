@@ -163,7 +163,17 @@ void App::loop(void)
         newCalendarFromNRF = false;
         LOG_D("Sending updated calendar to Relay Board (MCU2)\n");
 
-        if (Radio.Send((uint8_t*)calendar, sizeof(calendar)) == RADIO_STATUS_OK)
+
+        size_t id_len = strlen(MY_IDENTIFIER);
+        size_t data_len = sizeof(calendar);
+
+        uint8_t txBuffer[id_len + data_len];
+
+        memcpy(txBuffer, MY_IDENTIFIER, id_len);
+        memcpy(txBuffer + id_len, calendar, data_len);
+
+
+        if (Radio.Send(txBuffer, id_len + data_len) == RADIO_STATUS_OK)
             LOG_D("Calendar sent successfully via LoRa\n");
         else
             LOG_D("Calendar send failed\n");
