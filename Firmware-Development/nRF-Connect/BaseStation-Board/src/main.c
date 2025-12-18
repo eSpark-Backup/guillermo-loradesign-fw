@@ -45,7 +45,7 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 
 #define RUN_LED_BLINK_INTERVAL 1000
 
- #define UART_BUF_SIZE 47 //CONFIG_BT_NUS_UART_BUFFER_SIZE
+ #define UART_BUF_SIZE 48 //CONFIG_BT_NUS_UART_BUFFER_SIZE
 #define UART_WAIT_FOR_BUF_DELAY K_MSEC(50)
 #define UART_WAIT_FOR_RX CONFIG_BT_NUS_UART_RX_WAIT_TIME
 
@@ -560,6 +560,7 @@ static void bt_receive_cb(struct bt_conn *conn, const uint8_t *const data, uint1
             // UART driver will free tx in UART_TX_DONE
         }
     }
+
 }
 
 
