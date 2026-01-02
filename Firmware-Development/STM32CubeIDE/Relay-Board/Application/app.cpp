@@ -70,8 +70,13 @@ void processData(UART_HandleTypeDef *huart)
 
 #elif (RELAYBOARD == MCU_2)
     LOG_D("MCU_2: GNSS data received from MCU_1, forwarding to Base Station...\n");
-    if (Radio.Send((uint8_t*)data, sizeof(data)) == RADIO_STATUS_OK)
+    if (Radio.Send((uint8_t*)data, sizeof(data)) == RADIO_STATUS_OK){
+
+        // Led1 is led3 of MCU2 on solder mask
         LOG_D("MCU_2: GNSS coordinates sent successfully\n");
+        HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
+        HAL_Delay(1000);
+        HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);}
     else
         LOG_D("MCU_2: GNSS send failed\n");
 
@@ -101,6 +106,10 @@ extern "C" void RX_Done_Process(char* buffer, uint32_t size)
 #if (RELAYBOARD == MCU_2)
     if (strncmp(buffer, BASE_BOARD_IDENTIFIER, strlen(BASE_BOARD_IDENTIFIER)) == 0)
     {
+    	// Led2 is led4 of MCU2 on solder mask
+    	HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
+    	HAL_Delay(1000);
+    	HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
         // Calendar packet from Base Station
         if (size >= sizeof(DAY) * 15)
         {
@@ -113,8 +122,10 @@ extern "C" void RX_Done_Process(char* buffer, uint32_t size)
 #endif
 
 #if (RELAYBOARD == MCU_1)
-    if (strncmp(buffer, TX_BOARD_IDENTIFIER, identifier_length) == 0)
-    {
+    if (strncmp(buffer, TX_BOARD_IDENTIFIER, strlen(TX_BOARD_IDENTIFIER)) == 0)
+    {   HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
+        HAL_Delay(1000);
+        HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
         memcpy(&lastMessage, buffer + identifier_length, sizeof(lastMessage));
         HAL_UART_Transmit(&huart1, (uint8_t*)MY_PACKET_IDENTIFIER, strlen(MY_PACKET_IDENTIFIER), 1000);
         HAL_UART_Transmit(&huart1, (uint8_t*)(buffer + identifier_length), size, 1000);
@@ -141,6 +152,9 @@ void App::setup(void)
     TimerStop(&WaitTimer);
 
     Radio.Send(HelloCommand, sizeof(HelloCommand));
+    HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
+    HAL_Delay(1000);
+    HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
     while(!isTXDone());
     LOG_D("Initial HELLO sent (MCU_1)\n");
 
@@ -184,6 +198,9 @@ void App::loop(void)
     {
     case SEQUENCE_END_STATE:
         SwitchToTxMode(HelloCommand, sizeof(HelloCommand));
+        HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
+        HAL_Delay(1000);
+        HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
         while(!isTXDone());
         MX_SubGHz_Phy_Process();
         SwitchToRxMode();
