@@ -67,6 +67,9 @@ void Print_CommPacket_From_Buffer(char* buffer)
 // -------------------- LoRa RX (from Relay Board MCU2) --------------------
 extern "C" void RX_Done_Process(char* buffer, uint32_t size)
 {
+    HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
+    HAL_Delay(1000);
+    HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
 	LOG_D("Received %s \r\n", buffer);
 	Print_CommPacket_From_Buffer(buffer);
 	uint8_t identifier_length = strlen(MY_PACKET_IDENTIFIER);
@@ -171,6 +174,9 @@ void App::loop(void)
 
         memcpy(txBuffer, MY_IDENTIFIER, id_len);
         memcpy(txBuffer + id_len, calendar, data_len);
+        HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
+        HAL_Delay(1000);
+        HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
 
 
         if (Radio.Send(txBuffer, id_len + data_len) == RADIO_STATUS_OK)
