@@ -101,7 +101,6 @@ void sleep(uint32_t timeout)
 extern "C" void RX_Done_Process(char* buffer, uint32_t size)
 {
     LOG_D("Received %s \r\n", buffer);
-    uint8_t identifier_length = strlen(TX_BOARD_IDENTIFIER);
 
 #if (RELAYBOARD == MCU_2)
     if (strncmp(buffer, BASE_BOARD_IDENTIFIER, strlen(BASE_BOARD_IDENTIFIER)) == 0)
