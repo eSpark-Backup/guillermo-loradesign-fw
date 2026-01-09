@@ -14,6 +14,19 @@
 #include <string.h>
 #include <cstdio>
 
+
+typedef enum
+{
+    MODE_UPDATE,
+    MODE_NORMAL
+} AppMode;
+
+static AppMode currentMode = MODE_UPDATE;
+static uint32_t bootTick = 0;
+
+#define UPDATE_WINDOW_MS   (60UL * 1000UL)
+
+
 void sleep(uint32_t timeout)
 {
 	LOG_D("Going to sleep for %d seconds\r\n", timeout);
@@ -120,6 +133,11 @@ void App::setup(void)
     HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
 
+    // Start UPDATE MODE timer
+    bootTick = HAL_GetTick();
+    currentMode = MODE_UPDATE;
+
+    LOG_D("Entering UPDATE MODE for 60 seconds\n");
     // Register our UART receive callback
     HAL_UART_RegisterCallback(&huart1, HAL_UART_RX_COMPLETE_CB_ID, Base_UART_RxCallback);
 
@@ -160,7 +178,26 @@ void App::loop(void)
 
 	HAL_Delay(100);
 #endif
-    // If new calendar was received from NRF MCU
+    uint32_t now = HAL_GetTick();
+
+    /* ================= UPDATE MODE ================= */
+    if (currentMode == MODE_UPDATE)
+    {
+        // Stay here for 60 seconds
+        if ((now - bootTick) >= UPDATE_WINDOW_MS)
+        {
+            currentMode = MODE_NORMAL;
+            LOG_D("UPDATE MODE ended, entering NORMAL MODE\n");
+        }
+
+        // IMPORTANT:
+        // - Accept UART calendar updates
+        // - Do NOT send calendar via LoRa
+        return;
+    }
+
+    /* ================= NORMAL MODE ================= */
+	// If new calendar was received from NRF MCU
     if (newCalendarFromNRF)
     {
         newCalendarFromNRF = false;
@@ -187,6 +224,6 @@ void App::loop(void)
         // After sending, go back to RX mode
         Radio.Rx(0);
     }
+    MX_SubGHz_Phy_Process();
 
-    // Continuously stay in RX to receive GNSS packets
 }
