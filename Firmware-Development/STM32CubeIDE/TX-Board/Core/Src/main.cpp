@@ -125,12 +125,12 @@ int main(void)
   MX_DMA_Init();
   MX_USART1_UART_Init();
 
-//  MX_RTC_Init();
+  MX_RTC_Init();
   MX_SubGHz_Phy_Init();
   MX_I2C3_Init();
   /* USER CODE BEGIN 2 */
   // Enable access to the backup domain
-//  HAL_PWR_EnableBkUpAccess();
+  HAL_PWR_EnableBkUpAccess();
   app.setup();
 
   /* USER CODE END 2 */
