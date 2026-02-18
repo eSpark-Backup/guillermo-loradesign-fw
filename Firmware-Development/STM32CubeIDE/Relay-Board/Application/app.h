@@ -15,7 +15,7 @@
 #define MCU_1 1
 #define MCU_2 2
 
-#define RELAYBOARD MCU_1
+#define RELAYBOARD MCU_2
 
 enum BoardState
 {
@@ -35,6 +35,7 @@ struct GeoCoordinates
 {
 	double lattitude;
 	double longitude;
+	double altitude;
 };
 
 struct CommPacket

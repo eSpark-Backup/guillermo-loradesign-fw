@@ -57,6 +57,7 @@ void generatePayload(uint8_t* buffer, uint32_t size)
 	packet.timestamp.second = gps.gnssData.second;
 	packet.geoCoordinates.lattitude = gps.gnssData.latitude;
 	packet.geoCoordinates.longitude = gps.gnssData.longitude;
+	packet.geoCoordinates.altitude = gps.gnssData.altitude;
 	memcpy(payload + strlen(MY_IDENTIFIER), &packet, sizeof(packet));
 }
 
@@ -241,8 +242,8 @@ void App::setup(void)
 		do
 		{
 			gps.loop();
-			// gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
-		}while((!gps.gnssSignalReceived));
+			//gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
+		} while ((!gps.gnssSignalReceived) || (!gps.has3DFix()));
 		gps.displayInfo();
 		setRtcTime();
 		HAL_GPIO_WritePin(GNSS_PWR_GPIO_Port, GNSS_PWR_Pin, GPIO_PIN_RESET);	// turn of GNSS at this point
