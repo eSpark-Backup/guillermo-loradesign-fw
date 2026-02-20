@@ -32,6 +32,11 @@
 #include "subghz.h"
 #include "app.h"
 #include "stm32_lpm_if.h"
+#include "radio.h"
+#include "MCP7940.h"
+#include "gps.h"
+#include "flash_data.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -116,7 +121,7 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_USART1_UART_Init();
-  MX_RTC_Init();
+//  MX_RTC_Init();
   MX_SubGHz_Phy_Init();
   MX_I2C3_Init();
   /* USER CODE BEGIN 2 */

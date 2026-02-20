@@ -10,6 +10,7 @@
 #include "radio.h"
 #include "timer.h"
 #include "MCP7940.h"
+#include "flash_data.h"
 #include <cstdio>
 
 BoardState state = BOOTUP_STATE;
@@ -120,13 +121,13 @@ extern "C" void receiveTimeout(void)
 			LOG_D("Hour threshold exceeded. ");
 			LOG_D("Sleeping for a day\r\n");
 			uint32_t val = SLEEP_STATE_DAY;
-			gps.rtcOperation(STORE, BOARD_SLEEP_STATE_ADDR, &val);
+			Flash_WriteSleepState(val);
 			sleep(DAY_TIMEOUT);
 		}
 		else
 		{
 			uint32_t val = SLEEP_STATE_25S;
-			gps.rtcOperation(STORE, BOARD_SLEEP_STATE_ADDR, &val);
+			Flash_WriteSleepState(val);
 			sleep(SLEEP_TIMEOUT);
 		}
 		break;
@@ -157,7 +158,7 @@ extern "C" void dataReceived(char* buffer, uint32_t size)
 		LOG_D("Sleeping for a day\r\n");
 		state = BOOTUP_STATE;
 		uint32_t val = SLEEP_STATE_DAY;
-		gps.rtcOperation(STORE, BOARD_SLEEP_STATE_ADDR, &val);
+		Flash_WriteSleepState(val);
 		sleep(DAY_TIMEOUT);
 	}
 	else if(strcmp(buffer, PING_MESSAGE) == 0)
@@ -230,8 +231,7 @@ void App::setup(void)
 	
 	// if its first boot than go to sleep as soon as GNSS is locked
 	// if its boot from rtc wakeup signal than proceed to listen for HELLO signal
-	uint32_t flag;
-	gps.rtcOperation(RETRIEVE, BOARD_SLEEP_STATE_ADDR, &flag);
+	uint32_t flag = Flash_ReadSleepState();
 
 	bool firstBoot = ((SLEEP_STATE_25S != flag) && (SLEEP_STATE_DAY != flag)) ? true : false;
 	bool wakeFromDaySleep = (SLEEP_STATE_DAY == flag) ? true : false;
@@ -243,16 +243,34 @@ void App::setup(void)
 		{
 			gps.loop();
 			//gps.rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &flag);
-		} while ((!gps.gnssSignalReceived) || (!gps.has3DFix()));
+		} while (!gps.gnssSignalReceived);
 		gps.displayInfo();
+		// Persist last valid fix for future boots that don't re-enable GNSS
+		GPS::setGnssData(&gps.gnssData);
 		setRtcTime();
 		HAL_GPIO_WritePin(GNSS_PWR_GPIO_Port, GNSS_PWR_Pin, GPIO_PIN_RESET);	// turn of GNSS at this point
 	}
-
+	else{
+		// Woke up from a short sleep and we are not turning GNSS back on.
+		// Load the last stored fix from flash so TX payload has valid coords/time.
+		if(!Flash_ReadGnssData(&gps.gnssData))
+		{
+			DateTime now = MCP7940.now();
+			gps.gnssData.latitude = 0.0;
+			gps.gnssData.longitude = 0.0;
+			gps.gnssData.year = now.year();
+			gps.gnssData.month = now.month();
+			gps.gnssData.day = now.day();
+			gps.gnssData.hour = now.hour();
+			gps.gnssData.minute = now.minute();
+			gps.gnssData.second = now.second();
+			gps.gnssData.centisecond = 0;
+		}
+	}
 	if(firstBoot)
 	{
 		uint32_t val = SLEEP_STATE_DAY;
-		gps.rtcOperation(STORE, BOARD_SLEEP_STATE_ADDR, &val);
+		Flash_WriteSleepState(val);
 		sleep(DAY_TIMEOUT);
 	}
 	else
@@ -275,7 +293,7 @@ void App::loop(void)
 			LOG_D("Sleeping for a day\r\n");
 			state = BOOTUP_STATE;
 			uint32_t val = SLEEP_STATE_DAY;
-			gps.rtcOperation(STORE, BOARD_SLEEP_STATE_ADDR, &val);
+			Flash_WriteSleepState(val);
 			sleep(DAY_TIMEOUT);
 		}
 		else if( ( (currentTime - shutOffStartTime) / 5000U ) > shutoffCount)
