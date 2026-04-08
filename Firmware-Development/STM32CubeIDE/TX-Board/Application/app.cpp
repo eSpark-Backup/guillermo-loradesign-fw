@@ -16,7 +16,7 @@
 BoardState state = BOOTUP_STATE;
 
 static GPS gps;
-TimerEvent_t SleepTimeoutTimer;
+//TimerEvent_t SleepTimeoutTimer;
 static uint32_t shutoffCount = 0;
 uint32_t shutOffStartTime = 0;
 MCP7940_Class  MCP7940;
@@ -82,7 +82,7 @@ void sleep(uint32_t timeout)
 	extern TimerEvent_t TxTimeoutTimer;
 	TimerStop( &RxTimeoutTimer );
 	TimerStop( &TxTimeoutTimer );
-	TimerStop( &SleepTimeoutTimer );
+//	TimerStop( &SleepTimeoutTimer );
 
 	extern SUBGHZ_HandleTypeDef hsubghz;
 	HAL_SUBGHZ_DeInit(&hsubghz);
@@ -222,8 +222,8 @@ void loop_test() {
 }
 void App::setup(void)
 {
-	TimerInit( &SleepTimeoutTimer, UpTimerEventCallback );
-	TimerStop( &SleepTimeoutTimer );
+//	TimerInit( &SleepTimeoutTimer, UpTimerEventCallback );
+//	TimerStop( &SleepTimeoutTimer );
 	rtcModuleInit();
 	//	while(1)
 	//	  loop_test();
