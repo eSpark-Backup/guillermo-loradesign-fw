@@ -22,7 +22,7 @@
 #include "usart_if.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "main.h"
 /* USER CODE END Includes */
 
 /* External variables ---------------------------------------------------------*/
@@ -150,7 +150,7 @@ void vcom_Trace(uint8_t *p_data, uint16_t size)
 UTIL_ADV_TRACE_Status_t vcom_Trace_DMA(uint8_t *p_data, uint16_t size)
 {
   /* USER CODE BEGIN vcom_Trace_DMA_1 */
-
+  itm_printf(TRACE_PORT, "%.*s", size, p_data);
   /* USER CODE END vcom_Trace_DMA_1 */
   HAL_UART_Transmit_DMA(&huart2, p_data, size);
   return UTIL_ADV_TRACE_OK;

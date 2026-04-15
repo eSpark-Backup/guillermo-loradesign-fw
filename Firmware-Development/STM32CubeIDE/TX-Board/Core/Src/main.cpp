@@ -102,11 +102,10 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  INIT_ITM_DEBUG(DEBUG_PORT, GNSS_STREAM_PORT);
+  INIT_ITM_DEBUG(DEBUG_PORT, GNSS_STREAM_PORT, TRACE_PORT);
 
   /* USER CODE END Init */
 

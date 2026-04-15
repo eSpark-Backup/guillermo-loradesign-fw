@@ -21,6 +21,23 @@ static uint32_t shutoffCount = 0;
 uint32_t shutOffStartTime = 0;
 MCP7940_Class  MCP7940;
 
+static void initiateHardware()
+{
+#if GNSS_VBACKUP_VIA_MCU
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+	/*Configure GPIO pin Output Level */
+	HAL_GPIO_WritePin(GPS_VBCKUP_EN_GPIO_Port, GPS_VBCKUP_EN_Pin, GPIO_PIN_SET);
+
+	/*Configure GPIO pins : PBPin PBPin */
+	GPIO_InitStruct.Pin = GPS_VBCKUP_EN_Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(GPS_VBCKUP_EN_GPIO_Port, &GPIO_InitStruct);
+#endif
+}
+
 // Returns the time difference in seconds between ref_time and rtc_time, wrapping if needed
 uint32_t get_wrapped_seconds_diff(uint8_t ref_hour, uint8_t ref_minute, uint8_t ref_second)
 {
@@ -220,8 +237,10 @@ void loop_test() {
             MCP7940.clearAlarm(0);
         }
 }
+
 void App::setup(void)
 {
+	initiateHardware();
 //	TimerInit( &SleepTimeoutTimer, UpTimerEventCallback );
 //	TimerStop( &SleepTimeoutTimer );
 	rtcModuleInit();
