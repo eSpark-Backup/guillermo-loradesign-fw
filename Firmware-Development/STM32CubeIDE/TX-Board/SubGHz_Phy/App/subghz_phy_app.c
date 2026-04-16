@@ -204,7 +204,7 @@ void SubghzApp_Init(void)
   APP_LOG(TS_OFF, VLEVEL_M, "---------------\n\r");
 #if (( USE_MODEM_LORA == 1 ) && ( USE_MODEM_FSK == 0 ))
   APP_LOG(TS_OFF, VLEVEL_M, "LORA_MODULATION\n\r");
-  APP_LOG(TS_OFF, VLEVEL_M, "LORA_BW=%d Hz\n\r", 125000);
+  APP_LOG(TS_OFF, VLEVEL_M, "LORA_BW= (%d) %d Hz\n\r", LORA_BANDWIDTH, (LORA_BANDWIDTH == 0) ? 125000 : (LORA_BANDWIDTH == 1) ? 250000 : (LORA_BANDWIDTH == 2) ? 500000 : 0);
 #elif (( USE_MODEM_LORA == 0 ) && ( USE_MODEM_FSK == 1 ))
   APP_LOG(TS_OFF, VLEVEL_M, "FSK_MODULATION\n\r");
   APP_LOG(TS_OFF, VLEVEL_M, "FSK_BW=%d Hz\n\r", FSK_BANDWIDTH);

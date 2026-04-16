@@ -233,9 +233,9 @@ void loop_test() {
     }
 
     if (MCP7940.isAlarm(0)) {
-            LOG_D("*Alarm 0 Triggered!*\r\n");
-            MCP7940.clearAlarm(0);
-        }
+		LOG_D("*Alarm 0 Triggered!*\r\n");
+		MCP7940.clearAlarm(0);
+	}
 }
 
 void App::setup(void)
@@ -244,8 +244,8 @@ void App::setup(void)
 //	TimerInit( &SleepTimeoutTimer, UpTimerEventCallback );
 //	TimerStop( &SleepTimeoutTimer );
 	rtcModuleInit();
-	//	while(1)
-	//	  loop_test();
+	// while(1)
+	// 	loop_test();
 	
 	
 	// if its first boot than go to sleep as soon as GNSS is locked

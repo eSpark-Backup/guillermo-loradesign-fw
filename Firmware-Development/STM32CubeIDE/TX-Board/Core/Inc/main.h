@@ -46,14 +46,19 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
+
+#define ENABLE_DEBUG_LOGS
+
 #define ENABLE_GNSS_STREAM_DEBUG
 #define DEBUG_PORT       		0
 #define GNSS_STREAM_PORT		1
 #define TRACE_PORT          2
 
-// #define LOG_D printf
-// #define LOG_D(fmt, ...)
- #define LOG_D(fmt, ...)  itm_printf(DEBUG_PORT, fmt, ##__VA_ARGS__)
+#ifdef ENABLE_DEBUG_LOGS
+#define LOG_D(fmt, ...)  itm_printf(DEBUG_PORT, fmt, ##__VA_ARGS__)
+#else
+#define LOG_D(fmt, ...)
+#endif /* ENABLE_DEBUG_LOGS */
 
 /* USER CODE END EM */
 
