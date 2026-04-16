@@ -48,8 +48,8 @@ extern "C" {
 /* USER CODE BEGIN EM */
 
 #define ENABLE_DEBUG_LOGS
-
 #define ENABLE_GNSS_STREAM_DEBUG
+
 #define DEBUG_PORT       		0
 #define GNSS_STREAM_PORT		1
 #define TRACE_PORT          2

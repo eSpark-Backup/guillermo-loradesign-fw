@@ -341,13 +341,14 @@ void GPS::displayInfo(void)
 
 void GPS::setup(RTC_HandleTypeDef* rtc, UART_HandleTypeDef* uart)
 {
-    if(uart && rtc)
+    if(!uart || !rtc)
     {
-        port = uart;
-        rtcMemory = rtc;
-    }
-    else
+        LOG_D("GPS setup failed: UART or RTC handle is null.\r\n");
         return;
+    }
+
+    port = uart;
+    rtcMemory = rtc;
 
     HAL_GPIO_WritePin(GNSS_PWR_GPIO_Port, GNSS_PWR_Pin, GPIO_PIN_SET);
 	HAL_Delay(10);

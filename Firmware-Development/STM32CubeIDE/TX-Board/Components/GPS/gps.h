@@ -11,10 +11,11 @@
 #endif
 
 #define INIT_TIMESTAMPS_GNSS				 		\
-		lastGnssDisplay = HAL_GetTick();	 		\
-		lastStreamProcess = HAL_GetTick();	 		\
-		gnssStreamTimestamp = HAL_GetTick(); 		\
-		validGnssStreamTimestamp = HAL_GetTick(); 	\
+		uint32_t currentTick = HAL_GetTick();		\
+		lastGnssDisplay = currentTick;	 			\
+		lastStreamProcess = currentTick;	 		\
+		gnssStreamTimestamp = currentTick; 			\
+		validGnssStreamTimestamp = currentTick; 	\
 
 #define UART_DMA_REINT_TIMEOUT		1000
 #define VALID_GNSS_SIGNAL_TIMEOUT	30000

@@ -21,7 +21,7 @@ static uint32_t shutoffCount = 0;
 uint32_t shutOffStartTime = 0;
 MCP7940_Class  MCP7940;
 
-static void initiateHardware()
+static void initiateHardware(void)
 {
 #if GNSS_VBACKUP_VIA_MCU
 	GPIO_InitTypeDef GPIO_InitStruct = {0};
@@ -39,13 +39,11 @@ static void initiateHardware()
 }
 
 // Returns the time difference in seconds between ref_time and rtc_time, wrapping if needed
-uint32_t get_wrapped_seconds_diff(uint8_t ref_hour, uint8_t ref_minute, uint8_t ref_second)
+static uint32_t get_wrapped_seconds_diff(uint8_t ref_hour, uint8_t ref_minute, uint8_t ref_second)
 {
 	DateTime now = MCP7940.now();
     uint32_t rtc_seconds = (now.hour() * 3600) + (now.minute() * 60) + now.second();
     uint32_t ref_seconds = (ref_hour * 3600) + (ref_minute * 60) + ref_second;
-    // uint32_t rtc_seconds = rtc->hour * 3600 + rtc->minute * 60 + rtc->second;
-    // uint32_t ref_seconds = ref_hour * 3600 + ref_minute * 60 + ref_second;
 
     if (ref_seconds >= rtc_seconds) {
         return ref_seconds - rtc_seconds;
@@ -54,7 +52,7 @@ uint32_t get_wrapped_seconds_diff(uint8_t ref_hour, uint8_t ref_minute, uint8_t 
     }
 }
 
-void generatePayload(uint8_t* buffer, uint32_t size)
+static void generatePayload(uint8_t* buffer, uint32_t size)
 {
 	char* payload = (char*) buffer;
 
@@ -197,6 +195,19 @@ void setRtcTime()
                currentTime.hour(), currentTime.minute(), currentTime.second());
 }
 
+static void printCurrentRtcTime(void)
+{
+	static uint8_t secs = 0;
+    DateTime now = MCP7940.now();  // Get the current time
+
+    if (secs != now.second()) {
+        secs = now.second();
+        LOG_D("Current RTC time: %04d-%02d-%02d %02d:%02d:%02d\r\n",
+                       now.year(), now.month(), now.day(),
+                       now.hour(), now.minute(), now.second());
+    }
+}
+
 void rtcModuleInit() {
     // Initialize I2C communication with RTC module
     while (!MCP7940.begin()) {
@@ -219,18 +230,12 @@ void rtcModuleInit() {
     //            compileTime.hour(), compileTime.minute(), compileTime.second());
 
     MCP7940.setAlarmPolarity(false);
+
+	printCurrentRtcTime();
 }
 
 void loop_test() {
-    static uint8_t secs = 0;
-    DateTime now = MCP7940.now();  // Get the current time
-
-    if (secs != now.second()) {
-        secs = now.second();
-        LOG_D("Current RTC time: %04d-%02d-%02d %02d:%02d:%02d\r\n",
-                       now.year(), now.month(), now.day(),
-                       now.hour(), now.minute(), now.second());
-    }
+    printCurrentRtcTime();
 
     if (MCP7940.isAlarm(0)) {
 		LOG_D("*Alarm 0 Triggered!*\r\n");
@@ -246,7 +251,8 @@ void App::setup(void)
 	rtcModuleInit();
 	// while(1)
 	// 	loop_test();
-	
+
+	// ------ RETRIEVE DATA FROM FLASH TO RAM TO DECIDE WHETHER TO TURN ON GNSS OR NOT ------
 	
 	// if its first boot than go to sleep as soon as GNSS is locked
 	// if its boot from rtc wakeup signal than proceed to listen for HELLO signal

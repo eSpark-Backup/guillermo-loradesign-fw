@@ -70,6 +70,7 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 void itm_printf(uint32_t port, const char* format, ...) {
+#ifdef ENABLE_DEBUG_LOGS
     char buffer[256]; // Temporary buffer for formatted string
     va_list args;
     va_start(args, format);
@@ -79,11 +80,16 @@ void itm_printf(uint32_t port, const char* format, ...) {
     for (int i = 0; i < length; ++i) {
         ITM_SendChar(port, (uint8_t)buffer[i]);
     }
+#endif /* ENABLE_DEBUG_LOGS */
 }
 
 int putchar(int c)
 {
+#ifdef ENABLE_DEBUG_LOGS
     return ITM_SendChar( DEBUG_PORT, (uint8_t)c );
+#else
+    return 1;
+#endif /* ENABLE_DEBUG_LOGS */
 }
 
 /* USER CODE END 0 */
@@ -120,7 +126,7 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_USART1_UART_Init();
-//  MX_RTC_Init();
+  MX_RTC_Init();
   MX_SubGHz_Phy_Init();
   MX_I2C3_Init();
   /* USER CODE BEGIN 2 */
