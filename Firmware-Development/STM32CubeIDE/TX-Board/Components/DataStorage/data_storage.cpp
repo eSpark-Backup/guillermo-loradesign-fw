@@ -1,7 +1,7 @@
-#include "flash_data.h"
 #include "gps.h"   // FlashData_t definition
 #include "app.h"   // DAY definition
 #include <string.h>  // for memcpy
+#include "data_storage.h"
 
 
 void Flash_Write(uint32_t address, uint64_t data)

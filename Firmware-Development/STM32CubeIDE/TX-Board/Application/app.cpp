@@ -10,8 +10,9 @@
 #include "radio.h"
 #include "timer.h"
 #include "MCP7940.h"
-#include "flash_data.h"
 #include <cstdio>
+#include "data_storage.h"
+
 
 BoardState state = BOOTUP_STATE;
 

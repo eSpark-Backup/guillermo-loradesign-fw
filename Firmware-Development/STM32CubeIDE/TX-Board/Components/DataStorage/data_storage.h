@@ -2,7 +2,7 @@
 #define FLASHDATA_H
 
 #include <stdint.h>
-#include "stm32wlxx_hal.h"
+// #include "stm32wlxx_hal.h"
 
 // Pull in the project's canonical type definitions.
 // (Avoid re-defining these types here to prevent conflicts.)

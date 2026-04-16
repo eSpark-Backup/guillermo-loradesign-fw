@@ -46,7 +46,8 @@ MEMORY
 {
   RAM1   (xrw)   : ORIGIN = 0x20000000, LENGTH = 16K
   RAM2   (xrw)   : ORIGIN = 0x20008000, LENGTH = 32K
-  FLASH   (rx)   : ORIGIN = 0x08000000, LENGTH = 128K
+  FLASH   (rx)   : ORIGIN = 0x08000000, LENGTH = 120K		/* Last 4 pages reserved for user data */
+  USER_DATA (r)  : ORIGIN = 0x0801D800, LENGTH = 8K		  /* Last 4 pages reserved for user data */
 }
 
 /* Sections */

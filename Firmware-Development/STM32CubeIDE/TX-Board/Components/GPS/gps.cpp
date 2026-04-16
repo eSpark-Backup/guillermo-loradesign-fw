@@ -1,7 +1,8 @@
 #include "gps.h"
 #include "rtc.h"
 #include "app.h"
-#include "flash_data.h"
+#include "data_storage.h"
+
 
 static inline void apply_timezone_offset(FlashData_t* data, int tz_hour, int tz_minute) {
     int y = data->year;
