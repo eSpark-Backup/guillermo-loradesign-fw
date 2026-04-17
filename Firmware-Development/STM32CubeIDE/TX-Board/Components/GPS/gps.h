@@ -57,12 +57,15 @@ typedef struct __attribute__((packed, aligned(8))) {
     uint8_t 	minute;         // 1 byte
     uint8_t 	second;         // 1 byte
     uint8_t 	centisecond;    // 1 byte
-} FlashData_t;
+} Storage_data_t;
+
+
+void apply_timezone_offset(Storage_data_t* data, int tz_hour, int tz_minute);
 
 class GPS
 {
 public:
-	void setup(RTC_HandleTypeDef* rtc, UART_HandleTypeDef* uart);
+	void setup(UART_HandleTypeDef* uart);
 	void loop(void);
 	void displayInfo();
 	static bool has3DFix();
@@ -70,20 +73,17 @@ public:
 	static void processGpsStream(void);
 
 	static void processData(uint8_t *data, uint16_t len);
-	// static void processData(UART_HandleTypeDef *huart);
 
 //	static void getGnssData(RtcData_t* data);
 //	static void setGnssData(RtcData_t* data);
 //	static void rtcOperation(RtcOperation opr, uint32_t adr, uint32_t* data);
 
-	static void getGnssData(FlashData_t* data);
-	static void setGnssData(FlashData_t* data);
+	static void getGnssData(Storage_data_t* data);
+	static void setGnssData(Storage_data_t* data);
 
 	static UART_HandleTypeDef* port;
-	static RTC_HandleTypeDef* rtcMemory;
 	static TinyGPSPlus gps;
-//	static RtcData_t gnssData;
-	static FlashData_t gnssData;
+	static Storage_data_t gnssData;
 
 	static uint32_t lastGnssDisplay;
 	static uint32_t lastStreamProcess;

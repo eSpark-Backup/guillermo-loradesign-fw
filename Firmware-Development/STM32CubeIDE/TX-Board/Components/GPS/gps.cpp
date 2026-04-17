@@ -4,80 +4,34 @@
 #include "data_storage.h"
 
 
-static inline void apply_timezone_offset(FlashData_t* data, int tz_hour, int tz_minute) {
-    int y = data->year;
-    int mo = data->month;
-    int d = data->day;
-    int h = data->hour;
-    int m = data->minute + tz_minute;
-    int s = data->second;
 
-    h += tz_hour + m / 60;
-    m %= 60;
-    if (m < 0) { m += 60; h -= 1; }
-
-    d += h / 24;
-    h %= 24;
-    if (h < 0) { h += 24; d -= 1; }
-
-    static const uint8_t daysInMonth[] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
-
-    while (1) {
-        if (d < 1) {
-            mo -= 1;
-            if (mo < 1) { mo = 12; y -= 1; }
-            bool leap = (y % 4 == 0 && (y % 100 != 0 || y % 400 == 0));
-            int max_day = daysInMonth[mo - 1];
-            if (leap && mo == 2) max_day = 29;
-            d += max_day;
-        } else {
-            bool leap = (y % 4 == 0 && (y % 100 != 0 || y % 400 == 0));
-            int max_day = daysInMonth[mo - 1];
-            if (leap && mo == 2) max_day = 29;
-            if (d > max_day) {
-                d -= max_day;
-                mo += 1;
-                if (mo > 12) { mo = 1; y += 1; }
-            } else break;
-        }
-    }
-
-    data->year = y;
-    data->month = mo;
-    data->day = d;
-    data->hour = h;
-    data->minute = m;
-    // data->second and centisecond are unchanged
-}
-
-
-#define IS_UPDATED_LOCATION() \
-    ({ bool _updated = gps.location.isUpdated(); \
-       if (_updated) { \
-           gnssData.latitude = gps.location.lat(); \
+#define IS_UPDATED_LOCATION()                       \
+    ({ bool _updated = gps.location.isUpdated();    \
+       if (_updated) {                              \
+           gnssData.latitude = gps.location.lat();  \
            gnssData.longitude = gps.location.lng(); \
        } \
        _updated; })
 
-#define IS_UPDATED_ALTITUDE() \
-    ({ bool _updated = gps.altitude.isUpdated(); \
-       if (_updated) { \
-    	   gnssData.altitude = gps.altitude.meters(); \
-       } \
+#define IS_UPDATED_ALTITUDE()                           \
+    ({ bool _updated = gps.altitude.isUpdated();        \
+       if (_updated) {                                  \
+    	   gnssData.altitude = gps.altitude.meters();   \
+       }                                                \
        _updated; })
 
-#define IS_UPDATED_DATE() \
-    ({ bool _updated = gps.date.isUpdated(); \
-        if (_updated) { \
-            gnssData.day = gps.date.day(); \
-            gnssData.month = gps.date.month(); \
-            gnssData.year = gps.date.year(); \
-            gnssData.hour = gps.time.hour(); \
-            gnssData.minute = gps.time.minute(); \
-            gnssData.second = gps.time.second(); \
-            gnssData.centisecond = gps.time.centisecond(); \
+#define IS_UPDATED_DATE()                                   \
+    ({ bool _updated = gps.date.isUpdated();                \
+        if (_updated) {                                     \
+            gnssData.day = gps.date.day();                  \
+            gnssData.month = gps.date.month();              \
+            gnssData.year = gps.date.year();                \
+            gnssData.hour = gps.time.hour();                \
+            gnssData.minute = gps.time.minute();            \
+            gnssData.second = gps.time.second();            \
+            gnssData.centisecond = gps.time.centisecond();  \
             apply_timezone_offset(&gnssData, TIMEZONE_HOUR_OFFSET, TIMEZONE_MINUTE_OFFSET); \
-        } \
+        }                                                   \
         _updated; })
 
 // #define IS_UPDATED_TIME() \
@@ -96,9 +50,8 @@ static inline void apply_timezone_offset(FlashData_t* data, int tz_hour, int tz_
 
 
 UART_HandleTypeDef* GPS::port = NULL;
-RTC_HandleTypeDef* GPS::rtcMemory = NULL;
 TinyGPSPlus GPS::gps;
-FlashData_t GPS::gnssData;
+Storage_data_t GPS::gnssData;
 
 #define GPS_RX_BUFFER_SIZE 1024
 
@@ -112,20 +65,15 @@ uint64_t GPS::validGnssStreamTimestamp = 0;
 
 bool GPS::gnssSignalReceived = false;
 
-void GPS::getGnssData(FlashData_t* data)
+void GPS::getGnssData(Storage_data_t* data)
 {
-    // Persistent storage moved from RTC backup registers to internal flash.
-    // This survives PWR_EnterOffMode resets.
-    Flash_ReadGnssData(data);
+   storage_get_metadata(data);
 }
 
-void GPS::setGnssData(FlashData_t* data)
+void GPS::setGnssData(Storage_data_t* data)
 {
-    // Persistent storage moved from RTC backup registers to internal flash.
-    Flash_WriteGnssData(data);
+   storage_set_metadata(data);
 }
-
-
 
 void GPS::processGpsStream(void)
 {
@@ -183,86 +131,6 @@ bool GPS::has3DFix()
     return false;
 }
 
-
-//void GPS::processData(uint8_t *data, uint16_t len)
-//{
-//
-//    for (uint16_t i = 0; i < len; i++) {
-//        gps.encode(data[i]);
-//        LOG_GNSS_STREAM("%c", data[i]);
-//    }
-//
-//    bool locUpdated  = IS_UPDATED_LOCATION();
-//    bool dateUpdated = IS_UPDATED_DATE();
-//    bool altUpdated  = IS_UPDATED_ALTITUDE();
-//
-//    if (locUpdated && dateUpdated && has3DFix()) {
-//        setGnssData(&gnssData);
-//
-//        uint32_t val;
-//        rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &val);
-//        if (val != GNSS_LOCK_FLAG) {
-//            val = GNSS_LOCK_FLAG;
-//            rtcOperation(STORE, GNSS_LOCK_FLAG_ADDR, &val);
-//        }
-//
-//        gnssSignalReceived = true;
-//
-//    }
-//
-//
-////	previous logic with altitude
-//	/*    for (uint16_t i = 0; i < len; i++)
-//    {
-//        gps.encode(data[i]);
-//        LOG_GNSS_STREAM("%c", data[i]);
-//    }
-//
-//    bool locUpdated  = IS_UPDATED_LOCATION();
-//    bool dateUpdated = IS_UPDATED_DATE();
-//    bool altUpdated  = IS_UPDATED_ALTITUDE();   // <--- NEW
-//    // bool timeUpdated = IS_UPDATED_TIME();
-//
-//    if (locUpdated && dateUpdated && altUpdated)
-//    {
-//        setGnssData(&gnssData);
-//
-//        uint32_t val;
-//        rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &val);
-//        if (val != GNSS_LOCK_FLAG)
-//        {
-//            val = GNSS_LOCK_FLAG;
-//            rtcOperation(STORE, GNSS_LOCK_FLAG_ADDR, &val);
-//        }
-//
-//        gnssSignalReceived = true;
-//    }*/
-//
-//
-//    // else if((HAL_GetTick() - validGnssStreamTimestamp > VALID_GNSS_SIGNAL_TIMEOUT) && !gnssSignalThresholdExceeded)
-//    // {
-//    //     LOG_D("Valid gnss signal not received and threshold exceeded.\r\n");
-//    //     gnssSignalThresholdExceeded = true;
-//    //     uint32_t val;
-//    //     rtcOperation(RETRIEVE, GNSS_LOCK_FLAG_ADDR, &val);
-//    //     if(val == GNSS_LOCK_FLAG)
-//    //     {
-//    //         LOG_D("Using previous stored Coordinates.\r\n");
-//    //         getGnssData(&gnssData);
-//    //     }
-//    // }
-//
-//    // RtcData_t readOut;
-//    // getGnssData(&readOut);
-//    // LOG_GNSS_STREAM("%.6f,%.6f   XX  ", readOut.latitude, readOut.longitude);
-//    // LOG_GNSS_STREAM("%02d/%02d/%04d ", readOut.month, readOut.day, readOut.year);
-//    // LOG_GNSS_STREAM("%02d:%02d:%02d.%02d\r\n",
-//    //     readOut.hour,
-//    //     readOut.minute,
-//    //     readOut.second,
-//    //     readOut.centisecond);
-//}
-
 void GPS::processData(uint8_t *data, uint16_t len)
 {
 	for (uint16_t i = 0; i < len; i++)
@@ -276,10 +144,13 @@ void GPS::processData(uint8_t *data, uint16_t len)
     bool altUpdated  = IS_UPDATED_ALTITUDE();
     // bool timeUpdated = IS_UPDATED_TIME();
 
-//    if( locUpdated &&
-//        dateUpdated &&
-//        altUpdated )
-//    {
+    // if( locUpdated ||
+    //     dateUpdated ||
+    //     altUpdated )
+    // {
+    //     setGnssData(&gnssData);
+    // }
+
 	if (has3DFix() && gps.date.isValid())
 	{
         // IMPORTANT: Flash has limited erase/program cycles. Avoid writing on
@@ -287,7 +158,7 @@ void GPS::processData(uint8_t *data, uint16_t len)
         if(!gnssSignalReceived)
         {
             setGnssData(&gnssData);
-            Flash_WriteGnssLockFlag(GNSS_LOCK_FLAG);
+//            Flash_WriteGnssLockFlag(GNSS_LOCK_FLAG);
         }
         gnssSignalReceived = true;
     }
@@ -296,7 +167,7 @@ void GPS::processData(uint8_t *data, uint16_t len)
 
 void GPS::displayInfo(void)
 {
-    LOG_D("\nLocation: ");
+    LOG_D("Location: ");
     if (gps.location.isValid())
     {
         LOG_D("%.6f, %.6f", gnssData.latitude, gnssData.longitude);
@@ -307,14 +178,14 @@ void GPS::displayInfo(void)
     }
 
     LOG_D("  Altitude: ");
-        if (gps.altitude.isValid())
-        {
-        	LOG_D("%.2f m", gnssData.altitude);
-        }
-        else
-        {
-            LOG_D("INVALID");
-        }
+    if (gps.altitude.isValid())
+    {
+        LOG_D("%.2f m", gnssData.altitude);
+    }
+    else
+    {
+        LOG_D("INVALID");
+    }
 
     LOG_D("  Date/Time: ");
     if (gps.date.isValid())
@@ -340,16 +211,15 @@ void GPS::displayInfo(void)
     }
 }
 
-void GPS::setup(RTC_HandleTypeDef* rtc, UART_HandleTypeDef* uart)
+void GPS::setup(UART_HandleTypeDef* uart)
 {
-    if(!uart || !rtc)
+    if(!uart)
     {
-        LOG_D("GPS setup failed: UART or RTC handle is null.\r\n");
+        LOG_D("GPS setup failed: UART handle is null.\r\n");
         return;
     }
 
     port = uart;
-    rtcMemory = rtc;
 
     HAL_GPIO_WritePin(GNSS_PWR_GPIO_Port, GNSS_PWR_Pin, GPIO_PIN_SET);
 	HAL_Delay(10);
@@ -362,6 +232,8 @@ void GPS::setup(RTC_HandleTypeDef* rtc, UART_HandleTypeDef* uart)
     HAL_UART_Receive_DMA(port, gpsRxBuffer, GPS_RX_BUFFER_SIZE);
 
     INIT_TIMESTAMPS_GNSS;
+
+    getGnssData(&gnssData);
 }
 
 void GPS::loop(void)
