@@ -18,33 +18,19 @@
 		validGnssStreamTimestamp = currentTick; 	\
 
 #define UART_DMA_REINT_TIMEOUT		1000
-#define VALID_GNSS_SIGNAL_TIMEOUT	30000
+// #define VALID_GNSS_SIGNAL_TIMEOUT	30000
 
-#define GNSS_LOCK_FLAG		  0x9669
+// #define GNSS_LOCK_FLAG		  0x9669
 //#define GNSS_LOCK_FLAG_ADDR   RTC_BKP_DR0
-#define RTC_BKP_BASE_ADDR     RTC_BKP_DR14   // Starting from DR14
+// #define RTC_BKP_BASE_ADDR     RTC_BKP_DR14   // Starting from DR14
 //#define RTC_BKP_WORD_COUNT    8              // 8 x 4-byte backup registers
-#define FLASH_BKP_WORD_COUNT    8              // 8 x 4-byte backup registers
+// #define FLASH_BKP_WORD_COUNT    8              // 8 x 4-byte backup registers
 
 //enum RtcOperation
 //{
 //	STORE,
 //	RETRIEVE,
 //};
-
-//typedef struct __attribute__((packed, aligned(1))) {
-//    double longitude;      // 8 bytes
-//    double latitude;       // 8 bytes
-//    double altitude;
-//    uint8_t day;           // 1 byte
-//    uint8_t month;         // 1 byte
-//    uint16_t year;         // 2 bytes
-//    uint8_t hour;          // 1 byte
-//    uint8_t minute;       // 1 byte
-//    uint8_t second;       // 1 byte
-//    uint8_t centisecond;  // 1 byte
-//} RtcData_t;
-
 
 typedef struct __attribute__((packed, aligned(8))) {
     double 		longitude;      // 8 bytes

@@ -94,7 +94,7 @@ void PWR_EnterOffMode(void)
   HAL_SuspendTick();
   /* Clear Status Flag before entering STOP/STANDBY Mode */
   LL_PWR_ClearFlag_C1STOP_C1STB();
-//  LL_PWR_ClearFlag_WU();
+  LL_PWR_ClearFlag_WU();
   HAL_PWREx_EnterSHUTDOWNMode();
   /* USER CODE END EnterOffMode_1 */
 }
@@ -105,69 +105,6 @@ void PWR_ExitOffMode(void)
 	// This won't be called as the MCU will get restarted
   /* USER CODE END ExitOffMode_1 */
 }
-
-
-//void PWR_EnterOffMode(void)
-//{
-//  /* USER CODE BEGIN EnterOffMode_1 */
-//	/* USER CODE BEGIN EnterOffMode_1 */
-////	  HAL_DBGMCU_DisableDBGSleepMode();
-////	  HAL_DBGMCU_DisableDBGStopMode();
-////	  HAL_DBGMCU_DisableDBGStandbyMode();
-////
-////	  HAL_PWREx_EnableGPIOPullUp(PWR_GPIO_B, GPIO_PIN_All);
-////	  HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_B, GPIO_PIN_0);
-////	  HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_B, GNSS_PWR_Pin);
-////	//  HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_B, GPIO_PIN_8);
-////	//  	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_A, GPIO_PIN_All);
-////	//  HAL_PWREx_EnableGPIOPullUp(PWR_GPIO_A, GPIO_PIN_7);
-////
-////	  HAL_PWREx_EnablePullUpPullDownConfig();
-////
-////	 __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
-////	  HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN1_LOW);
-////	  HAL_SuspendTick();
-////	  /* Clear Status Flag before entering STOP/STANDBY Mode */
-////	  LL_PWR_ClearFlag_C1STOP_C1STB();
-////	  LL_PWR_ClearFlag_WU();
-////	  HAL_PWREx_EnterSHUTDOWNMode();
-//	  /* USER CODE END EnterOffMode_1 */
-//
-//	HAL_DBGMCU_DisableDBGSleepMode();
-//	HAL_DBGMCU_DisableDBGStopMode();
-//	HAL_DBGMCU_DisableDBGStandbyMode();
-//
-////	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_A, LED1_Pin);
-////	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_A, LED2_Pin);
-//	  HAL_PWREx_EnableGPIOPullUp(PWR_GPIO_B, GPIO_PIN_All);
-//	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_B, GNSS_PWR_Pin);
-//	  HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_B, GPIO_PIN_0);
-//
-////	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_A, GNSS_RESET_Pin);
-//	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_A, GPIO_PIN_All);
-////	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_B, GPIO_PIN_All);
-////	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_C, GPIO_PIN_All);
-////	HAL_PWREx_EnableGPIOPullDown(PWR_GPIO_H, GPIO_PIN_All);
-//	HAL_PWREx_EnablePullUpPullDownConfig();
-//	__HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
-//	HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN1);
-//	HAL_SuspendTick();
-//  /* Clear Status Flag before entering STOP/STANDBY Mode */
-//  LL_PWR_ClearFlag_C1STOP_C1STB();
-//  LL_PWR_ClearFlag_WU();
-//	HAL_PWREx_EnterSHUTDOWNMode();
-//  /* USER CODE END EnterOffMode_1 */
-//}
-//
-//void PWR_ExitOffMode(void)
-//{
-//  /* USER CODE BEGIN ExitOffMode_1 */
-//
-//  void SystemClock_Config(void);
-//  SystemClock_Config();
-//  HAL_ResumeTick();
-//  /* USER CODE END ExitOffMode_1 */
-//}
 
 void PWR_EnterStopMode(void)
 {

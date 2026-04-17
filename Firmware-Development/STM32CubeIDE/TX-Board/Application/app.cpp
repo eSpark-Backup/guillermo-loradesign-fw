@@ -163,7 +163,6 @@ void sleep(uint32_t timeout)
 	PWR_ExitOffMode();
 
 	LOG_D("Starts Receiving Data\r\n");
-	// Radio.Rx(0xFFFFFFFF);
 	Radio.Rx(RCV_TIMEOUT_VALUE);
 }
 
@@ -181,12 +180,8 @@ extern "C" void receiveTimeout(void)
 		{
 			LOG_D("Hour threshold exceeded. ");
 			LOG_D("Sleeping for a day\r\n");
-			// storage_set_sleep_state(DAY_SLEEP_STATE);
-			// sleep(DAY_SLEEP_TIMEOUT);
-
-			// TEST ----------- REMOVE BEFORE FINALIZING
-			storage_set_sleep_state(SHORT_SLEEP_STATE);
-			sleep(SHORT_SLEEP_TIMEOUT);
+			storage_set_sleep_state(DAY_SLEEP_STATE);
+			sleep(DAY_SLEEP_TIMEOUT);
 		}
 		else
 		{
@@ -220,8 +215,7 @@ extern "C" void dataReceived(char* buffer, uint32_t size)
 	{
 		LOG_D("Sleeping for a day\r\n");
 		state = BOOTUP_STATE;
-		uint32_t val = DAY_SLEEP_STATE;
-//		Flash_WriteSleepState(val);
+		storage_set_sleep_state(DAY_SLEEP_STATE);
 		sleep(DAY_SLEEP_TIMEOUT);
 	}
 	else if(strcmp(buffer, PING_MESSAGE) == 0)
@@ -305,6 +299,11 @@ void loop_test() {
     if (MCP7940.isAlarm(0)) {
 		LOG_D("*Alarm 0 Triggered!*\r\n");
 		MCP7940.clearAlarm(0);
+
+		DateTime now = MCP7940.now();
+		DateTime alarmTime = now + TimeSpan(SHORT_SLEEP_TIMEOUT/1000);
+
+		MCP7940.setAlarm(0, matchAll, alarmTime, true);  // Set one-time alarm
 	}
 }
 
@@ -342,6 +341,7 @@ void App::setup(void)
 	rtcModuleInit();
 //	TimerInit( &SleepTimeoutTimer, UpTimerEventCallback );
 //	TimerStop( &SleepTimeoutTimer );
+
 	// while(1)
 	// 	loop_test();
 
@@ -389,7 +389,6 @@ void App::setup(void)
 
 	if(firstBoot)
 	{
-		// uint32_t val = DAY_SLEEP_STATE;
 		storage_set_sleep_state(DAY_SLEEP_STATE);
 		sleep(DAY_SLEEP_TIMEOUT);
 	}
@@ -412,8 +411,7 @@ void App::loop(void)
 		{
 			LOG_D("Sleeping for a day\r\n");
 			state = BOOTUP_STATE;
-			uint32_t val = DAY_SLEEP_STATE;
-//			Flash_WriteSleepState(val);
+			storage_set_sleep_state(DAY_SLEEP_STATE);
 			sleep(DAY_SLEEP_TIMEOUT);
 		}
 		else if( ( (currentTime - shutOffStartTime) / 5000U ) > shutoffCount)
