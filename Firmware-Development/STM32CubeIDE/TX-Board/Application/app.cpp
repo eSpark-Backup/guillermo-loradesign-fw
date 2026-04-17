@@ -16,7 +16,7 @@
 BoardState state = BOOTUP_STATE;
 
 static GPS gps;
-//TimerEvent_t SleepTimeoutTimer;
+TimerEvent_t SleepTimeoutTimer;
 static uint32_t shutoffCount = 0;
 uint32_t shutOffStartTime = 0;
 MCP7940_Class  MCP7940;
@@ -143,7 +143,7 @@ void sleep(uint32_t timeout)
 	extern TimerEvent_t TxTimeoutTimer;
 	TimerStop( &RxTimeoutTimer );
 	TimerStop( &TxTimeoutTimer );
-//	TimerStop( &SleepTimeoutTimer );
+	TimerStop( &SleepTimeoutTimer );
 
 	extern SUBGHZ_HandleTypeDef hsubghz;
 	HAL_SUBGHZ_DeInit(&hsubghz);
@@ -265,7 +265,8 @@ void rtcModuleInit() {
     }
 
 	uint32_t state = storage_get_sleep_state();
-	if(state == STORAGE_DEFAULT_SLEEP_STATE)
+	DateTime now = MCP7940.now();
+	if(state == STORAGE_DEFAULT_SLEEP_STATE || (now.year() < 2026))
 	{
 		// If first boot, set the RTC module to the compile time
 		DateTime compileTime(__DATE__, __TIME__);
@@ -339,8 +340,8 @@ void App::setup(void)
 	storage_print_metadata();
 	initiateHardware();
 	rtcModuleInit();
-//	TimerInit( &SleepTimeoutTimer, UpTimerEventCallback );
-//	TimerStop( &SleepTimeoutTimer );
+	TimerInit( &SleepTimeoutTimer, UpTimerEventCallback );
+	TimerStop( &SleepTimeoutTimer );
 
 	// while(1)
 	// 	loop_test();
